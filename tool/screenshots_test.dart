@@ -103,4 +103,12 @@ void main() {
     await shoot('allenati');
     await disposeRitmo(tester, db);
   });
+
+  testWidgets('progressi', (tester) async {
+    await tester.runAsync(() => seedHistory(db));
+    await pumpRitmo(tester, db);
+    await openTab(tester, 'Progressi');
+    await shoot('progressi');
+    await disposeRitmo(tester, db);
+  });
 }
