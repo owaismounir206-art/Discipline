@@ -1,0 +1,426 @@
+// Ritmo — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Ritmo contributors
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+import 'dart:async';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:meta/meta.dart';
+
+import '../../../core/data/providers.dart';
+import '../../../core/utils/local_date.dart';
+import '../../exercises/domain/catalog.dart';
+import '../../exercises/domain/exercise.dart';
+import '../../exercises/domain/progression.dart';
+import '../../profile/data/profile_repository.dart';
+import '../../profile/domain/athlete_profile.dart';
+import '../domain/workout_plan.dart';
+import 'session_feedback.dart';
+import 'today_plan.dart';
+import 'workout_repository.dart';
+
+/// Un esercizio della sessione con le serie fatte.
+@immutable
+class SessionExercise {
+  const SessionExercise({
+    required this.planned,
+    required this.exercise,
+    this.done = const [],
+  });
+
+  final PlannedExercise planned;
+
+  /// Variante in uso (può cambiare con "Più facile" / "Più difficile").
+  final Exercise exercise;
+
+  /// Serie fatte: variante usata e valore.
+  final List<({String exerciseId, int value})> done;
+
+  int get setsDone => done.length;
+  bool get complete => setsDone >= planned.sets;
+
+  SessionExercise copyWith({
+    Exercise? exercise,
+    List<({String exerciseId, int value})>? done,
+  }) => SessionExercise(
+    planned: planned,
+    exercise: exercise ?? this.exercise,
+    done: done ?? this.done,
+  );
+}
+
+enum TimerMode {
+  /// Pronto per la serie.
+  ready,
+
+  /// Recupero tra le serie.
+  rest,
+
+  /// Tenuta in corso (esercizi a tempo).
+  hold,
+}
+
+@immutable
+class SessionState {
+  const SessionState({
+    required this.template,
+    required this.difficulty,
+    required this.exercises,
+    required this.index,
+    required this.value,
+    required this.startedAt,
+    required this.elapsed,
+    this.sessionId,
+    this.mode = TimerMode.ready,
+    this.timerTotal = 0,
+    this.timerSeconds = 0,
+    this.finished = false,
+    this.suggestions = const [],
+  });
+
+  final WorkoutTemplate template;
+  final Difficulty difficulty;
+  final List<SessionExercise> exercises;
+
+  /// Esercizio attuale.
+  final int index;
+
+  /// Valore della serie in corso (ripetizioni o secondi).
+  final int value;
+
+  final DateTime startedAt;
+
+  /// Secondi trascorsi dall'inizio.
+  final int elapsed;
+  final int? sessionId;
+
+  final TimerMode mode;
+
+  /// Durata del recupero (in [TimerMode.rest]).
+  final int timerTotal;
+
+  /// Secondi rimanenti di recupero, o secondi di tenuta.
+  final int timerSeconds;
+
+  final bool finished;
+
+  /// Proposte di progressione calcolate alla fine.
+  final List<ProgressionSuggestion> suggestions;
+
+  SessionExercise get current => exercises[index];
+
+  SessionExercise? get next =>
+      index + 1 < exercises.length ? exercises[index + 1] : null;
+
+  int get plannedSets => exercises.fold(0, (s, e) => s + e.planned.sets);
+
+  int get completedSets => exercises.fold(0, (s, e) => s + e.setsDone);
+
+  double get progress => plannedSets == 0 ? 0 : completedSets / plannedSets;
+
+  int get totalReps => exercises.fold(
+    0,
+    (s, e) =>
+        s +
+        (e.exercise.measure == Measure.reps
+            ? e.done.fold(0, (a, d) => a + d.value)
+            : 0),
+  );
+
+  SessionState copyWith({
+    List<SessionExercise>? exercises,
+    int? index,
+    int? value,
+    int? elapsed,
+    int? sessionId,
+    TimerMode? mode,
+    int? timerTotal,
+    int? timerSeconds,
+    bool? finished,
+    List<ProgressionSuggestion>? suggestions,
+  }) => SessionState(
+    template: template,
+    difficulty: difficulty,
+    exercises: exercises ?? this.exercises,
+    index: index ?? this.index,
+    value: value ?? this.value,
+    startedAt: startedAt,
+    elapsed: elapsed ?? this.elapsed,
+    sessionId: sessionId ?? this.sessionId,
+    mode: mode ?? this.mode,
+    timerTotal: timerTotal ?? this.timerTotal,
+    timerSeconds: timerSeconds ?? this.timerSeconds,
+    finished: finished ?? this.finished,
+    suggestions: suggestions ?? this.suggestions,
+  );
+}
+
+/// Valore iniziale proposto per una serie: il massimo dell'intervallo per
+/// le ripetizioni (si abbassa se serve), zero per le tenute.
+int defaultValue(Exercise e) => e.measure == Measure.reps ? e.range.max : 0;
+
+class SessionController extends Notifier<SessionState?> {
+  Timer? _ticker;
+
+  SessionFeedback get _feedback => ref.read(sessionFeedbackProvider);
+  WorkoutRepository get _repo => ref.read(workoutRepositoryProvider);
+  DateTime _now() => ref.read(clockProvider)();
+
+  @override
+  SessionState? build() {
+    final feedback = ref.read(sessionFeedbackProvider);
+    ref.onDispose(() {
+      _ticker?.cancel();
+      feedback.keepScreenOn(false);
+    });
+    return null;
+  }
+
+  /// Avvia una sessione della scheda indicata con le varianti attuali.
+  Future<void> start(WorkoutTemplate template) async {
+    final profile = await ref.read(profileRepositoryProvider).loadProfile();
+    final chains = await ref.read(profileRepositoryProvider).loadChains();
+    if (profile == null || chains.isEmpty) return;
+    final plan = buildWorkout(
+      template: template,
+      positions: {for (final e in chains.entries) e.key: e.value.position},
+      difficulty: profile.difficulty,
+    );
+    final now = _now();
+    final first = plan.exercises.first.exercise;
+    state = SessionState(
+      template: template,
+      difficulty: profile.difficulty,
+      exercises: [
+        for (final p in plan.exercises)
+          SessionExercise(planned: p, exercise: p.exercise),
+      ],
+      index: 0,
+      value: defaultValue(first),
+      startedAt: now,
+      elapsed: 0,
+    );
+    final id = await _repo.startSession(
+      date: LocalDate.fromDateTime(now),
+      template: template,
+      plannedSets: plan.totalSets,
+      now: now,
+    );
+    state = state?.copyWith(sessionId: id);
+    await _feedback.keepScreenOn(true);
+    _ticker?.cancel();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) => tick());
+  }
+
+  /// Avanza di un secondo (chiamato dal timer; pubblico per i test).
+  void tick() {
+    final s = state;
+    if (s == null || s.finished) return;
+    var next = s.copyWith(elapsed: s.elapsed + 1);
+    switch (s.mode) {
+      case TimerMode.rest:
+        final left = s.timerSeconds - 1;
+        if (left <= 0) {
+          next = next.copyWith(mode: TimerMode.ready, timerSeconds: 0);
+          unawaited(_feedback.restFinished());
+        } else {
+          next = next.copyWith(timerSeconds: left);
+        }
+      case TimerMode.hold:
+        next = next.copyWith(
+          timerSeconds: s.timerSeconds + 1,
+          value: s.timerSeconds + 1,
+        );
+      case TimerMode.ready:
+        break;
+    }
+    state = next;
+  }
+
+  void setValue(int value) {
+    final s = state;
+    if (s == null) return;
+    state = s.copyWith(value: value.clamp(0, 999));
+  }
+
+  void adjustRest(int seconds) {
+    final s = state;
+    if (s == null || s.mode != TimerMode.rest) return;
+    final left = (s.timerSeconds + seconds).clamp(0, 600);
+    state = left == 0
+        ? s.copyWith(mode: TimerMode.ready, timerSeconds: 0)
+        : s.copyWith(
+            timerSeconds: left,
+            timerTotal: (s.timerTotal + seconds).clamp(left, 600),
+          );
+  }
+
+  void skipRest() {
+    final s = state;
+    if (s == null || s.mode != TimerMode.rest) return;
+    state = s.copyWith(mode: TimerMode.ready, timerSeconds: 0);
+  }
+
+  /// Avvia o ferma il cronometro di una tenuta (plank, L-sit...).
+  void toggleHold() {
+    final s = state;
+    if (s == null) return;
+    if (s.mode == TimerMode.hold) {
+      state = s.copyWith(mode: TimerMode.ready);
+    } else {
+      state = s.copyWith(mode: TimerMode.hold, timerSeconds: 0, value: 0);
+    }
+  }
+
+  /// Passa alla variante più facile (−1) o più difficile (+1). Se
+  /// l'esercizio non è di volume, la scelta diventa la tua variante attuale.
+  Future<void> changeVariant(int delta) async {
+    final s = state;
+    if (s == null) return;
+    final current = s.current;
+    final position = current.exercise.position + delta;
+    if (position < 0 ||
+        position > Catalog.lastPosition(current.exercise.chain)) {
+      return;
+    }
+    final exercise = Catalog.at(current.exercise.chain, position);
+    final exercises = [...s.exercises];
+    exercises[s.index] = current.copyWith(exercise: exercise);
+    state = s.copyWith(exercises: exercises, value: defaultValue(exercise));
+
+    if (!current.planned.isVolume) {
+      final repo = ref.read(profileRepositoryProvider);
+      final chains = {...await repo.loadChains()};
+      final progress = chains[exercise.chain];
+      if (progress != null) {
+        chains[exercise.chain] = changePosition(
+          progress,
+          position,
+          LocalDate.fromDateTime(_now()),
+        );
+        await repo.saveChains(chains);
+      }
+    }
+  }
+
+  /// Registra la serie e avvia il recupero (o passa al prossimo esercizio).
+  Future<void> completeSet() async {
+    final s = state;
+    if (s == null || s.finished) return;
+    final current = s.current;
+    final value = s.value;
+    final updated = current.copyWith(
+      done: [...current.done, (exerciseId: current.exercise.id, value: value)],
+    );
+    final exercises = [...s.exercises]..[s.index] = updated;
+    final completed = exercises.fold(0, (a, e) => a + e.setsDone);
+    unawaited(_feedback.setDone());
+    if (s.sessionId != null) {
+      await _repo.logSet(
+        sessionId: s.sessionId!,
+        exercise: current.exercise,
+        value: value,
+        isVolume: current.planned.isVolume,
+        completedSets: completed,
+        now: _now(),
+      );
+    }
+
+    var index = s.index;
+    if (updated.complete) {
+      index = exercises.indexWhere((e) => !e.complete);
+      if (index == -1) {
+        state = s.copyWith(exercises: exercises);
+        await finish();
+        return;
+      }
+    }
+    final next = exercises[index].exercise;
+    final rest = current.planned.restSeconds;
+    state = s.copyWith(
+      exercises: exercises,
+      index: index,
+      value: index == s.index && next.measure == Measure.reps
+          ? value
+          : defaultValue(next),
+      mode: TimerMode.rest,
+      timerTotal: rest,
+      timerSeconds: rest,
+    );
+  }
+
+  /// Salta l'esercizio attuale.
+  Future<void> skipExercise() async {
+    final s = state;
+    if (s == null) return;
+    var index = -1;
+    for (var i = 1; i <= s.exercises.length; i++) {
+      final candidate = (s.index + i) % s.exercises.length;
+      if (candidate != s.index && !s.exercises[candidate].complete) {
+        index = candidate;
+        break;
+      }
+    }
+    if (index == -1) {
+      await finish();
+      return;
+    }
+    state = s.copyWith(
+      index: index,
+      value: defaultValue(s.exercises[index].exercise),
+      mode: TimerMode.ready,
+      timerSeconds: 0,
+    );
+  }
+
+  /// Chiude la sessione: salva, aggiorna la progressione e calcola le
+  /// proposte di cambio variante.
+  Future<void> finish() async {
+    final s = state;
+    if (s == null || s.finished) return;
+    _ticker?.cancel();
+    await _feedback.keepScreenOn(false);
+    final now = _now();
+    final today = LocalDate.fromDateTime(now);
+
+    if (s.sessionId != null) {
+      if (s.completedSets == 0) {
+        await _repo.discardIfEmpty(s.sessionId!);
+      } else {
+        await _repo.finishSession(s.sessionId!, now);
+      }
+    }
+
+    final repo = ref.read(profileRepositoryProvider);
+    final chains = {...await repo.loadChains()};
+    for (final e in s.exercises) {
+      if (e.planned.isVolume) continue;
+      final progress = chains[e.exercise.chain];
+      if (progress == null) continue;
+      final sets = [
+        for (final d in e.done)
+          if (d.exerciseId == progress.exercise.id) d.value,
+      ];
+      chains[e.exercise.chain] = recordSession(progress, sets);
+    }
+    await repo.saveChains(chains);
+
+    final profile = await repo.loadProfile();
+    state = s.copyWith(
+      finished: true,
+      mode: TimerMode.ready,
+      suggestions: profile == null
+          ? const []
+          : [
+              for (final p in chains.values)
+                ?suggestChange(p, profile.experience, today),
+            ],
+    );
+    ref.invalidate(todayProvider);
+  }
+}
+
+final sessionControllerProvider =
+    NotifierProvider.autoDispose<SessionController, SessionState?>(
+      SessionController.new,
+    );

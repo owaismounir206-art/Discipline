@@ -2,8 +2,10 @@
 // Copyright (C) 2026 Ritmo contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
+
+import '../data/providers.dart';
 
 /// Preferenze di aspetto scelte dall'utente.
 @immutable
@@ -24,17 +26,43 @@ class ThemeSettings {
         mode: mode ?? this.mode,
         useDynamicColor: useDynamicColor ?? this.useDynamicColor,
       );
+
+  Map<String, Object?> toJson() => {
+    'mode': mode.name,
+    'dynamic': useDynamicColor,
+  };
+
+  factory ThemeSettings.fromJson(Map<String, Object?> json) => ThemeSettings(
+    mode: ThemeMode.values.firstWhere(
+      (m) => m.name == json['mode'],
+      orElse: () => ThemeMode.system,
+    ),
+    useDynamicColor: json['dynamic'] as bool? ?? false,
+  );
 }
 
-// TODO(fase 3): salvare le preferenze sul telefono insieme agli altri dati.
+/// Preferenze salvate nel database locale.
 class ThemeSettingsNotifier extends Notifier<ThemeSettings> {
+  static const _key = 'theme';
+
   @override
-  ThemeSettings build() => const ThemeSettings();
+  ThemeSettings build() {
+    final sub = ref.watch(databaseProvider).watchJson(_key).listen((json) {
+      if (json is Map<String, Object?>) state = ThemeSettings.fromJson(json);
+    });
+    ref.onDispose(sub.cancel);
+    return const ThemeSettings();
+  }
 
-  void setMode(ThemeMode mode) => state = state.copyWith(mode: mode);
+  Future<void> _save(ThemeSettings next) async {
+    state = next;
+    await ref.read(databaseProvider).writeJson(_key, next.toJson());
+  }
 
-  void setUseDynamicColor(bool value) =>
-      state = state.copyWith(useDynamicColor: value);
+  Future<void> setMode(ThemeMode mode) => _save(state.copyWith(mode: mode));
+
+  Future<void> setUseDynamicColor(bool value) =>
+      _save(state.copyWith(useDynamicColor: value));
 }
 
 final themeSettingsProvider =

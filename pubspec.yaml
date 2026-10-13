@@ -28,6 +28,7 @@ dependencies:
   livekit_client: ^2.13.1
   share_plus: ^13.3.1
   path_provider: ^2.1.6
+  meta: ^1.19.0
 
 dev_dependencies:
   flutter_test:
@@ -40,6 +41,10 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/sounds/
+    - assets/fonts/OFL.txt
 
   # Figtree è incluso nell'app (licenza SIL OFL 1.1, vedi assets/fonts/OFL.txt):
   # nessun font viene scaricato da internet mentre usi Ritmo.
