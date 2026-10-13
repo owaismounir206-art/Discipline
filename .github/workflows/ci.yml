@@ -40,6 +40,11 @@ jobs:
       - name: Test
         run: flutter test
 
+      - name: Streak con altri fusi orari (cambio dell'ora e mezzanotte)
+        run: |
+          TZ=Europe/Rome flutter test test/features/streak_test.dart
+          TZ=America/Sao_Paulo flutter test test/features/streak_test.dart
+
   apk:
     name: APK di prova
     needs: test
