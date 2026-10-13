@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Ritmo – Sfida live</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#FFB5A0}a:hover{color:#FFDBD1}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #1A110F; color: #F1DFDA; font-family: 'Figtree', system-ui, sans-serif; display: flex; flex-direction: column; gap: 16px; padding: 8px 16px 24px">
+  <header style="display: flex; align-items: center; gap: 8px; height: 64px">
+    <a href="SfidaLobby.dc.html" aria-label="Esci dalla sfida" style="width: 48px; height: 48px; border-radius: 24px; color: #F1DFDA; display: flex; align-items: center; justify-content: center; margin-left: -8px">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></a>
+    <div style="flex: 1; display: flex; flex-direction: column; min-width: 0">
+      <h1 style="margin: 0; font-size: 20px; line-height: 26px; font-weight: 700">Testa a testa</h1>
+      <span style="font-size: 13px; color: #D8C2BC">Più push-up in 1 minuto</span>
+    </div>
+    <span style="height: 32px; padding: 0 12px; border-radius: 16px; background: #271D1B; color: #D8C2BC; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px"><span style="width: 8px; height: 8px; border-radius: 4px; background: #81C784"></span>Connesso</span>
+  </header>
+
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 8px">
+    <span style="font-size: 56px; line-height: 60px; font-weight: 800; letter-spacing: -1px; font-variant-numeric: tabular-nums">0:34</span>
+    <div role="progressbar" aria-label="Tempo trascorso" aria-valuenow="43" aria-valuemin="0" aria-valuemax="100" style="width: 100%; display: flex; gap: 4px; height: 6px">
+      <span style="flex: 43; border-radius: 3px; background: #FFB5A0"></span>
+      <span style="flex: 57; border-radius: 3px; background: #3D3230"></span>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+    <div style="height: 250px; border-radius: 28px; background: #322826; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 14px; box-sizing: border-box; border: 3px solid #FFB5A0">
+      <span style="font-size: 12px; font-weight: 600; color: #D8C2BC">La tua fotocamera</span>
+      <svg aria-hidden="true" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#5C4F4B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="align-self: center"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+      <div style="display: flex; flex-direction: column">
+        <span style="font-size: 14px; font-weight: 700; color: #FFB5A0">Tu</span>
+        <span aria-live="polite" style="font-size: 54px; line-height: 56px; font-weight: 800; font-variant-numeric: tabular-nums">{{ mine }}</span>
+      </div>
+    </div>
+    <div style="height: 250px; border-radius: 28px; background: #322826; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 14px; box-sizing: border-box; border: 3px solid transparent">
+      <span style="font-size: 12px; font-weight: 600; color: #D8C2BC">Fotocamera di Luca</span>
+      <svg aria-hidden="true" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#5C4F4B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="align-self: center"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>
+      <div style="display: flex; flex-direction: column">
+        <span style="font-size: 14px; font-weight: 700; color: #D8C58D">Luca</span>
+        <span style="font-size: 54px; line-height: 56px; font-weight: 800; font-variant-numeric: tabular-nums">{{ friend }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 8px">
+    <div role="img" aria-label="{{ leadText }}" style="display: flex; gap: 4px; height: 12px">
+      <span style="{{ mineBar }}"></span>
+      <span style="{{ friendBar }}"></span>
+    </div>
+    <span style="text-align: center; font-size: 15px; font-weight: 700; color: #FFDBD1">{{ leadText }}</span>
+  </div>
+
+  <button onClick="{{ addRep }}" style="height: 88px; border: none; border-radius: 28px; background: #FFB5A0; color: #561F0F; font-family: inherit; font-size: 22px; font-weight: 800; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer">
+    +1 push-up
+    <span style="font-size: 13px; font-weight: 600; color: #723523">Conteggio automatico con la fotocamera attivo</span>
+  </button>
+
+  <div style="margin-top: auto; display: flex; justify-content: center; gap: 16px">
+    <button aria-label="Disattiva microfono" style="width: 56px; height: 56px; border: none; border-radius: 28px; background: #3D3230; color: #F1DFDA; display: flex; align-items: center; justify-content: center; cursor: pointer">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M19 10v1a7 7 0 0 1-14 0v-1"></path><path d="M12 18v4"></path></svg></button>
+    <button aria-label="Disattiva fotocamera" style="width: 56px; height: 56px; border: none; border-radius: 28px; background: #3D3230; color: #F1DFDA; display: flex; align-items: center; justify-content: center; cursor: pointer">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4z"></path><rect x="2" y="6" width="14" height="12" rx="2"></rect></svg></button>
+    <button style="height: 56px; padding: 0 22px; border: none; border-radius: 28px; background: #534619; color: #F5E1A7; font-family: inherit; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; cursor: pointer">
+      <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"></path><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9z"></path></svg>Incita Luca</button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { mine: 27 };
+}
+renderVals() {
+const mine = this.state.mine;
+const friend = 23;
+const diff = mine - friend;
+return {
+mine, friend,
+addRep: () => this.setState({ mine: mine + 1 }),
+leadText: diff > 0 ? 'Sei avanti di ' + diff + '!' : diff < 0 ? 'Luca è avanti di ' + (-diff) : 'Pareggio!',
+mineBar: 'flex: ' + mine + '; border-radius: 6px; background: #FFB5A0',
+friendBar: 'flex: ' + friend + '; border-radius: 6px; background: #D8C58D'
+};
+}
+}
+</script>
+</body>
+</html>

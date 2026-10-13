@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Ritmo – Livello e giorni</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8F4C38}a:hover{color:#723523}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFF8F6; color: #231917; font-family: 'Figtree', system-ui, sans-serif; display: flex; flex-direction: column; gap: 18px; padding: 8px 16px 20px">
+  <header style="display: flex; align-items: center; gap: 4px; height: 64px">
+    <a href="Main.dc.html" aria-label="Indietro" style="width: 48px; height: 48px; border-radius: 24px; color: #231917; display: flex; align-items: center; justify-content: center; margin-left: -8px">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><path d="m12 19-7-7 7-7"></path></svg></a>
+    <h1 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 700">Il tuo profilo atleta</h1>
+  </header>
+
+  <section aria-labelledby="h-diff" style="display: flex; flex-direction: column; gap: 10px">
+    <h2 id="h-diff" style="margin: 0; font-size: 16px; font-weight: 700">Difficoltà</h2>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{ levels }}" as="l" hint-placeholder-count="4">
+        <button aria-pressed="{{ l.pressed }}" onClick="{{ l.pick }}" style="{{ l.style }}">
+          <span style="font-size: 16px; font-weight: 800">{{ l.name }}</span>
+          <span style="{{ l.subStyle }}">{{ l.sub }}</span>
+        </button>
+      </sc-for>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-since" style="display: flex; flex-direction: column; gap: 10px">
+    <h2 id="h-since" style="margin: 0; font-size: 16px; font-weight: 700">Da quanto ti alleni</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <sc-for list="{{ sinceOpts }}" as="s" hint-placeholder-count="5">
+        <button aria-pressed="{{ s.pressed }}" onClick="{{ s.pick }}" style="{{ s.style }}">{{ s.label }}</button>
+      </sc-for>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-days" style="display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline">
+      <h2 id="h-days" style="margin: 0; font-size: 16px; font-weight: 700">Giorni di allenamento</h2>
+      <span style="font-size: 13px; font-weight: 600; color: #8F4C38">{{ daysCount }}</span>
+    </div>
+    <div style="display: flex; justify-content: space-between">
+      <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+        <button aria-label="{{ d.full }}" aria-pressed="{{ d.pressed }}" onClick="{{ d.toggle }}" style="{{ d.style }}">{{ d.label }}</button>
+      </sc-for>
+    </div>
+    <p style="margin: 0; font-size: 13px; line-height: 18px; color: #53433F">La streak conta solo questi giorni: riposare negli altri non la interrompe.</p>
+  </section>
+
+  <section aria-label="Il tuo programma" style="background: #F5E1A7; color: #231B00; border-radius: 24px; padding: 16px 18px; display: flex; flex-direction: column; gap: 6px">
+    <span style="font-size: 13px; font-weight: 600; color: #534619">Il tuo programma</span>
+    <span style="font-size: 18px; line-height: 24px; font-weight: 700">{{ planTitle }}</span>
+    <span style="font-size: 14px; line-height: 20px; color: #534619">{{ planSub }}</span>
+  </section>
+
+  <a href="Main.dc.html" style="margin-top: auto; height: 56px; border-radius: 28px; background: #8F4C38; color: #FFFFFF; text-decoration: none; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center">Salva</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { level: 'int', since: 2, days: [true, true, false, true, false, true, false] };
+}
+renderVals() {
+const s = this.state;
+const lv = [
+['beg', 'Principiante', '0–10 push-up di fila', 20, 'Push-up sulle ginocchia, squat, plank'],
+['int', 'Intermedio', '10–30 push-up di fila', 35, 'Push-up, dip, pike push-up, trazioni australiane'],
+['adv', 'Avanzato', '30+ push-up e trazioni', 45, 'Push-up arciere, trazioni, L-sit'],
+['eli', 'Élite', 'Planche, front lever', 60, 'Handstand push-up, muscle-up, lever']
+];
+const sinceL = ['Ho appena iniziato', 'Meno di 3 mesi', '3–12 mesi', '1–3 anni', 'Più di 3 anni'];
+const prog = ['ogni settimana', 'ogni settimana', 'ogni 2 settimane', 'ogni 3 settimane', 'ogni mese'];
+const dayL = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
+const dayF = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+const cur = lv.find((x) => x[0] === s.level);
+const n = s.days.filter(Boolean).length;
+const cardBase = 'border-radius: 20px; padding: 14px; text-align: left; font-family: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 4px; min-height: 76px; box-sizing: border-box; ';
+const chipBase = 'height: 36px; padding: 0 14px; border-radius: 10px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; ';
+const dayBase = 'width: 44px; height: 44px; border-radius: 22px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; ';
+return {
+levels: lv.map((x) => {
+const on = x[0] === s.level;
+return {
+name: x[1], sub: x[2], pressed: on ? 'true' : 'false',
+pick: () => this.setState({ level: x[0] }),
+style: cardBase + (on ? 'border: 2px solid #8F4C38; background: #FFDBD1; color: #3A0B01;' : 'border: 1px solid #D8C2BC; background: #FFF8F6; color: #231917;'),
+subStyle: 'font-size: 13px; color: ' + (on ? '#723523' : '#53433F')
+};
+}),
+sinceOpts: sinceL.map((label, i) => {
+const on = i === s.since;
+return {
+label, pressed: on ? 'true' : 'false',
+pick: () => this.setState({ since: i }),
+style: chipBase + (on ? 'border: none; background: #F7DCD3; color: #2C1510;' : 'border: 1px solid #85736E; background: transparent; color: #53433F;')
+};
+}),
+days: dayL.map((label, i) => {
+const on = s.days[i];
+return {
+label, full: dayF[i], pressed: on ? 'true' : 'false',
+toggle: () => {
+const next = s.days.slice();
+next[i] = !next[i];
+if (next.some(Boolean)) this.setState({ days: next });
+},
+style: dayBase + (on ? 'border: none; background: #8F4C38; color: #FFFFFF;' : 'border: 1px solid #85736E; background: transparent; color: #53433F;')
+};
+}),
+daysCount: n + (n === 1 ? ' giorno a settimana' : ' giorni a settimana'),
+planTitle: n + (n === 1 ? ' sessione' : ' sessioni') + ' da ' + cur[3] + ' min · ' + cur[1],
+planSub: cur[4] + '. Difficoltà in aumento ' + prog[s.since] + '.'
+};
+}
+}
+</script>
+</body>
+</html>

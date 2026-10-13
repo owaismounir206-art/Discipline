@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Ritmo – Progressi</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8F4C38}a:hover{color:#723523}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFF8F6; color: #231917; font-family: 'Figtree', system-ui, sans-serif">
+  <main style="display: flex; flex-direction: column; gap: 16px; padding: 20px 16px 0">
+    <header style="display: flex; align-items: center; justify-content: space-between; height: 48px">
+      <h1 style="margin: 0; font-size: 30px; line-height: 36px; font-weight: 700; letter-spacing: -0.5px">Progressi</h1>
+      <button aria-label="Condividi" style="width: 48px; height: 48px; border: none; border-radius: 24px; background: transparent; color: #53433F; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-right: -8px">
+        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="m8.6 13.5 6.8 4"></path><path d="m15.4 6.5-6.8 4"></path></svg></button>
+    </header>
+
+    <div role="group" aria-label="Periodo" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); height: 44px; border: 1px solid #85736E; border-radius: 22px; overflow: hidden">
+      <sc-for list="{{ periods }}" as="p" hint-placeholder-count="3">
+        <button aria-pressed="{{ p.pressed }}" onClick="{{ p.pick }}" style="{{ p.style }}">{{ p.label }}</button>
+      </sc-for>
+    </div>
+
+    <section aria-label="Ripetizioni per sessione" style="background: #FCEAE5; border-radius: 28px; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px">
+        <div style="display: flex; flex-direction: column">
+          <span style="font-size: 13px; font-weight: 600; color: #53433F">Ripetizioni, ultima sessione</span>
+          <span style="font-size: 34px; line-height: 40px; font-weight: 800; letter-spacing: -0.5px">196<span style="font-size: 15px; font-weight: 600; color: #53433F"> rip.</span></span>
+        </div>
+        <span style="height: 28px; padding: 0 10px; border-radius: 14px; background: #F5E1A7; color: #231B00; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 4px">
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg>31% in 2 settimane</span>
+      </div>
+      <div role="img" aria-label="Ripetizioni per sessione: 29/9 150, 2/10 162, 4/10 158, 6/10 175, 9/10 170, 11/10 188, 12/10 196, oggi 95 finora" style="display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 6px; align-items: end; height: 160px">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 100%; height: 105px; border-radius: 8px; background: #8F4C38"></span><span style="font-size: 11px; font-weight: 600; color: #53433F">29/9</span></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 100%; height: 113px; border-radius: 8px; background: #8F4C38"></span><span style="font-size: 11px; font-weight: 600; color: #53433F">2/10</span></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 100%; height: 111px; border-radius: 8px; background: #8F4C38"></span><span style="font-size: 11px; font-weight: 600; color: #53433F">4/10</span></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 100%; height: 123px; border-radius: 8px; background: #8F4C38"></span><span style="font-size: 11px; font-weight: 600; color: #53433F">6/10</span></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 100%; height: 119px; border-radius: 8px; background: #8F4C38"></span><span style="font-size: 11px; font-weight: 600; color: #53433F">9/10</span></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 100%; height: 132px; border-radius: 8px; background: #8F4C38"></span><span style="font-size: 11px; font-weight: 600; color: #53433F">11/10</span></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 100%; height: 137px; border-radius: 8px; background: #8F4C38"></span><span style="font-size: 11px; font-weight: 600; color: #53433F">12/10</span></div>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span style="width: 100%; height: 67px; border-radius: 8px; background: #F5C0B1"></span><span style="font-size: 11px; font-weight: 700; color: #8F4C38">oggi</span></div>
+      </div>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+      <div style="background: #FFDBD1; color: #3A0B01; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 13px; font-weight: 600; color: #723523">Push-up nel mese</span>
+        <span style="font-size: 26px; font-weight: 800">1.240</span>
+      </div>
+      <div style="background: #F5E1A7; color: #231B00; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 13px; font-weight: 600; color: #534619">Trazioni di fila</span>
+        <span style="font-size: 26px; font-weight: 800">12<span style="font-size: 13px; font-weight: 600"> max</span></span>
+      </div>
+      <div style="background: #F7E4DF; color: #231917; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 13px; font-weight: 600; color: #53433F">Plank</span>
+        <span style="font-size: 26px; font-weight: 800">2:10<span style="font-size: 13px; font-weight: 600"> min</span></span>
+      </div>
+      <div style="background: #F7E4DF; color: #231917; border-radius: 24px; padding: 16px; display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 13px; font-weight: 600; color: #53433F">Streak record</span>
+        <span style="font-size: 26px; font-weight: 800">21<span style="font-size: 13px; font-weight: 600"> allenamenti</span></span>
+      </div>
+    </div>
+
+    <div style="background: #FFF1ED; border-radius: 20px; padding: 12px 16px; display: flex; align-items: center; gap: 12px">
+      <span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 20px; background: #8F4C38; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex: none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M17 5h3v2a3 3 0 0 1-3 3"></path><path d="M7 5H4v2a3 3 0 0 0 3 3"></path></svg></span>
+      <div style="display: flex; flex-direction: column; flex: 1; min-width: 0">
+        <span style="font-size: 12px; font-weight: 600; color: #53433F">Nuova abilità sbloccata</span>
+        <span style="font-size: 15px; font-weight: 700">Push-up diamante · 15 di fila</span>
+      </div>
+      <span style="font-size: 13px; color: #53433F">Lun</span>
+    </div>
+  </main>
+
+  <nav aria-label="Navigazione principale" style="position: absolute; left: 0; right: 0; bottom: 0; height: 80px; background: #FCEAE5; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 12px 0 16px; box-sizing: border-box">
+    <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #53433F">
+      <span style="width: 56px; height: 32px; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3 3 10.5V21h6v-6h6v6h6V10.5z"></path></svg></span>
+      <span style="font-size: 12px; font-weight: 600">Oggi</span></a>
+    <a href="Allenamento.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #53433F">
+      <span style="width: 56px; height: 32px; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></span>
+      <span style="font-size: 12px; font-weight: 600">Allenati</span></a>
+    <a href="SfidaLobby.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #53433F">
+      <span style="width: 56px; height: 32px; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"></circle><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path><path d="M22 21v-2a4 4 0 0 0-3-3.85"></path></svg></span>
+      <span style="font-size: 12px; font-weight: 600">Sfida</span></a>
+    <a href="Cibo.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #53433F">
+      <span style="width: 56px; height: 32px; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3v7"></path></svg></span>
+      <span style="font-size: 12px; font-weight: 600">Cibo</span></a>
+    <a href="Progressi.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #231917">
+      <span style="width: 56px; height: 32px; border-radius: 16px; background: #FFDBD1; color: #3A0B01; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m7 15 4-4 3 3 6-6"></path></svg></span>
+      <span style="font-size: 12px; font-weight: 700">Progressi</span></a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { period: 'w' };
+}
+renderVals() {
+const base = 'border: none; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; ';
+const opts = [['w', 'Settimana'], ['m', 'Mese'], ['y', 'Anno']];
+return {
+periods: opts.map(([id, label], i) => {
+const on = this.state.period === id;
+return {
+label,
+pressed: on ? 'true' : 'false',
+pick: () => this.setState({ period: id }),
+style: base + (i > 0 ? 'border-left: 1px solid #85736E; ' : '') + (on ? 'background: #F7DCD3; color: #2C1510; font-weight: 700;' : 'background: transparent; color: #53433F;')
+};
+})
+};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Ritmo – Sfida</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#8F4C38}a:hover{color:#723523}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFF8F6; color: #231917; font-family: 'Figtree', system-ui, sans-serif">
+  <main style="display: flex; flex-direction: column; gap: 18px; padding: 20px 16px 0">
+    <header style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <h1 style="margin: 0; font-size: 30px; line-height: 36px; font-weight: 700; letter-spacing: -0.5px">Sfida</h1>
+        <span style="font-size: 14px; color: #53433F">Push-up in diretta con i tuoi amici</span>
+      </div>
+      <button style="height: 40px; padding: 0 16px 0 12px; border: none; border-radius: 20px; background: #F7DCD3; color: #2C1510; font-family: inherit; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; cursor: pointer">
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Invita</button>
+    </header>
+
+    <section aria-labelledby="h-mode" style="background: #FCEAE5; border-radius: 28px; padding: 16px; display: flex; flex-direction: column; gap: 8px">
+      <h2 id="h-mode" style="margin: 0 0 4px 4px; font-size: 16px; font-weight: 700">Modalità</h2>
+      <sc-for list="{{ modes }}" as="m" hint-placeholder-count="3">
+        <button aria-pressed="{{ m.pressed }}" onClick="{{ m.pick }}" style="{{ m.style }}">
+          <span style="{{ m.radio }}"><span style="{{ m.radioDot }}"></span></span>
+          <span style="display: flex; flex-direction: column; text-align: left; flex: 1; min-width: 0">
+            <span style="font-size: 15px; font-weight: 700">{{ m.title }}</span>
+            <span style="font-size: 13px; color: #53433F">{{ m.sub }}</span>
+          </span>
+        </button>
+      </sc-for>
+    </section>
+
+    <section aria-labelledby="h-friends" style="display: flex; flex-direction: column; gap: 4px">
+      <h2 id="h-friends" style="margin: 0 0 6px; font-size: 16px; font-weight: 700">Amici</h2>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0">
+        <span aria-hidden="true" style="position: relative; width: 44px; height: 44px; border-radius: 22px; background: #77574E; color: #FFFFFF; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none">L<span style="position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border-radius: 6px; background: #2E7D32; border: 2px solid #FFF8F6"></span></span>
+        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0">
+          <span style="font-size: 16px; font-weight: 700">Luca</span>
+          <span style="font-size: 13px; color: #53433F">Online · Intermedio</span>
+        </div>
+        <a href="SfidaLive.dc.html" style="height: 40px; padding: 0 18px; border-radius: 20px; background: #8F4C38; color: #FFFFFF; text-decoration: none; font-size: 14px; font-weight: 700; display: flex; align-items: center">Sfida</a>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0">
+        <span aria-hidden="true" style="position: relative; width: 44px; height: 44px; border-radius: 22px; background: #6C5D2F; color: #FFFFFF; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none">S<span style="position: absolute; right: -1px; bottom: -1px; width: 12px; height: 12px; border-radius: 6px; background: #C77700; border: 2px solid #FFF8F6"></span></span>
+        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0">
+          <span style="font-size: 16px; font-weight: 700">Sara</span>
+          <span style="font-size: 13px; color: #53433F">Si sta allenando · Avanzato</span>
+        </div>
+        <button style="height: 40px; padding: 0 18px; border: 1px solid #85736E; border-radius: 20px; background: transparent; color: #8F4C38; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer">Sfida</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0">
+        <span aria-hidden="true" style="width: 44px; height: 44px; border-radius: 22px; background: #E7CBC3; color: #53433F; font-size: 17px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none">D</span>
+        <div style="display: flex; flex-direction: column; flex: 1; min-width: 0">
+          <span style="font-size: 16px; font-weight: 700">Davide</span>
+          <span style="font-size: 13px; color: #53433F">Offline · visto 2 h fa</span>
+        </div>
+        <button style="height: 40px; padding: 0 14px; border: 1px solid #85736E; border-radius: 20px; background: transparent; color: #53433F; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer">Avvisa</button>
+      </div>
+    </section>
+
+    <div style="background: #F5E1A7; color: #231B00; border-radius: 20px; padding: 14px 16px; display: flex; align-items: center; gap: 12px">
+      <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none"><path d="M8 21h8"></path><path d="M12 17v4"></path><path d="M7 4h10v5a5 5 0 0 1-10 0z"></path><path d="M17 5h3v2a3 3 0 0 1-3 3"></path><path d="M7 5H4v2a3 3 0 0 0 3 3"></path></svg>
+      <div style="display: flex; flex-direction: column; min-width: 0">
+        <span style="font-size: 13px; font-weight: 600; color: #534619">Ultima sfida con Luca</span>
+        <span style="font-size: 15px; font-weight: 700">Hai vinto 42 a 38 · bilancio 5–3</span>
+      </div>
+    </div>
+  </main>
+
+  <nav aria-label="Navigazione principale" style="position: absolute; left: 0; right: 0; bottom: 0; height: 80px; background: #FCEAE5; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 12px 0 16px; box-sizing: border-box">
+    <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #53433F">
+      <span style="width: 56px; height: 32px; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3 3 10.5V21h6v-6h6v6h6V10.5z"></path></svg></span>
+      <span style="font-size: 12px; font-weight: 600">Oggi</span></a>
+    <a href="Allenamento.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #53433F">
+      <span style="width: 56px; height: 32px; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></span>
+      <span style="font-size: 12px; font-weight: 600">Allenati</span></a>
+    <a href="SfidaLobby.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #231917">
+      <span style="width: 56px; height: 32px; border-radius: 16px; background: #FFDBD1; color: #3A0B01; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"></circle><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path><path d="M22 21v-2a4 4 0 0 0-3-3.85"></path></svg></span>
+      <span style="font-size: 12px; font-weight: 700">Sfida</span></a>
+    <a href="Cibo.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #53433F">
+      <span style="width: 56px; height: 32px; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"></path><path d="M7 2v20"></path><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3v7"></path></svg></span>
+      <span style="font-size: 12px; font-weight: 600">Cibo</span></a>
+    <a href="Progressi.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: #53433F">
+      <span style="width: 56px; height: 32px; display: flex; align-items: center; justify-content: center"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="m7 15 4-4 3 3 6-6"></path></svg></span>
+      <span style="font-size: 12px; font-weight: 600">Progressi</span></a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { mode: 0 };
+}
+renderVals() {
+const list = [
+['Testa a testa', 'Più push-up in 1 minuto'],
+['Gara a 50', 'Vince chi arriva prima a 50'],
+['Squadra', 'Insieme fino a 100 push-up']
+];
+return {
+modes: list.map((x, i) => {
+const on = i === this.state.mode;
+return {
+title: x[0], sub: x[1], pressed: on ? 'true' : 'false',
+pick: () => this.setState({ mode: i }),
+style: 'display: flex; align-items: center; gap: 14px; min-height: 60px; padding: 8px 14px; border-radius: 18px; font-family: inherit; color: #231917; cursor: pointer; ' + (on ? 'border: 2px solid #8F4C38; background: #FFF8F6;' : 'border: 2px solid transparent; background: transparent;'),
+radio: 'width: 20px; height: 20px; box-sizing: border-box; border-radius: 10px; border: 2px solid ' + (on ? '#8F4C38' : '#53433F') + '; display: flex; align-items: center; justify-content: center; flex: none',
+radioDot: 'width: 10px; height: 10px; border-radius: 5px; background: ' + (on ? '#8F4C38' : 'transparent')
+};
+})
+};
+}
+}
+</script>
+</body>
+</html>
