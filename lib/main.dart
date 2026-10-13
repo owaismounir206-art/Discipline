@@ -20,16 +20,29 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
+import 'core/config/app_config.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   // Il font Figtree è incluso nell'app: aggiungiamo la sua licenza (OFL)
   // all'elenco delle licenze open source mostrato nelle impostazioni.
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('assets/fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['Figtree'], license);
   });
+
+  // Server per amici, sfide e backup: solo se configurato (vedi
+  // config/ritmo.example.json). Senza, l'app funziona tutta offline.
+  const config = AppConfig.fromEnvironment;
+  if (config.hasServer) {
+    await Supabase.initialize(
+      url: config.supabaseUrl,
+      publishableKey: config.supabaseKey,
+    );
+  }
 
   runApp(const ProviderScope(child: RitmoApp()));
 }

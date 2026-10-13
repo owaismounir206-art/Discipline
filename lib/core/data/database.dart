@@ -153,4 +153,56 @@ class AppDatabase extends _$AppDatabase {
       await delete(table).go();
     }
   });
+
+  // --- Copia di sicurezza ---
+
+  /// Versione del formato di [exportAll].
+  static const backupVersion = 1;
+
+  /// Tutti i dati in JSON (per il backup sul server o su file).
+  Future<Map<String, Object?>> exportAll() async => {
+    'app': 'ritmo',
+    'version': backupVersion,
+    'schema': schemaVersion,
+    'tables': {
+      for (final table in allTables)
+        table.actualTableName: [
+          for (final row in await select(table).get())
+            (row as DataClass).toJson(),
+        ],
+    },
+  };
+
+  /// Sostituisce tutti i dati con quelli di un backup di [exportAll].
+  Future<void> importAll(Map<String, Object?> backup) async {
+    if (backup['app'] != 'ritmo' || backup['tables'] is! Map) {
+      throw const FormatException('Non è un backup di Ritmo');
+    }
+    final tables = (backup['tables']! as Map).cast<String, Object?>();
+    List<Map<String, dynamic>> rows(TableInfo<Table, Object?> table) => [
+      for (final row in (tables[table.actualTableName] as List?) ?? const [])
+        (row as Map).cast<String, dynamic>(),
+    ];
+    await transaction(() async {
+      await wipe();
+      await batch((b) {
+        b
+          ..insertAll(keyValues, rows(keyValues).map(KeyValue.fromJson))
+          ..insertAll(
+            workoutSessions,
+            rows(workoutSessions).map(WorkoutSession.fromJson),
+          )
+          ..insertAll(setLogs, rows(setLogs).map(SetLog.fromJson))
+          ..insertAll(foodEntries, rows(foodEntries).map(FoodEntry.fromJson))
+          ..insertAll(
+            favoriteFoods,
+            rows(favoriteFoods).map(FavoriteFood.fromJson),
+          )
+          ..insertAll(
+            challengeResults,
+            rows(challengeResults).map(ChallengeResult.fromJson),
+          );
+      });
+    });
+  }
 }

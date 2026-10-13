@@ -43,12 +43,12 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Link d'invito e di accesso: ritmo://invito/CODICE, ritmo://login -->
+            <!-- Link d'invito: ritmo://app/invito/CODICE -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="ritmo" />
+                <data android:scheme="ritmo" android:host="app" />
             </intent-filter>
         </activity>
 
