@@ -1,0 +1,39 @@
+name: ritmo
+description: "Ritmo: calisthenics libera e gratuita."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dynamic_color: ^2.1.0
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.0.2
+  material_ui: ^1.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Figtree è incluso nell'app (licenza SIL OFL 1.1, vedi assets/fonts/OFL.txt):
+  # nessun font viene scaricato da internet mentre usi Ritmo.
+  fonts:
+    - family: Figtree
+      fonts:
+        - asset: assets/fonts/Figtree-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Figtree-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Figtree-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Figtree-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Figtree-ExtraBold.ttf
+          weight: 800
