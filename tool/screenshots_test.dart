@@ -111,4 +111,17 @@ void main() {
     await shoot('progressi');
     await disposeRitmo(tester, db);
   });
+
+  testWidgets('cibo', (tester) async {
+    final evening = DateTime(2026, 10, 13, 19);
+    await tester.runAsync(() => seedHistory(db));
+    await tester.runAsync(() => seedFood(db, now: evening));
+    await pumpRitmo(tester, db, now: evening);
+    await openTab(tester, 'Cibo');
+    await shoot('cibo');
+    await tester.tap(find.text('Cosa mangio a cena?'));
+    await wait(tester);
+    await shoot('consigli');
+    await disposeRitmo(tester, db);
+  });
 }

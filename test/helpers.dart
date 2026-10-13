@@ -13,6 +13,10 @@ import 'package:ritmo/core/data/database.dart';
 import 'package:ritmo/core/data/providers.dart';
 import 'package:ritmo/core/utils/local_date.dart';
 import 'package:ritmo/features/exercises/domain/exercise.dart';
+import 'package:ritmo/features/food/data/food_repository.dart';
+import 'package:ritmo/features/food/data/open_food_facts.dart';
+import 'package:ritmo/features/food/domain/foods.dart';
+import 'package:ritmo/features/food/domain/nutrition.dart';
 import 'package:ritmo/features/profile/data/profile_repository.dart';
 import 'package:ritmo/features/profile/domain/athlete_profile.dart';
 import 'package:ritmo/features/streak/data/reminders.dart';
@@ -60,6 +64,7 @@ List<Override> testOverrides(
   clockProvider.overrideWithValue(() => now ?? testNow),
   remindersProvider.overrideWithValue(FakeReminders()),
   sessionFeedbackProvider.overrideWithValue(SilentSessionFeedback()),
+  foodCatalogProvider.overrideWithValue(FakeFoodCatalog()),
   ...extra,
 ];
 
@@ -142,6 +147,69 @@ Future<void> seedHistory(AppDatabase db) async {
               ),
             );
       }
+    }
+  }
+}
+
+/// Catalogo finto al posto di Open Food Facts.
+class FakeFoodCatalog implements FoodCatalog {
+  @override
+  Future<FoodItem?> byBarcode(String barcode) async => barcode == '800'
+      ? const FoodItem(
+          name: 'Gallette di riso',
+          per100: Nutrients(kcal: 380, protein: 8, carbs: 80, fat: 3),
+          source: FoodSource.openFoodFacts,
+        )
+      : null;
+
+  @override
+  Future<List<FoodItem>> search(String query) async => [
+    FoodItem(
+      name: 'Yogurt proteico ($query)',
+      per100: const Nutrients(kcal: 60, protein: 10, carbs: 4, fat: 0.2),
+      source: FoodSource.openFoodFacts,
+      brand: 'Marca',
+    ),
+  ];
+}
+
+const testBody = BodyProfile(
+  sex: Sex.male,
+  age: 24,
+  weightKg: 72,
+  heightCm: 178,
+  goal: Goal.bulk,
+);
+
+/// Dati del corpo e una giornata di pasti (colazione, pranzo, spuntino).
+Future<void> seedFood(AppDatabase db, {DateTime? now}) async {
+  final repo = FoodRepository(db);
+  await repo.saveBody(testBody);
+  final day = LocalDate.fromDateTime(now ?? testNow);
+  final at = now ?? testNow;
+  FoodItem food(String name) => localFoods.firstWhere((f) => f.name == name);
+  final meals = {
+    Meal.breakfast: [
+      ('Yogurt greco 0%', 250.0),
+      ('Fiocchi d\'avena', 50.0),
+      ('Mirtilli', 80.0),
+    ],
+    Meal.lunch: [
+      ('Pasta di semola (cruda)', 100.0),
+      ('Petto di pollo', 120.0),
+      ('Pomodori', 150.0),
+    ],
+    Meal.snack: [('Banana', 120.0), ('Burro di arachidi', 25.0)],
+  };
+  for (final MapEntry(key: meal, value: items) in meals.entries) {
+    for (final (name, grams) in items) {
+      await repo.addEntry(
+        date: day,
+        meal: meal,
+        food: food(name),
+        grams: grams,
+        now: at,
+      );
     }
   }
 }
