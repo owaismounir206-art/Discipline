@@ -191,14 +191,8 @@ class ProgressScreen extends ConsumerWidget {
             ],
           ),
         ),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 1.75,
-          children: [
+        _StatGrid(
+          tiles: [
             _StatTile(
               label: 'Push-up nel mese',
               value: _thousands(pushUps),
@@ -423,7 +417,6 @@ class _StatTile extends StatelessWidget {
       semanticsLabel: '$label: $value${unit ?? ''}',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
         spacing: 4,
         children: [
           Text(
@@ -462,4 +455,31 @@ class _StatTile extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Griglia 2 × 2 ad altezza libera (regge testi grandi e accessibilità).
+class _StatGrid extends StatelessWidget {
+  const _StatGrid({required this.tiles});
+
+  final List<Widget> tiles;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    spacing: 12,
+    children: [
+      for (var i = 0; i < tiles.length; i += 2)
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: [
+              Expanded(child: tiles[i]),
+              Expanded(
+                child: i + 1 < tiles.length ? tiles[i + 1] : const SizedBox(),
+              ),
+            ],
+          ),
+        ),
+    ],
+  );
 }
