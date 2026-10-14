@@ -18,6 +18,7 @@ import '../../account/domain/backend.dart';
 import '../../workout/data/session_feedback.dart';
 import '../data/challenge_repository.dart';
 import '../data/live_challenge.dart';
+import '../data/live_media.dart';
 import '../domain/challenge.dart';
 import 'live_media.dart';
 
@@ -46,8 +47,8 @@ class _LiveChallengeScreenState extends ConsumerState<LiveChallengeScreen> {
   late final PresenceReporter _presence;
   ChallengeResult? _result;
   String? _shownCheer;
+  LiveMedia? _media;
   var _cameraOn = false;
-  var _micOn = false;
   RoomPhase? _lastPhase;
 
   @override
@@ -66,6 +67,12 @@ class _LiveChallengeScreenState extends ConsumerState<LiveChallengeScreen> {
       onFinished: _finished,
     )..addListener(_changed);
     unawaited(_live.start());
+    // Video e audio solo con un amico e se c'è un server video.
+    if (!widget.solo) {
+      _media = ref.read(liveMediaFactoryProvider)(widget.roomId)
+        ?..addListener(_changed);
+      unawaited(_media?.connect());
+    }
     unawaited(_feedback.keepScreenOn(true));
     _presence.training = true;
   }
@@ -74,6 +81,10 @@ class _LiveChallengeScreenState extends ConsumerState<LiveChallengeScreen> {
   void dispose() {
     _live
       ..removeListener(_changed)
+      ..dispose();
+    _media
+      ?..removeListener(_changed)
+      ..disconnect()
       ..dispose();
     unawaited(_feedback.keepScreenOn(false));
     _presence.training = false;
@@ -200,6 +211,9 @@ class _LiveChallengeScreenState extends ConsumerState<LiveChallengeScreen> {
     final mine = _live.myCount;
     final theirs = _live.opponentCount;
     final friend = _live.opponentName;
+    final video = _media;
+    final micOn = video?.micOn ?? false;
+    final cameraOn = video?.cameraOn ?? _cameraOn;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -276,7 +290,9 @@ class _LiveChallengeScreenState extends ConsumerState<LiveChallengeScreen> {
                     count: mine,
                     color: scheme.primary,
                     highlighted: solo || mine >= theirs,
-                    media: _cameraOn
+                    media: video != null
+                        ? video.localVideo()
+                        : _cameraOn
                         ? LocalCameraView(
                             onRep: () => _live.addRep(manual: false),
                           )
@@ -291,7 +307,7 @@ class _LiveChallengeScreenState extends ConsumerState<LiveChallengeScreen> {
                       count: theirs,
                       color: scheme.tertiary,
                       highlighted: theirs > mine,
-                      media: RemoteVideoView(participantId: _live.opponentId),
+                      media: video?.remoteVideo(),
                     ),
                   ),
               ],
@@ -310,7 +326,7 @@ class _LiveChallengeScreenState extends ConsumerState<LiveChallengeScreen> {
             ),
           _RepButton(
             enabled: phase == RoomPhase.running,
-            camera: _cameraOn,
+            camera: video == null && _cameraOn,
             countdown: phase == RoomPhase.countdown
                 ? room.countdownLeft(now)
                 : null,
@@ -325,20 +341,28 @@ class _LiveChallengeScreenState extends ConsumerState<LiveChallengeScreen> {
             spacing: 16,
             children: [
               _RoundButton(
-                icon: _micOn ? Icons.mic : Icons.mic_off,
-                tooltip: _micOn
-                    ? 'Spegni il microfono'
-                    : 'Accendi il microfono',
-                selected: _micOn,
-                onPressed: solo ? null : () => setState(() => _micOn = !_micOn),
+                icon: micOn ? Icons.mic : Icons.mic_off,
+                tooltip: micOn ? 'Spegni il microfono' : 'Accendi il microfono',
+                selected: micOn,
+                onPressed: video?.connected ?? false
+                    ? () => video!.setMic(!video.micOn)
+                    : null,
               ),
               _RoundButton(
-                icon: _cameraOn ? Icons.videocam : Icons.videocam_off,
-                tooltip: _cameraOn
-                    ? 'Spegni la fotocamera'
-                    : 'Conta con la fotocamera',
-                selected: _cameraOn,
-                onPressed: () => setState(() => _cameraOn = !_cameraOn),
+                icon: cameraOn ? Icons.videocam : Icons.videocam_off,
+                tooltip: video != null
+                    ? (cameraOn
+                          ? 'Spegni il video'
+                          : 'Mostra il tuo video all\'amico')
+                    : (cameraOn
+                          ? 'Spegni la fotocamera'
+                          : 'Conta con la fotocamera'),
+                selected: cameraOn,
+                onPressed: video != null
+                    ? (video.connected
+                          ? () => video.setCamera(!video.cameraOn)
+                          : null)
+                    : () => setState(() => _cameraOn = !_cameraOn),
               ),
               if (!solo)
                 Flexible(
@@ -363,7 +387,6 @@ class _LiveChallengeScreenState extends ConsumerState<LiveChallengeScreen> {
                 ),
             ],
           ),
-          if (_micOn) LiveAudio(roomId: widget.roomId),
         ],
       ],
     );

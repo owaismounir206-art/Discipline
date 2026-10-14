@@ -11,6 +11,7 @@ import 'package:ritmo/core/router/routes.dart';
 import 'package:ritmo/features/account/data/account_providers.dart';
 import 'package:ritmo/features/account/data/memory_backend.dart';
 import 'package:ritmo/features/account/domain/backend.dart';
+import 'package:ritmo/features/challenge/data/live_media.dart';
 import 'package:ritmo/features/challenge/domain/challenge.dart';
 
 import 'helpers.dart';
@@ -307,4 +308,90 @@ void main() {
       await disposeRitmo(tester, db);
     });
   });
+
+  testWidgets('con il video: microfono e video si accendono', (tester) async {
+    final db = memoryDatabase();
+    await seedProfile(db);
+    final clock = TestClock();
+    final backend = await serverWithLuca(clock);
+    final media = FakeMedia();
+    await pumpRitmo(
+      tester,
+      db,
+      clock: clock.call,
+      extra: [
+        backendProvider.overrideWithValue(backend),
+        liveMediaFactoryProvider.overrideWithValue((_) => media),
+      ],
+    );
+    await openTab(tester, 'Sfida');
+    final challenge = find.widgetWithText(FilledButton, 'Sfida');
+    await tester.ensureVisible(challenge);
+    await tester.tap(challenge);
+    await step(tester);
+    backend.simulateJoin('stanza1', 'luca');
+    await elapse(tester, clock, Duration.zero);
+    await tester.tap(find.text('Via!'));
+    await elapse(tester, clock, const Duration(seconds: 4));
+
+    expect(media.connectCalls, 1);
+    await tester.tap(find.byTooltip('Accendi il microfono'));
+    await step(tester);
+    expect(media.micOn, isTrue);
+    await tester.tap(find.byTooltip('Mostra il tuo video all\'amico'));
+    await step(tester);
+    expect(media.cameraOn, isTrue);
+    expect(find.text('Video finto dell\'amico'), findsOneWidget);
+    // Con il video la fotocamera non conta da sola.
+    expect(find.text('Tocca a ogni push-up'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Chiudi la sfida'));
+    await step(tester);
+    await tester.tap(find.text('Esci'));
+    await step(tester);
+    expect(media.disconnected, isTrue);
+    await disposeRitmo(tester, db);
+  });
+}
+
+class FakeMedia extends LiveMedia {
+  var connectCalls = 0;
+  var disconnected = false;
+  var _mic = false;
+  var _camera = false;
+
+  @override
+  bool get micOn => _mic;
+  @override
+  bool get cameraOn => _camera;
+  @override
+  bool get connected => connectCalls > 0;
+  @override
+  String? get error => null;
+
+  @override
+  Widget? localVideo() => const Text('Il mio video finto');
+  @override
+  Widget? remoteVideo() => const Text('Video finto dell\'amico');
+
+  @override
+  Future<void> connect() async {
+    connectCalls++;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> setMic(bool on) async {
+    _mic = on;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> setCamera(bool on) async {
+    _camera = on;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> disconnect() async => disconnected = true;
 }
