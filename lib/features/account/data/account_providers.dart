@@ -94,3 +94,8 @@ final presenceProvider = Provider<PresenceReporter>((ref) {
   ref.onDispose(reporter.dispose);
   return reporter;
 });
+
+/// Le sfide da soli restano sempre sul telefono (anche senza account).
+final practiceBackendProvider = Provider<MemoryBackend>(
+  (ref) => MemoryBackend(clock: ref.watch(clockProvider)),
+);

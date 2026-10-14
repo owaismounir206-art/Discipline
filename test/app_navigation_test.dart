@@ -97,6 +97,7 @@ void main() {
     expect(find.text('Impostazioni'), findsOneWidget);
     expect(find.byType(NavigationBar), findsNothing);
 
+    await tester.scrollUntilVisible(find.text('Scuro'), 200);
     await tester.tap(find.text('Scuro'));
     await settle(tester);
     final context = tester.element(find.text('Impostazioni'));

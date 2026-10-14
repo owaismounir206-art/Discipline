@@ -58,10 +58,11 @@ Future<void> seedProfile(
 List<Override> testOverrides(
   AppDatabase db, {
   DateTime? now,
+  DateTime Function()? clock,
   List<Override> extra = const [],
 }) => [
   databaseProvider.overrideWithValue(db),
-  clockProvider.overrideWithValue(() => now ?? testNow),
+  clockProvider.overrideWithValue(clock ?? () => now ?? testNow),
   remindersProvider.overrideWithValue(FakeReminders()),
   sessionFeedbackProvider.overrideWithValue(SilentSessionFeedback()),
   foodCatalogProvider.overrideWithValue(FakeFoodCatalog()),
@@ -73,6 +74,7 @@ Future<void> pumpRitmo(
   WidgetTester tester,
   AppDatabase db, {
   DateTime? now,
+  DateTime Function()? clock,
   List<Override> extra = const [],
 }) async {
   // Schermo di un telefono (390 × 844 come nel design).
@@ -82,7 +84,7 @@ Future<void> pumpRitmo(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: testOverrides(db, now: now, extra: extra),
+      overrides: testOverrides(db, now: now, clock: clock, extra: extra),
       child: const RitmoApp(),
     ),
   );

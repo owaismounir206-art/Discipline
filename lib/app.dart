@@ -12,6 +12,7 @@ import 'core/data/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/ritmo_theme.dart';
 import 'core/theme/theme_settings.dart';
+import 'features/account/data/account_providers.dart';
 import 'features/workout/data/today_plan.dart';
 
 class RitmoApp extends ConsumerStatefulWidget {
@@ -29,7 +30,14 @@ class _RitmoAppState extends ConsumerState<RitmoApp> {
   void initState() {
     super.initState();
     // "Oggi" cambia a mezzanotte e quando l'app torna in primo piano.
-    _lifecycle = AppLifecycleListener(onResume: _refreshDay);
+    // Gli amici vedono se sei online solo mentre usi l'app.
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        _refreshDay();
+        ref.read(presenceProvider).resume();
+      },
+      onPause: () => ref.read(presenceProvider).pause(),
+    );
     _scheduleMidnight();
   }
 
@@ -56,6 +64,12 @@ class _RitmoAppState extends ConsumerState<RitmoApp> {
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final settings = ref.watch(themeSettingsProvider);
+    ref.listen(
+      accountProvider.select((a) => a.value?.id),
+      (_, id) => id == null
+          ? ref.read(presenceProvider).pause()
+          : ref.read(presenceProvider).resume(),
+    );
 
     // Su Android 12+ il sistema fornisce i colori dello sfondo; altrove sono
     // null e restano i colori di Ritmo.
