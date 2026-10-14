@@ -1,28 +1,28 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:material_ui/material_ui.dart';
 
-import 'ritmo_colors.dart';
+import 'discipline_colors.dart';
 
 /// Raggi degli angoli usati in tutta l'app (dal design).
-abstract final class RitmoRadii {
+abstract final class DisciplineRadii {
   static const card = 24.0;
   static const cardLarge = 28.0;
   static const chip = 10.0;
 }
 
-/// Costruisce il tema Material 3 di Ritmo a partire da uno schema di colori.
+/// Costruisce il tema Material 3 di Discipline a partire da uno schema di colori.
 ///
-/// Lo schema di solito è [RitmoColors.light] o [RitmoColors.dark]; su Android
+/// Lo schema di solito è [DisciplineColors.light] o [DisciplineColors.dark]; su Android
 /// 12+ può arrivare dai colori dello sfondo (dynamic color).
-abstract final class RitmoTheme {
+abstract final class DisciplineTheme {
   static const fontFamily = 'Figtree';
 
-  static ThemeData get light => fromScheme(RitmoColors.light);
+  static ThemeData get light => fromScheme(DisciplineColors.light);
 
-  static ThemeData get dark => fromScheme(RitmoColors.dark);
+  static ThemeData get dark => fromScheme(DisciplineColors.dark);
 
   static ThemeData fromScheme(ColorScheme scheme) {
     final base = ThemeData(
@@ -60,7 +60,7 @@ abstract final class RitmoTheme {
         color: scheme.surfaceContainer,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(RitmoRadii.card),
+          borderRadius: BorderRadius.circular(DisciplineRadii.card),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -102,7 +102,7 @@ abstract final class RitmoTheme {
       ),
       chipTheme: base.chipTheme.copyWith(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(RitmoRadii.chip),
+          borderRadius: BorderRadius.circular(DisciplineRadii.chip),
         ),
         labelStyle: text.labelLarge?.copyWith(fontWeight: FontWeight.w600),
       ),
@@ -136,7 +136,7 @@ abstract final class RitmoTheme {
       listTileTheme: ListTileThemeData(
         minVerticalPadding: 12,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(RitmoRadii.card),
+          borderRadius: BorderRadius.circular(DisciplineRadii.card),
         ),
       ),
     );

@@ -1,10 +1,11 @@
-# Ritmo
+# Discipline
 
 **Calisthenics libera e gratuita.** Allenamenti a corpo libero che si adattano
-al tuo livello, una streak che conta solo i giorni che scegli tu, sfide di
-push-up in diretta con gli amici e un diario del cibo con consigli.
+al tuo livello, una streak che conta solo i giorni che scegli tu, sfide che
+ti fanno guadagnare punti e un diario del cibo con consigli. Funziona tutta
+**offline**: niente account, niente server.
 
-Ritmo è **open source** (licenza GPL-3.0) e **gratis per tutti**: niente
+Discipline è **open source** (licenza GPL-3.0) e **gratis per tutti**: niente
 abbonamenti, acquisti in-app, pubblicità o tracciamento.
 
 > Il progetto è sviluppato con l'aiuto dell'intelligenza artificiale (Claude,
@@ -15,8 +16,8 @@ abbonamenti, acquisti in-app, pubblicità o tracciamento.
 <p>
   <img src="docs/screenshots/oggi.png" width="200" alt="Schermata Oggi con streak e allenamento">
   <img src="docs/screenshots/allenamento.png" width="200" alt="Allenamento in corso">
-  <img src="docs/screenshots/sfida.png" width="200" alt="Lobby delle sfide con gli amici">
-  <img src="docs/screenshots/sfida-live.png" width="200" alt="Sfida dal vivo, tema scuro">
+  <img src="docs/screenshots/sfide.png" width="200" alt="Sfide, punti e grado">
+  <img src="docs/screenshots/sfida-tempo.png" width="200" alt="Sfida a tempo contro un amico, tema scuro">
 </p>
 <p>
   <img src="docs/screenshots/allenati.png" width="200" alt="Piano settimanale">
@@ -27,25 +28,9 @@ abbonamenti, acquisti in-app, pubblicità o tracciamento.
 
 ## Stato del progetto
 
-Tutte le funzioni previste sono nel codice e coperte da test automatici.
-Le parti che richiedono un server (account, amici, sfide online, video)
-sono **spente finché non colleghi il tuo server**, gratuito: vedi
-[docs/SERVER.md](docs/SERVER.md). Senza server l'app funziona offline e
-permette le sfide "da solo".
-
-| Fase | Contenuto | Stato |
-|---|---|---|
-| 1 | Setup: progetto, tema Material 3, navigazione, file open source | ✅ |
-| 2 | Profilo atleta, catalogo esercizi, motore di progressione | ✅ |
-| 3 | Oggi e allenamento in corso (timer, serie, varianti) | ✅ |
-| 4 | Streak con regole e promemoria | ✅ |
-| 5 | Progressi: grafici e record | ✅ |
-| 6 | Cibo: diario, Open Food Facts, scanner, consigli | ✅ |
-| 7 | Account, amici e backup (Supabase, facoltativo) | ✅ |
-| 8 | Sfida multiplayer in tempo reale | ✅ |
-| 9 | Conteggio automatico dei push-up con la fotocamera | ✅ |
-| 10 | Video e audio nella sfida (LiveKit, facoltativo) | ✅ |
-| 11 | Icona, rilasci automatici, guida alla pubblicazione | ✅ |
+Tutte le funzioni sono nel codice e coperte da test automatici (analisi,
+test e compilazione Android/iOS a ogni modifica, più una prova di avvio
+dell'APK su un emulatore).
 
 Da fare quando avrai un telefono in mano: provare il conteggio con la
 fotocamera su un push-up vero e regolare le soglie se serve
@@ -57,9 +42,17 @@ fotocamera su un push-up vero e regolare le soglie se serve
   (es. push-up al muro → inclinati → classici → diamante → arciere → a un
   braccio), adattati a difficoltà, esperienza e a un test iniziale.
 - **Streak** che conta solo i giorni di allenamento che scegli.
-- **Sfide live** con un amico: Testa a testa, Gara a 50, Squadra.
+- **Sfide e punti**: una sfida del giorno e una della settimana tarate sul
+  tuo livello, sfide a tempo (Un minuto, Gara a 50) contro il tuo record.
+  I punti fanno salire di grado, sbloccano badge e colori dell'app e
+  comprano il **giorno jolly**, che salva la serie se salti un allenamento.
+- **Sfida un amico senza server**: fai la sfida, mandagli un codice su
+  WhatsApp; lui fa la stessa sfida e vede chi ha vinto.
+- **Animazioni Material You**: indicatori e pulsanti che scorrono partendo
+  veloci e posandosi dolcemente; si spengono con "riduci animazioni".
 - **Conteggio dei push-up con la fotocamera**, tutto sul telefono: nessun
-  video viene salvato o inviato.
+  video viene salvato o inviato. Le ripetizioni contate così valgono 1,5
+  punti invece di 1.
 - **Diario del cibo** con kcal e macronutrienti, ricerca su Open Food Facts,
   scanner del codice a barre e consigli per il prossimo pasto. I valori sono
   stime e non sostituiscono un nutrizionista.
@@ -70,7 +63,7 @@ Senza installare nulla sul computer:
 
 1. Apri la scheda **Actions** del repository e scegli l'ultima esecuzione
    verde di **CI**.
-2. In fondo, nella sezione **Artifacts**, scarica `ritmo-apk-prova` (serve
+2. In fondo, nella sezione **Artifacts**, scarica `discipline-apk-prova` (serve
    essere collegati a GitHub) ed estrai lo zip.
 3. Copia `app-release.apk` sul telefono e aprilo. Android ti chiederà di
    consentire l'installazione da questa fonte.
@@ -86,16 +79,13 @@ Requisiti: [Flutter](https://docs.flutter.dev/get-started/install) stabile
 Xcode.
 
 ```sh
-git clone https://github.com/owaismounir206-art/Discipline.git ritmo
-cd ritmo
+git clone https://github.com/owaismounir206-art/Discipline.git discipline
+cd discipline
 flutter pub get
 flutter run          # su emulatore o telefono collegato
 flutter test         # esegue i test
 ```
 
-Per attivare amici, sfide online e video collega il tuo server (gratuito):
-[docs/SERVER.md](docs/SERVER.md) e [docs/VIDEO.md](docs/VIDEO.md). Le chiavi
-vanno in `config/ritmo.json`, che **non** finisce su GitHub.
 
 ## Tecnologie
 
@@ -105,8 +95,6 @@ vanno in `config/ritmo.json`, che **non** finisce su GitHub.
 - [Riverpod](https://riverpod.dev) per lo stato, [go_router](https://pub.dev/packages/go_router)
   per la navigazione
 - [Drift](https://drift.simonbinder.eu) (SQLite) per i dati sul telefono
-- [Supabase](https://supabase.com) (facoltativo, open source) per account,
-  amici e sfide in tempo reale; [LiveKit](https://livekit.io) per il video
 - ML Kit (sul telefono) per il conteggio con la fotocamera
 - Font [Figtree](https://github.com/erikdkennedy/figtree) (SIL OFL 1.1),
   incluso nell'app
@@ -116,9 +104,8 @@ Struttura delle cartelle:
 ```
 lib/
   core/            tema, navigazione, componenti condivisi
-  features/<nome>/ una cartella per funzione (today, workout, challenge, food, progress, camera, account, settings)
-supabase/          schema del database e funzione per il video
-docs/              guide (server, video, pubblicazione) e screenshot
+  features/<nome>/ una cartella per funzione (today, workout, challenge, rewards, food, progress, camera, settings)
+docs/              guida alla pubblicazione e screenshot
 design/            schermate di riferimento del design
 test/              test automatici
 ```
@@ -130,15 +117,16 @@ Ogni aiuto è benvenuto: segnalazioni, idee, traduzioni, codice. Leggi
 
 ## Privacy
 
-I tuoi dati restano sul telefono, salvo quando scegli di creare un account o
-di sfidare un amico. Nessun dato viene venduto o condiviso. Dettagli in
+I tuoi dati restano sul telefono: non c'è nessun account né server. L'unico
+collegamento a internet è la ricerca degli alimenti su Open Food Facts. Per
+cambiare telefono esporti un file di backup dalle impostazioni. Dettagli in
 [PRIVACY.md](PRIVACY.md).
 
 ## Licenza
 
-Copyright (C) 2026 Ritmo contributors.
+Copyright (C) 2026 Discipline contributors.
 
-Ritmo è software libero: puoi redistribuirlo e/o modificarlo secondo i
+Discipline è software libero: puoi redistribuirlo e/o modificarlo secondo i
 termini della [GNU General Public License](LICENSE), versione 3 o (a tua
 scelta) successiva. Le versioni derivate devono restare libere e aperte.
 
@@ -146,22 +134,21 @@ scelta) successiva. Le versioni derivate devono restare libere e aperte.
 
 ## English
 
-**Ritmo** is a free and open source calisthenics app for Android and iOS:
+**Discipline** is a free and open source calisthenics app for Android and iOS:
 bodyweight workouts that adapt to your level and experience, a streak that
-only counts the training days you pick, live push-up challenges with friends
-(with on-device camera rep counting) and a food diary with suggestions.
+only counts the training days you pick, generated challenges that earn you
+points (ranks, badges, unlockable colors, streak freezes), friend challenges
+through a shareable code with no server, on-device camera rep counting and a
+food diary with suggestions.
 
 - **Free forever**: no subscriptions, in-app purchases, ads or tracking.
 - **Open source** under the GNU GPL v3 or later.
-- **Privacy first**: your data stays on your phone unless you sign in or
-  start a challenge.
+- **Privacy first**: fully offline, no account, no server; backups are a
+  file you export yourself.
 - **Built with AI**: developed with the help of Claude (Anthropic).
 
 The app UI is in Italian for now; translations are welcome.
 
-Online features (accounts, friends, live challenges, video) need a free
-Supabase project you set up yourself: see [docs/SERVER.md](docs/SERVER.md).
-Without it, the app works fully offline.
 
 ### Build
 
@@ -173,7 +160,7 @@ flutter test
 
 ### Try it
 
-Download the `ritmo-apk-prova` artifact from the latest green **CI** run in
+Download the `discipline-apk-prova` artifact from the latest green **CI** run in
 the **Actions** tab and install the APK on an Android phone.
 
 ### Contributing

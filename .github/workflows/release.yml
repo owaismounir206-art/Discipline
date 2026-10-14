@@ -53,12 +53,12 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
           if [ -n "$KEYSTORE_B64" ]; then
-            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/ritmo-release.jks"
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/discipline-release.jks"
             {
               echo "storePassword=$STORE_PASSWORD"
               echo "keyPassword=$KEY_PASSWORD"
               echo "keyAlias=$KEY_ALIAS"
-              echo "storeFile=$RUNNER_TEMP/ritmo-release.jks"
+              echo "storeFile=$RUNNER_TEMP/discipline-release.jks"
             } > android/key.properties
             echo "Firma di rilascio attiva."
           else
@@ -88,13 +88,13 @@ jobs:
         run: |
           mkdir dist
           TAG="${{ steps.version.outputs.tag }}"
-          cp build/app/outputs/flutter-apk/app-release.apk "dist/ritmo-$TAG.apk"
-          cp build/app/outputs/bundle/release/app-release.aab "dist/ritmo-$TAG.aab"
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/discipline-$TAG.apk"
+          cp build/app/outputs/bundle/release/app-release.aab "dist/discipline-$TAG.aab"
           (cd dist && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ritmo-release
+          name: discipline-release
           path: dist/
           retention-days: 30
 
@@ -103,7 +103,7 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           target_commitish: ${{ github.sha }}
-          name: Ritmo ${{ steps.version.outputs.name }}
+          name: Discipline ${{ steps.version.outputs.name }}
           files: dist/*
           generate_release_notes: true
           # Senza keystore nei segreti l'APK è firmato con la chiave di prova.

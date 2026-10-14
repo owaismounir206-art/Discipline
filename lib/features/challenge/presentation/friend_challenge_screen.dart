@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,7 +83,7 @@ class _FriendChallengeScreenState extends ConsumerState<FriendChallengeScreen> {
             ),
             if (decoded != null) ...[
               const SizedBox(height: 12),
-              RitmoCard(
+              DisciplineCard(
                 color: scheme.secondaryContainer,
                 radius: 24,
                 padding: const EdgeInsets.all(16),
@@ -171,7 +171,7 @@ class _ModeRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return RitmoCard(
+    return DisciplineCard(
       radius: 24,
       padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
       child: Row(

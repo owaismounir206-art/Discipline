@@ -1,10 +1,10 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ritmo/core/data/database.dart';
+import 'package:discipline/core/data/database.dart';
 
 void main() {
   late AppDatabase db;

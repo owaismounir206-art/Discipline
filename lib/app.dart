@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:async';
@@ -10,19 +10,19 @@ import 'package:material_ui/material_ui.dart';
 
 import 'core/data/providers.dart';
 import 'core/router/app_router.dart';
-import 'core/theme/ritmo_theme.dart';
+import 'core/theme/discipline_theme.dart';
 import 'core/theme/theme_settings.dart';
 import 'features/rewards/domain/rewards.dart';
 import 'features/workout/data/today_plan.dart';
 
-class RitmoApp extends ConsumerStatefulWidget {
-  const RitmoApp({super.key});
+class DisciplineApp extends ConsumerStatefulWidget {
+  const DisciplineApp({super.key});
 
   @override
-  ConsumerState<RitmoApp> createState() => _RitmoAppState();
+  ConsumerState<DisciplineApp> createState() => _DisciplineAppState();
 }
 
-class _RitmoAppState extends ConsumerState<RitmoApp> {
+class _DisciplineAppState extends ConsumerState<DisciplineApp> {
   late final AppLifecycleListener _lifecycle;
   Timer? _midnight;
 
@@ -59,7 +59,7 @@ class _RitmoAppState extends ConsumerState<RitmoApp> {
     final settings = ref.watch(themeSettingsProvider);
 
     // Su Android 12+ il sistema fornisce i colori dello sfondo; altrove sono
-    // null e restano i colori di Ritmo.
+    // null e restano i colori di Discipline.
     return DynamicColorBuilder(
       builder: (lightDynamic, darkDynamic) {
         final useDynamic =
@@ -68,13 +68,13 @@ class _RitmoAppState extends ConsumerState<RitmoApp> {
             darkDynamic != null;
 
         return MaterialApp.router(
-          title: 'Ritmo',
+          title: 'Discipline',
           debugShowCheckedModeBanner: false,
           theme: useDynamic
-              ? RitmoTheme.fromScheme(lightDynamic.harmonized())
+              ? DisciplineTheme.fromScheme(lightDynamic.harmonized())
               : _paletteTheme(settings.palette, Brightness.light),
           darkTheme: useDynamic
-              ? RitmoTheme.fromScheme(darkDynamic.harmonized())
+              ? DisciplineTheme.fromScheme(darkDynamic.harmonized())
               : _paletteTheme(settings.palette, Brightness.dark),
           themeMode: settings.mode,
           locale: const Locale('it'),
@@ -92,9 +92,11 @@ class _RitmoAppState extends ConsumerState<RitmoApp> {
 ThemeData _paletteTheme(String name, Brightness brightness) {
   final palette = AppPalette.values.asNameMap()[name] ?? AppPalette.coral;
   if (palette == AppPalette.coral) {
-    return brightness == Brightness.light ? RitmoTheme.light : RitmoTheme.dark;
+    return brightness == Brightness.light
+        ? DisciplineTheme.light
+        : DisciplineTheme.dark;
   }
-  return RitmoTheme.fromScheme(
+  return DisciplineTheme.fromScheme(
     ColorScheme.fromSeed(seedColor: palette.seed, brightness: brightness),
   );
 }

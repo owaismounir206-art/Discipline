@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -73,7 +73,7 @@ class _FoodAmountSheetState extends ConsumerState<FoodAmountSheet> {
               ),
             ),
             if (warning.isNotEmpty)
-              RitmoCard(
+              DisciplineCard(
                 color: scheme.errorContainer,
                 radius: 16,
                 padding: const EdgeInsets.all(12),
@@ -114,7 +114,7 @@ class _FoodAmountSheetState extends ConsumerState<FoodAmountSheet> {
                   ),
               ],
             ),
-            RitmoCard(
+            DisciplineCard(
               radius: 20,
               padding: const EdgeInsets.all(14),
               semanticsLabel: 'Valori per $_grams grammi',

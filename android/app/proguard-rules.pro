@@ -1,4 +1,4 @@
-# Ritmo — regole per R8 (ottimizzatore delle build di release).
+# Discipline — regole per R8 (ottimizzatore delle build di release).
 # Senza queste, R8 elimina classi che Android crea "per nome" e l'app si
 # chiude appena aperta.
 

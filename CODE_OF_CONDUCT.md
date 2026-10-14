@@ -2,7 +2,7 @@
 
 ## Il nostro impegno
 
-Chi partecipa a Ritmo (issue, pull request, discussioni) si impegna a rendere
+Chi partecipa a Discipline (issue, pull request, discussioni) si impegna a rendere
 la comunità un luogo accogliente e senza molestie per tutte le persone,
 indipendentemente da età, corporatura, disabilità, etnia, identità ed
 espressione di genere, livello di esperienza, nazionalità, aspetto,

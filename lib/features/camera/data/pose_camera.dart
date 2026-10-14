@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:async';
@@ -79,7 +79,7 @@ class MlKitPoseCamera implements PoseCamera {
     'CameraAccessDenied' ||
     'CameraAccessDeniedWithoutPrompt' ||
     'CameraAccessRestricted' =>
-      'Ritmo non ha il permesso di usare la fotocamera. Puoi darlo dalle '
+      'Discipline non ha il permesso di usare la fotocamera. Puoi darlo dalle '
           'impostazioni del telefono, oppure contare a mano.',
     _ => 'Non riesco ad aprire la fotocamera. Puoi contare a mano.',
   };

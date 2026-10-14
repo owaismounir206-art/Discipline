@@ -1,12 +1,12 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:material_ui/material_ui.dart';
 
 /// Regole del movimento (Material You): gli elementi partono veloci e si
 /// posano dolcemente, come un oggetto vero che frena.
-abstract final class RitmoMotion {
+abstract final class DisciplineMotion {
   /// Curva enfatizzata in decelerazione: ~80% della strada nel primo terzo.
   static const decelerate = Cubic(0.05, 0.7, 0.1, 1);
 

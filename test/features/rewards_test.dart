@@ -1,14 +1,14 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ritmo/core/utils/local_date.dart';
-import 'package:ritmo/features/challenge/domain/generated.dart';
-import 'package:ritmo/features/exercises/domain/exercise.dart';
-import 'package:ritmo/features/profile/domain/athlete_profile.dart';
-import 'package:ritmo/features/rewards/data/rewards_repository.dart';
-import 'package:ritmo/features/rewards/domain/rewards.dart';
+import 'package:discipline/core/utils/local_date.dart';
+import 'package:discipline/features/challenge/domain/generated.dart';
+import 'package:discipline/features/exercises/domain/exercise.dart';
+import 'package:discipline/features/profile/domain/athlete_profile.dart';
+import 'package:discipline/features/rewards/data/rewards_repository.dart';
+import 'package:discipline/features/rewards/domain/rewards.dart';
 
 import '../helpers.dart';
 

@@ -1,12 +1,12 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/services/share.dart';
-import '../../core/theme/ritmo_theme.dart';
+import '../../core/theme/discipline_theme.dart';
 import '../../core/utils/local_date.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/motion_widgets.dart';
@@ -108,7 +108,7 @@ class ProgressScreen extends ConsumerWidget {
           selected: period,
           onChanged: (p) => ref.read(_periodProvider.notifier).select(p),
         ),
-        RitmoCard(
+        DisciplineCard(
           padding: const EdgeInsets.all(20),
           semanticsLabel: 'Ripetizioni per sessione',
           child: Column(
@@ -240,7 +240,7 @@ class ProgressScreen extends ConsumerWidget {
             ),
           ),
         for (final (i, skill) in skills.indexed)
-          RitmoCard(
+          DisciplineCard(
             color: scheme.surfaceContainerLow,
             radius: 20,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -313,11 +313,11 @@ String _shareText({
   required int pushUps,
   required int pulls,
 }) => [
-  'I miei progressi su Ritmo 💪',
+  'I miei progressi su Discipline 💪',
   if (streak > 0) '🔥 $streak allenamenti di fila (record: $best)',
   '• $pushUps push-up questo mese',
   if (pulls > 0) '• $pulls trazioni di fila',
-  'Ritmo è gratis e open source: github.com/owaismounir206-art/Discipline',
+  'Discipline è gratis e open source: github.com/owaismounir206-art/Discipline',
 ].join('\n');
 
 class _BarChart extends StatelessWidget {
@@ -409,9 +409,9 @@ class _StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RitmoCard(
+    return DisciplineCard(
       color: color,
-      radius: RitmoRadii.card,
+      radius: DisciplineRadii.card,
       padding: const EdgeInsets.all(16),
       semanticsLabel: '$label: $value${unit ?? ''}',
       child: Column(

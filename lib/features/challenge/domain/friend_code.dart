@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:convert';
@@ -149,9 +149,9 @@ FriendChallenge? decodeFriendChallenge(String code) {
 
 /// Testo da mandare su WhatsApp, Telegram...
 String friendChallengeMessage(FriendChallenge c) =>
-    '${c.name.isEmpty ? 'Ti sfido' : '${c.name} ti sfida'} su Ritmo! 💪\n'
+    '${c.name.isEmpty ? 'Ti sfido' : '${c.name} ti sfida'} su Discipline! 💪\n'
     '${c.mode.label}: ${c.scoreLabel}. Riesci a battermi?\n'
-    'In Ritmo apri Sfide › Sfida un amico e inserisci il codice:\n'
+    'In Discipline apri Sfide › Sfida un amico e inserisci il codice:\n'
     '${encodeFriendChallenge(c)}';
 
 /// Risposta dopo aver fatto la sfida di un amico.
@@ -166,5 +166,5 @@ String friendReplyMessage(FriendChallenge c, TimedResult mine, String me) {
       : 'Hai vinto tu';
   return '$verdict${c.name.isEmpty ? '' : ', ${c.name}'}! '
       '${c.mode.label}: io ${mine.scoreLabel}, tu ${c.scoreLabel}. '
-      '${me.isEmpty ? '' : '— $me, '}su Ritmo 💪';
+      '${me.isEmpty ? '' : '— $me, '}su Discipline 💪';
 }

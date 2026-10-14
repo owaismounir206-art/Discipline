@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Ritmo — app di calisthenics libera e gratuita.
-# Copyright (C) 2026 Ritmo contributors
+# Discipline — app di calisthenics libera e gratuita.
+# Copyright (C) 2026 Discipline contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Installa l'APK, apre l'app e verifica che dopo 25 secondi sia ancora viva.
 set -u
 APK="$1"
-PKG=io.github.owaismounir206art.ritmo
+PKG=io.github.owaismounir206art.discipline
 adb logcat -c
 adb install -r "$APK" || exit 1
 adb shell monkey -p "$PKG" -c android.intent.category.LAUNCHER 1

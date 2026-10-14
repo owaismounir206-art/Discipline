@@ -7,7 +7,7 @@
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
-		<string>Ritmo</string>
+		<string>Discipline</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>Ritmo</string>
+		<string>Discipline</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleShortVersionString</key>
@@ -58,7 +58,7 @@
 			<string>UIInterfaceOrientationPortrait</string>
 		</array>
 		<key>NSCameraUsageDescription</key>
-		<string>Ritmo usa la fotocamera per contare i push-up (le immagini restano sul telefono) e per leggere i codici a barre degli alimenti.</string>
+		<string>Discipline usa la fotocamera per contare i push-up (le immagini restano sul telefono) e per leggere i codici a barre degli alimenti.</string>
 		<key>ITSAppUsesNonExemptEncryption</key>
 		<false/>
 		<key>UISupportedInterfaceOrientations~ipad</key>

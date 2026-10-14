@@ -1,11 +1,11 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:math' as math;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ritmo/features/camera/domain/rep_counter.dart';
+import 'package:discipline/features/camera/domain/rep_counter.dart';
 
 /// Corpo di profilo con gomito a [elbowDeg] e linea spalla–anca–caviglia a
 /// [hipDeg] (180 = schiena dritta).

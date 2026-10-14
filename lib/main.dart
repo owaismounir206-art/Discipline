@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,5 +32,5 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks(['Figtree'], license);
   });
 
-  runApp(const ProviderScope(child: RitmoApp()));
+  runApp(const ProviderScope(child: DisciplineApp()));
 }

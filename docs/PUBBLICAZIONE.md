@@ -1,6 +1,6 @@
-# Pubblicare Ritmo gratuitamente
+# Pubblicare Discipline gratuitamente
 
-Ritmo non ha costi di pubblicazione obbligatori: il modo gratuito è
+Discipline non ha costi di pubblicazione obbligatori: il modo gratuito è
 **GitHub Releases** (APK da scaricare). Gli store ufficiali hanno costi
 o requisiti propri, spiegati sotto.
 
@@ -10,9 +10,9 @@ Serve per far riconoscere gli aggiornamenti come provenienti da te.
 **Conservala al sicuro: se la perdi non potrai più aggiornare l'app.**
 
 ```bash
-keytool -genkey -v -keystore ~/ritmo-release.jks -keyalg RSA \
-  -keysize 2048 -validity 10000 -alias ritmo
-base64 -w0 ~/ritmo-release.jks   # su Mac: base64 -i ~/ritmo-release.jks
+keytool -genkey -v -keystore ~/discipline-release.jks -keyalg RSA \
+  -keysize 2048 -validity 10000 -alias discipline
+base64 -w0 ~/discipline-release.jks   # su Mac: base64 -i ~/discipline-release.jks
 ```
 
 Nel repository: **Settings → Secrets and variables → Actions → New secret**:
@@ -22,9 +22,7 @@ Nel repository: **Settings → Secrets and variables → Actions → New secret*
 | `ANDROID_KEYSTORE_BASE64` | l'output di `base64` |
 | `ANDROID_KEYSTORE_PASSWORD` | password del keystore |
 | `ANDROID_KEY_PASSWORD` | password della chiave |
-| `ANDROID_KEY_ALIAS` | `ritmo` |
-| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` | dal tuo progetto (vedi `SERVER.md`), facoltativi |
-| `LIVEKIT_URL` | facoltativo (vedi `VIDEO.md`) |
+| `ANDROID_KEY_ALIAS` | `discipline` |
 
 Mai nel codice, mai in una issue. Per compilare in locale con la stessa
 chiave copia `android/key.properties.example` in `android/key.properties`.
@@ -45,7 +43,7 @@ chiave copia `android/key.properties.example` in `android/key.properties`.
 ## 3. Store (facoltativo)
 
 - **F-Droid** (gratuito, solo software libero): è il posto naturale per
-  Ritmo. Si propone una richiesta nel repository `fdroiddata`. Ritmo usa
+  Discipline. Si propone una richiesta nel repository `fdroiddata`. Discipline usa
   ML Kit (Google), che F-Droid considera non libero: per entrare servirebbe
   una variante senza conteggio automatico. Valuta insieme alla community.
 - **Google Play**: account sviluppatore a pagamento una tantum (25 $).
@@ -58,5 +56,5 @@ chiave copia `android/key.properties.example` in `android/key.properties`.
   su un Mac con Xcode e App Store Connect.
 
 Prima di aprire a tutti: prova il conteggio con la fotocamera su più
-telefoni e controlla che account, sfide e cancellazione dell'account
-funzionino con il tuo server.
+telefoni e controlla che backup e ripristino funzionino passando da un
+telefono all'altro.

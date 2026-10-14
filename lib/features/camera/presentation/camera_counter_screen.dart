@@ -1,11 +1,11 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../../core/theme/ritmo_theme.dart';
+import '../../../core/theme/discipline_theme.dart';
 import '../domain/rep_counter.dart';
 import 'rep_camera.dart';
 
@@ -35,7 +35,7 @@ class _CameraCounterScreenState extends State<CameraCounterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dark = RitmoTheme.dark;
+    final dark = DisciplineTheme.dark;
     final scheme = dark.colorScheme;
     return Theme(
       data: dark,
@@ -87,7 +87,7 @@ class _CameraCounterScreenState extends State<CameraCounterScreen> {
                     Expanded(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(
-                          RitmoRadii.cardLarge,
+                          DisciplineRadii.cardLarge,
                         ),
                         child: ColoredBox(
                           color: scheme.surfaceContainerHigh,

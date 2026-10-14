@@ -2,10 +2,10 @@
 # le versioni ufficiali. NON caricare mai key.properties o il file .jks su GitHub.
 #
 # Per creare la chiave (una sola volta, poi conservala al sicuro):
-#   keytool -genkey -v -keystore ~/ritmo-release.jks -keyalg RSA \
-#     -keysize 2048 -validity 10000 -alias ritmo
+#   keytool -genkey -v -keystore ~/discipline-release.jks -keyalg RSA \
+#     -keysize 2048 -validity 10000 -alias discipline
 #
 storePassword=la-password-del-keystore
 keyPassword=la-password-della-chiave
-keyAlias=ritmo
-storeFile=/percorso/assoluto/ritmo-release.jks
+keyAlias=discipline
+storeFile=/percorso/assoluto/discipline-release.jks

@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // Genera gli screenshot del README in docs/screenshots/.
@@ -12,15 +12,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ritmo/core/widgets/motion_widgets.dart';
-import 'package:ritmo/app.dart';
-import 'package:ritmo/core/data/database.dart';
-import 'package:ritmo/core/router/routes.dart';
-import 'package:ritmo/core/utils/local_date.dart';
-import 'package:ritmo/features/challenge/domain/friend_code.dart';
-import 'package:ritmo/features/challenge/domain/timed.dart';
-import 'package:ritmo/features/rewards/data/rewards_repository.dart';
-import 'package:ritmo/features/rewards/domain/rewards.dart';
+import 'package:discipline/core/widgets/motion_widgets.dart';
+import 'package:discipline/app.dart';
+import 'package:discipline/core/data/database.dart';
+import 'package:discipline/core/router/routes.dart';
+import 'package:discipline/core/utils/local_date.dart';
+import 'package:discipline/features/challenge/domain/friend_code.dart';
+import 'package:discipline/features/challenge/domain/timed.dart';
+import 'package:discipline/features/rewards/data/rewards_repository.dart';
+import 'package:discipline/features/rewards/domain/rewards.dart';
 
 import '../test/helpers.dart';
 
@@ -47,14 +47,14 @@ Future<void> wait(WidgetTester tester, [int times = 6]) async {
 }
 
 Future<void> shoot(String name) => expectLater(
-  find.byType(RitmoApp),
+  find.byType(DisciplineApp),
   matchesGoldenFile('../docs/screenshots/$name.png'),
 );
 
 Future<void> openTab(WidgetTester tester, String label) async {
   await tester.tap(
     find.descendant(
-      of: find.byType(RitmoNavigationBar),
+      of: find.byType(DisciplineNavigationBar),
       matching: find.text(label),
     ),
   );
@@ -71,26 +71,26 @@ void main() {
 
   testWidgets('oggi', (tester) async {
     await tester.runAsync(() => seedHistory(db));
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     await wait(tester);
     await shoot('oggi');
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('profilo atleta', (tester) async {
     await tester.runAsync(() => seedHistory(db));
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     await tester.tap(find.byTooltip('Profilo e impostazioni'));
     await wait(tester);
     await tester.tap(find.text('Profilo atleta'));
     await wait(tester);
     await shoot('profilo');
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('allenamento', (tester) async {
     await tester.runAsync(() => seedHistory(db));
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     final start = find.text('Inizia allenamento');
     await tester.scrollUntilVisible(start, 200);
     await tester.ensureVisible(start);
@@ -106,36 +106,36 @@ void main() {
     await wait(tester);
     await tester.tap(find.text('Termina'));
     await wait(tester);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('allenati', (tester) async {
     await tester.runAsync(() => seedHistory(db));
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     await openTab(tester, 'Allenati');
     await shoot('allenati');
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('progressi', (tester) async {
     await tester.runAsync(() => seedHistory(db));
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     await openTab(tester, 'Progressi');
     await shoot('progressi');
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('cibo', (tester) async {
     final evening = DateTime(2026, 10, 13, 19);
     await tester.runAsync(() => seedHistory(db));
     await tester.runAsync(() => seedFood(db, now: evening));
-    await pumpRitmo(tester, db, now: evening);
+    await pumpDiscipline(tester, db, now: evening);
     await openTab(tester, 'Cibo');
     await shoot('cibo');
     await tester.tap(find.text('Cosa mangio a cena?'));
     await wait(tester);
     await shoot('consigli');
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('sfide', (tester) async {
@@ -150,16 +150,16 @@ void main() {
         at: testNow,
       );
     });
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     await openTab(tester, 'Sfide');
     await shoot('sfide');
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('sfida a tempo', (tester) async {
     var now = testNow;
     await tester.runAsync(() => seedHistory(db));
-    await pumpRitmo(tester, db, clock: () => now);
+    await pumpDiscipline(tester, db, clock: () => now);
     final context = tester.element(find.byType(Scaffold).first);
     final code = encodeFriendChallenge(
       const FriendChallenge(
@@ -181,6 +181,6 @@ void main() {
     now = now.add(const Duration(seconds: 26));
     await wait(tester, 2);
     await shoot('sfida-tempo');
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 }

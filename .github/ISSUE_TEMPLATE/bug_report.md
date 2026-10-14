@@ -21,7 +21,7 @@ labels: bug
 
 - Modello:
 - Sistema (es. Android 14, iOS 18):
-- Versione di Ritmo (Impostazioni → Licenze open source):
+- Versione di Discipline (Impostazioni → Licenze open source):
 
 ## Screenshot
 

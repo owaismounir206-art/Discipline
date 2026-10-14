@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:async';
@@ -13,7 +13,7 @@ import '../../../core/data/providers.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/services/share.dart';
 import '../../../core/theme/motion.dart';
-import '../../../core/theme/ritmo_theme.dart';
+import '../../../core/theme/discipline_theme.dart';
 import '../../../core/utils/local_date.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/motion_widgets.dart';
@@ -169,7 +169,7 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dark = RitmoTheme.dark;
+    final dark = DisciplineTheme.dark;
     final invalidCode = widget.friendCode != null && _friend == null;
     return Theme(
       data: dark,
@@ -421,7 +421,7 @@ class _ReadyView extends StatelessWidget {
             textStyle: Theme.of(context).textTheme.labelLarge
                 ?.copyWith(fontSize: 22, fontWeight: FontWeight.w800),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(RitmoRadii.cardLarge),
+              borderRadius: BorderRadius.circular(DisciplineRadii.cardLarge),
             ),
           ),
           onPressed: onStart,
@@ -513,7 +513,7 @@ class _CountTile extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: scheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(RitmoRadii.cardLarge),
+          borderRadius: BorderRadius.circular(DisciplineRadii.cardLarge),
           border: Border.all(
             color: highlighted ? color : Colors.transparent,
             width: 3,
@@ -556,8 +556,8 @@ class _CountTile extends StatelessWidget {
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: AnimatedSwitcher(
-                          duration: RitmoMotion.short,
-                          switchInCurve: RitmoMotion.decelerate,
+                          duration: DisciplineMotion.short,
+                          switchInCurve: DisciplineMotion.decelerate,
                           transitionBuilder: (child, animation) =>
                               ScaleTransition(
                                 scale: Tween(
@@ -609,8 +609,8 @@ class _GoalBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(6),
           child: TweenAnimationBuilder<double>(
             tween: Tween(end: (reps / goal).clamp(0, 1)),
-            duration: RitmoMotion.medium,
-            curve: RitmoMotion.decelerate,
+            duration: DisciplineMotion.medium,
+            curve: DisciplineMotion.decelerate,
             builder: (context, value, _) => LinearProgressIndicator(
               value: value,
               minHeight: 12,
@@ -665,7 +665,7 @@ class _RepButton extends StatelessWidget {
             ),
             disabledForegroundColor: scheme.onPrimary,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(RitmoRadii.cardLarge),
+              borderRadius: BorderRadius.circular(DisciplineRadii.cardLarge),
             ),
           ),
           onPressed: enabled ? onTap : null,

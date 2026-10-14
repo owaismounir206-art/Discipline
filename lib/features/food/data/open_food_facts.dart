@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:async';
@@ -40,7 +40,7 @@ class OpenFoodFacts implements FoodCatalog {
   static const _headers = {
     // Open Food Facts chiede di identificare l'app.
     'User-Agent':
-        'Ritmo/0.1 (https://github.com/owaismounir206-art/Discipline)',
+        'Discipline/0.1 (https://github.com/owaismounir206-art/Discipline)',
   };
 
   Future<Map<String, Object?>> _get(Uri uri) async {

@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:convert';
@@ -33,7 +33,7 @@ class DeviceBackupFiles implements BackupFiles {
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path, mimeType: 'application/json')],
-        subject: 'Backup di Ritmo',
+        subject: 'Backup di Discipline',
       ),
     );
   }
@@ -78,7 +78,7 @@ class BackupSection extends ConsumerWidget {
             final data = await db.exportAll();
             final today = LocalDate.fromDateTime(ref.read(clockProvider)());
             await files.export(
-              'ritmo-backup-${today.key}.json',
+              'discipline-backup-${today.key}.json',
               const JsonEncoder.withIndent(' ').convert(data),
             );
           },
@@ -118,7 +118,7 @@ class BackupSection extends ConsumerWidget {
               if (context.mounted) _snack(context, 'Dati importati');
             } on FormatException {
               if (context.mounted) {
-                _snack(context, 'Questo file non è un backup di Ritmo.');
+                _snack(context, 'Questo file non è un backup di Discipline.');
               }
             }
           },

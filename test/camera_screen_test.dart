@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:async';
@@ -7,9 +7,9 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ritmo/core/router/routes.dart';
-import 'package:ritmo/features/camera/data/pose_camera.dart';
-import 'package:ritmo/features/camera/domain/rep_counter.dart';
+import 'package:discipline/core/router/routes.dart';
+import 'package:discipline/features/camera/data/pose_camera.dart';
+import 'package:discipline/features/camera/domain/rep_counter.dart';
 
 import 'features/rep_counter_test.dart' as counter;
 import 'helpers.dart';
@@ -62,7 +62,7 @@ void main() {
     int? result;
     final db = memoryDatabase();
     await seedProfile(db);
-    await pumpRitmo(
+    await pumpDiscipline(
       tester,
       db,
       extra: [poseCameraProvider.overrideWithValue(camera)],
@@ -97,14 +97,14 @@ void main() {
     await settle(tester);
     expect(result, 3);
     expect(camera.session.closed, isTrue);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('permesso negato: messaggio e conteggio a mano', (tester) async {
-    final camera = FakeCamera(error: 'Ritmo non ha il permesso.');
+    final camera = FakeCamera(error: 'Discipline non ha il permesso.');
     final db = memoryDatabase();
     await seedProfile(db);
-    await pumpRitmo(
+    await pumpDiscipline(
       tester,
       db,
       extra: [poseCameraProvider.overrideWithValue(camera)],
@@ -112,10 +112,10 @@ void main() {
     final context = tester.element(find.byType(Scaffold).first);
     unawaited(GoRouter.of(context).push<int>(Routes.cameraCounter));
     await settle(tester);
-    expect(find.text('Ritmo non ha il permesso.'), findsOneWidget);
+    expect(find.text('Discipline non ha il permesso.'), findsOneWidget);
     await tester.tap(find.text('+1 a mano'));
     await tester.pump();
     expect(find.text('1'), findsOneWidget);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 }

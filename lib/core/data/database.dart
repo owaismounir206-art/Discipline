@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:convert';
@@ -143,7 +143,7 @@ class TimedResults extends Table {
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor])
-    : super(executor ?? driftDatabase(name: 'ritmo'));
+    : super(executor ?? driftDatabase(name: 'discipline'));
 
   @override
   int get schemaVersion => 2;
@@ -200,7 +200,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Tutti i dati in JSON (per il backup sul server o su file).
   Future<Map<String, Object?>> exportAll() async => {
-    'app': 'ritmo',
+    'app': 'discipline',
     'version': backupVersion,
     'schema': schemaVersion,
     'tables': {
@@ -214,8 +214,10 @@ class AppDatabase extends _$AppDatabase {
 
   /// Sostituisce tutti i dati con quelli di un backup di [exportAll].
   Future<void> importAll(Map<String, Object?> backup) async {
-    if (backup['app'] != 'ritmo' || backup['tables'] is! Map) {
-      throw const FormatException('Non è un backup di Ritmo');
+    // Si leggono anche i backup di quando l'app si chiamava Ritmo.
+    if (!const {'discipline', 'ritmo'}.contains(backup['app']) ||
+        backup['tables'] is! Map) {
+      throw const FormatException('Non è un backup di Discipline');
     }
     final tables = (backup['tables']! as Map).cast<String, Object?>();
     List<Map<String, dynamic>> rows(TableInfo<Table, Object?> table) => [

@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:math' as math;
@@ -89,7 +89,7 @@ class _SetupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return RitmoCard(
+    return DisciplineCard(
       color: scheme.primaryContainer,
       onTap: () => context.push(Routes.bodyData),
       child: Row(
@@ -184,7 +184,7 @@ class _SummaryCard extends StatelessWidget {
       ],
     );
 
-    return RitmoCard(
+    return DisciplineCard(
       semanticsLabel: 'Calorie e macronutrienti',
       child: Column(
         spacing: 16,
@@ -580,7 +580,7 @@ class _AdviceLink extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final protein = (targets.protein - totals.protein).round();
-    return RitmoCard(
+    return DisciplineCard(
       color: scheme.tertiaryContainer,
       radius: 24,
       padding: const EdgeInsets.fromLTRB(18, 14, 14, 14),

@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/router/routes.dart';
-import '../../core/theme/ritmo_theme.dart';
+import '../../core/theme/discipline_theme.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/screen_header.dart';
 import '../../core/widgets/tab_scaffold.dart';
@@ -72,7 +72,7 @@ class _WeekCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final schedule = weeklySchedule(profile.trainingDays);
 
-    return RitmoCard(
+    return DisciplineCard(
       color: scheme.tertiaryContainer,
       semanticsLabel: 'La tua settimana',
       child: Column(
@@ -189,8 +189,8 @@ class _ChainTile extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final exercise = Catalog.at(chain, position);
-    return RitmoCard(
-      radius: RitmoRadii.card,
+    return DisciplineCard(
+      radius: DisciplineRadii.card,
       padding: const EdgeInsets.fromLTRB(18, 14, 14, 14),
       onTap: () => context.push(Routes.exercise(exercise.id)),
       child: Row(
@@ -233,8 +233,8 @@ class _LockedSkills extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    return RitmoCard(
-      radius: RitmoRadii.card,
+    return DisciplineCard(
+      radius: DisciplineRadii.card,
       color: scheme.surfaceContainerLow,
       padding: const EdgeInsets.all(16),
       child: Row(

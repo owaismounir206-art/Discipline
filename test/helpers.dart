@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:drift/drift.dart' show Value;
@@ -8,20 +8,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ritmo/app.dart';
-import 'package:ritmo/core/data/database.dart';
-import 'package:ritmo/core/data/providers.dart';
-import 'package:ritmo/core/services/share.dart';
-import 'package:ritmo/core/utils/local_date.dart';
-import 'package:ritmo/features/exercises/domain/exercise.dart';
-import 'package:ritmo/features/food/data/food_repository.dart';
-import 'package:ritmo/features/food/data/open_food_facts.dart';
-import 'package:ritmo/features/food/domain/foods.dart';
-import 'package:ritmo/features/food/domain/nutrition.dart';
-import 'package:ritmo/features/profile/data/profile_repository.dart';
-import 'package:ritmo/features/profile/domain/athlete_profile.dart';
-import 'package:ritmo/features/streak/data/reminders.dart';
-import 'package:ritmo/features/workout/data/session_feedback.dart';
+import 'package:discipline/app.dart';
+import 'package:discipline/core/data/database.dart';
+import 'package:discipline/core/data/providers.dart';
+import 'package:discipline/core/services/share.dart';
+import 'package:discipline/core/utils/local_date.dart';
+import 'package:discipline/features/exercises/domain/exercise.dart';
+import 'package:discipline/features/food/data/food_repository.dart';
+import 'package:discipline/features/food/data/open_food_facts.dart';
+import 'package:discipline/features/food/domain/foods.dart';
+import 'package:discipline/features/food/domain/nutrition.dart';
+import 'package:discipline/features/profile/data/profile_repository.dart';
+import 'package:discipline/features/profile/domain/athlete_profile.dart';
+import 'package:discipline/features/streak/data/reminders.dart';
+import 'package:discipline/features/workout/data/session_feedback.dart';
 
 /// Martedì 13 ottobre 2026, 9:00.
 final testNow = DateTime(2026, 10, 13, 9);
@@ -71,7 +71,7 @@ List<Override> testOverrides(
 ];
 
 /// Avvia l'app su un database in memoria.
-Future<void> pumpRitmo(
+Future<void> pumpDiscipline(
   WidgetTester tester,
   AppDatabase db, {
   DateTime? now,
@@ -86,7 +86,7 @@ Future<void> pumpRitmo(
   await tester.pumpWidget(
     ProviderScope(
       overrides: testOverrides(db, now: now, clock: clock, extra: extra),
-      child: const RitmoApp(),
+      child: const DisciplineApp(),
     ),
   );
   await settle(tester);
@@ -104,7 +104,7 @@ Future<void> settle(WidgetTester tester) async {
 
 /// Smonta l'app (evita timer pendenti nei test). Il database in memoria
 /// viene liberato da solo.
-Future<void> disposeRitmo(WidgetTester tester, AppDatabase db) async {
+Future<void> disposeDiscipline(WidgetTester tester, AppDatabase db) async {
   await tester.pumpWidget(const SizedBox());
   await tester.pump(const Duration(seconds: 1));
 }

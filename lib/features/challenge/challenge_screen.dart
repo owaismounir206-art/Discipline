@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +9,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../core/data/providers.dart';
 import '../../core/router/routes.dart';
 import '../../core/theme/motion.dart';
-import '../../core/theme/ritmo_theme.dart';
+import '../../core/theme/discipline_theme.dart';
 import '../../core/theme/theme_settings.dart';
 import '../../core/utils/italian_date.dart';
 import '../../core/widgets/common.dart';
@@ -48,7 +48,7 @@ class ChallengeScreen extends ConsumerWidget {
         for (final c in challenges) _GeneratedCard(status: c),
         const SectionTitle('A tempo'),
         for (final mode in TimedMode.values) _TimedCard(mode: mode),
-        RitmoCard(
+        DisciplineCard(
           color: Theme.of(context).colorScheme.secondaryContainer,
           radius: 24,
           padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
@@ -136,9 +136,9 @@ class _RankCard extends ConsumerWidget {
     final scheme = theme.colorScheme;
     final info = ref.watch(rankProvider);
     final next = info.next;
-    return RitmoCard(
+    return DisciplineCard(
       color: scheme.primaryContainer,
-      radius: RitmoRadii.cardLarge,
+      radius: DisciplineRadii.cardLarge,
       semanticsLabel: 'Grado ${info.rank.label}',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,8 +238,8 @@ class _GeneratedCard extends ConsumerWidget {
     final p = status.progress;
     final points = pointsFor(c, p);
 
-    return RitmoCard(
-      radius: RitmoRadii.cardLarge,
+    return DisciplineCard(
+      radius: DisciplineRadii.cardLarge,
       semanticsLabel: '${c.period.label}: ${c.goalText}',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -395,7 +395,7 @@ class _TimedCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final best = ref.watch(bestTimedProvider)[mode];
-    return RitmoCard(
+    return DisciplineCard(
       radius: 24,
       padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
       onTap: () => context.push(Routes.timed(mode.name)),
@@ -446,7 +446,7 @@ class _FreezeCard extends ConsumerWidget {
     final missed = freezableDay(ref.watch(streakProvider), today);
     final repo = ref.read(rewardsRepositoryProvider);
 
-    return RitmoCard(
+    return DisciplineCard(
       radius: 24,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -525,7 +525,7 @@ class _PaletteCard extends ConsumerWidget {
     final balance = ref.watch(balanceProvider);
     final settings = ref.read(themeSettingsProvider.notifier);
 
-    return RitmoCard(
+    return DisciplineCard(
       radius: 24,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -667,8 +667,8 @@ class _AchievementTile extends StatelessWidget {
           '${earned ? 'Ottenuto' : '${badge.value} su ${badge.goal}'}',
       excludeSemantics: true,
       child: AnimatedContainer(
-        duration: RitmoMotion.of(context, RitmoMotion.long),
-        curve: RitmoMotion.decelerate,
+        duration: DisciplineMotion.of(context, DisciplineMotion.long),
+        curve: DisciplineMotion.decelerate,
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: earned ? scheme.tertiaryContainer : scheme.surfaceContainer,

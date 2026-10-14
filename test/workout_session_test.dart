@@ -1,10 +1,10 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ritmo/core/widgets/motion_widgets.dart';
-import 'package:ritmo/core/data/database.dart';
+import 'package:discipline/core/widgets/motion_widgets.dart';
+import 'package:discipline/core/data/database.dart';
 
 import 'helpers.dart';
 
@@ -33,7 +33,7 @@ void main() {
 
   testWidgets('serie, recupero e riepilogo vengono salvati', (tester) async {
     await tester.runAsync(() => seedProfile(db));
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
 
     await startWorkout(tester);
     await step(tester, 6);
@@ -75,13 +75,13 @@ void main() {
 
     await tester.tap(find.text('Fine'));
     await step(tester, 6);
-    expect(find.byType(RitmoNavigationBar), findsOneWidget);
-    await disposeRitmo(tester, db);
+    expect(find.byType(DisciplineNavigationBar), findsOneWidget);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('cambiare variante aggiorna la catena', (tester) async {
     await tester.runAsync(() => seedProfile(db));
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     await startWorkout(tester);
     await step(tester, 6);
 
@@ -95,6 +95,6 @@ void main() {
 
     await tester.tap(find.byTooltip('Indietro'));
     await step(tester, 6);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 }

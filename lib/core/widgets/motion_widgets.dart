@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter/services.dart';
@@ -30,7 +30,7 @@ class SlidingSegmented<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final index = segments.indexWhere((s) => s.value == selected);
-    final duration = RitmoMotion.of(context, RitmoMotion.medium);
+    final duration = DisciplineMotion.of(context, DisciplineMotion.medium);
     final textTheme = Theme.of(context).textTheme;
 
     return Semantics(
@@ -50,7 +50,7 @@ class SlidingSegmented<T> extends StatelessWidget {
               children: [
                 AnimatedPositioned(
                   duration: duration,
-                  curve: RitmoMotion.decelerate,
+                  curve: DisciplineMotion.decelerate,
                   left: index < 0 ? 0 : index * width,
                   top: 0,
                   bottom: 0,
@@ -84,7 +84,7 @@ class SlidingSegmented<T> extends StatelessWidget {
                             child: Center(
                               child: AnimatedDefaultTextStyle(
                                 duration: duration,
-                                curve: RitmoMotion.decelerate,
+                                curve: DisciplineMotion.decelerate,
                                 style:
                                     (textTheme.labelLarge ?? const TextStyle())
                                         .copyWith(
@@ -120,8 +120,8 @@ typedef NavItem = ({IconData icon, IconData selectedIcon, String label});
 
 /// Barra di navigazione Material You con l'evidenziatore che scivola sotto
 /// la voce scelta.
-class RitmoNavigationBar extends StatelessWidget {
-  const RitmoNavigationBar({
+class DisciplineNavigationBar extends StatelessWidget {
+  const DisciplineNavigationBar({
     super.key,
     required this.items,
     required this.selectedIndex,
@@ -138,7 +138,7 @@ class RitmoNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final duration = RitmoMotion.of(context, RitmoMotion.medium);
+    final duration = DisciplineMotion.of(context, DisciplineMotion.medium);
     final bottom = MediaQuery.paddingOf(context).bottom;
 
     return Material(
@@ -154,7 +154,7 @@ class RitmoNavigationBar extends StatelessWidget {
                 children: [
                   AnimatedPositioned(
                     duration: duration,
-                    curve: RitmoMotion.decelerate,
+                    curve: DisciplineMotion.decelerate,
                     top: 12,
                     left:
                         selectedIndex * width + (width - _indicator.width) / 2,
@@ -189,7 +189,7 @@ class RitmoNavigationBar extends StatelessWidget {
                                   const SizedBox(height: 16),
                                   AnimatedSwitcher(
                                     duration: duration,
-                                    switchInCurve: RitmoMotion.decelerate,
+                                    switchInCurve: DisciplineMotion.decelerate,
                                     transitionBuilder: (child, animation) =>
                                         ScaleTransition(
                                           scale: Tween(
@@ -276,8 +276,8 @@ class _PressScaleState extends State<PressScale> {
     onPointerCancel: (_) => _set(false),
     child: AnimatedScale(
       scale: _down ? widget.scale : 1,
-      duration: RitmoMotion.of(context, RitmoMotion.press),
-      curve: _down ? RitmoMotion.standard : Curves.easeOutBack,
+      duration: DisciplineMotion.of(context, DisciplineMotion.press),
+      curve: _down ? DisciplineMotion.standard : Curves.easeOutBack,
       child: widget.child,
     ),
   );
@@ -305,7 +305,7 @@ class _EntranceState extends State<Entrance>
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_controller != null) return;
-    final run = RitmoMotion.of(context, RitmoMotion.long);
+    final run = DisciplineMotion.of(context, DisciplineMotion.long);
     final delay = _step * widget.index.clamp(0, _maxSteps);
     final total = run + delay;
     _controller = AnimationController(vsync: this, duration: total);
@@ -316,7 +316,7 @@ class _EntranceState extends State<Entrance>
             ? 0
             : delay.inMicroseconds / total.inMicroseconds,
         1,
-        curve: RitmoMotion.decelerate,
+        curve: DisciplineMotion.decelerate,
       ),
     );
     if (run == Duration.zero) {

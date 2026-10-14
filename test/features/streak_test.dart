@@ -1,13 +1,13 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // La CI esegue questi test anche con TZ=Europe/Rome e TZ=America/Sao_Paulo
 // per controllare cambio dell'ora e mezzanotte.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ritmo/core/utils/local_date.dart';
-import 'package:ritmo/features/streak/domain/streak.dart';
+import 'package:discipline/core/utils/local_date.dart';
+import 'package:discipline/features/streak/domain/streak.dart';
 
 // Lunedì 5 ottobre 2026.
 const monday = LocalDate(2026, 10, 5);

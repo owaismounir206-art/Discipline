@@ -1,6 +1,6 @@
-# Contribuire a Ritmo
+# Contribuire a Discipline
 
-Grazie per voler aiutare! Ritmo è libera e gratuita e lo resterà: ogni
+Grazie per voler aiutare! Discipline è libera e gratuita e lo resterà: ogni
 contributo è distribuito con la stessa licenza del progetto (GPL-3.0 o
 successiva).
 
@@ -33,8 +33,8 @@ successiva).
 - Ogni file inizia con l'intestazione della licenza:
 
   ```dart
-  // Ritmo — app di calisthenics libera e gratuita.
-  // Copyright (C) 2026 Ritmo contributors
+  // Discipline — app di calisthenics libera e gratuita.
+  // Copyright (C) 2026 Discipline contributors
   // SPDX-License-Identifier: GPL-3.0-or-later
   ```
 

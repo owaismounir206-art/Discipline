@@ -1,14 +1,14 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:material_ui/material_ui.dart';
 
-/// Colori di Ritmo: palette tonale Material 3 dal seed corallo `#8F4C38`.
+/// Colori di Discipline: palette tonale Material 3 dal seed corallo `#8F4C38`.
 ///
 /// I ruoli indicati nel design (vedi `design/`) sono fissati a mano; tutti gli
 /// altri vengono generati dal seed, così la palette resta coerente.
-abstract final class RitmoColors {
+abstract final class DisciplineColors {
   static const seed = Color(0xFF8F4C38);
 
   static final ColorScheme light = ColorScheme.fromSeed(seedColor: seed)

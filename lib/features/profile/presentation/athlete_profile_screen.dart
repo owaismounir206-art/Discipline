@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +8,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/data/providers.dart';
 import '../../../core/router/routes.dart';
-import '../../../core/theme/ritmo_theme.dart';
+import '../../../core/theme/discipline_theme.dart';
 import '../../../core/utils/local_date.dart';
 import '../../../core/widgets/common.dart';
 import '../../exercises/domain/catalog.dart';
@@ -224,9 +224,9 @@ class _AthleteProfileScreenState extends ConsumerState<AthleteProfileScreen> {
               onChanged: (v) => setState(() => _plank = v),
             ),
             const SizedBox(height: 18),
-            RitmoCard(
+            DisciplineCard(
               color: scheme.tertiaryContainer,
-              radius: RitmoRadii.card,
+              radius: DisciplineRadii.card,
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
               semanticsLabel: 'Il tuo programma',
               child: Column(
@@ -435,7 +435,7 @@ class _PlacementSheet extends StatelessWidget {
           children: [
             Text('Il tuo punto di partenza', style: theme.textTheme.titleLarge),
             for (final note in placement.notes)
-              RitmoCard(
+              DisciplineCard(
                 color: scheme.tertiaryContainer,
                 radius: 20,
                 padding: const EdgeInsets.all(14),

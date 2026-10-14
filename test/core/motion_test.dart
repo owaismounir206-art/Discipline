@@ -1,11 +1,11 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ritmo/core/theme/motion.dart';
-import 'package:ritmo/core/widgets/motion_widgets.dart';
+import 'package:discipline/core/theme/motion.dart';
+import 'package:discipline/core/widgets/motion_widgets.dart';
 
 Widget app(Widget child, {bool reduce = false}) => MaterialApp(
   home: MediaQuery(
@@ -18,8 +18,8 @@ Widget app(Widget child, {bool reduce = false}) => MaterialApp(
 
 void main() {
   test('la curva parte veloce e frena', () {
-    expect(RitmoMotion.decelerate.transform(1 / 3), greaterThan(0.75));
-    expect(RitmoMotion.decelerate.transform(1), 1);
+    expect(DisciplineMotion.decelerate.transform(1 / 3), greaterThan(0.75));
+    expect(DisciplineMotion.decelerate.transform(1), 1);
   });
 
   testWidgets('selettore: la pillola scivola sull\'opzione scelta', (

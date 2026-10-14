@@ -1,16 +1,16 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ritmo/core/widgets/motion_widgets.dart';
-import 'package:ritmo/core/data/database.dart';
+import 'package:discipline/core/widgets/motion_widgets.dart';
+import 'package:discipline/core/data/database.dart';
 
 import 'helpers.dart';
 
 Finder navLabel(String label) => find.descendant(
-  of: find.byType(RitmoNavigationBar),
+  of: find.byType(DisciplineNavigationBar),
   matching: find.text(label),
 );
 
@@ -20,7 +20,7 @@ void main() {
   setUp(() => db = memoryDatabase());
 
   testWidgets('al primo avvio si crea il profilo atleta', (tester) async {
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     expect(find.text('Calisthenics libera e gratuita'), findsOneWidget);
 
     await tester.tap(find.text('Inizia'));
@@ -59,14 +59,14 @@ void main() {
     await settle(tester);
     expect(find.text('Ciao, Alex'), findsOneWidget);
     expect(find.text('Inizia la tua streak'), findsOneWidget);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('ogni voce della navigation bar apre la sua schermata', (
     tester,
   ) async {
     await tester.runAsync(() => seedProfile(db));
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
 
     for (final label in ['Oggi', 'Allenati', 'Sfide', 'Cibo', 'Progressi']) {
       expect(navLabel(label), findsOneWidget);
@@ -88,19 +88,19 @@ void main() {
       await settle(tester);
       expect(find.text(marker), findsWidgets, reason: tab);
     }
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('le impostazioni cambiano il tema e lo ricordano', (
     tester,
   ) async {
     await tester.runAsync(() => seedProfile(db));
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
 
     await tester.tap(find.byTooltip('Profilo e impostazioni'));
     await settle(tester);
     expect(find.text('Impostazioni'), findsOneWidget);
-    expect(find.byType(RitmoNavigationBar), findsNothing);
+    expect(find.byType(DisciplineNavigationBar), findsNothing);
 
     await tester.scrollUntilVisible(find.text('Scuro'), 200);
     await tester.tap(find.text('Scuro'));
@@ -112,13 +112,13 @@ void main() {
       'dynamic': false,
       'palette': 'coral',
     });
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('Oggi rispetta le linee guida di accessibilità', (tester) async {
     await tester.runAsync(() => seedProfile(db));
     final handle = tester.ensureSemantics();
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
 
     expect(find.byTooltip('Promemoria'), findsOneWidget);
     expect(find.byTooltip('Profilo e impostazioni'), findsOneWidget);
@@ -126,6 +126,6 @@ void main() {
     await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
     await expectLater(tester, meetsGuideline(textContrastGuideline));
     handle.dispose();
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 }

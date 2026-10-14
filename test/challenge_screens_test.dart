@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:async';
@@ -7,14 +7,14 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ritmo/core/widgets/motion_widgets.dart';
-import 'package:ritmo/core/router/routes.dart';
-import 'package:ritmo/core/utils/local_date.dart';
-import 'package:ritmo/features/challenge/domain/friend_code.dart';
-import 'package:ritmo/features/challenge/domain/timed.dart';
-import 'package:ritmo/features/rewards/data/rewards_repository.dart';
-import 'package:ritmo/features/rewards/domain/rewards.dart';
-import 'package:ritmo/features/settings/backup.dart';
+import 'package:discipline/core/widgets/motion_widgets.dart';
+import 'package:discipline/core/router/routes.dart';
+import 'package:discipline/core/utils/local_date.dart';
+import 'package:discipline/features/challenge/domain/friend_code.dart';
+import 'package:discipline/features/challenge/domain/timed.dart';
+import 'package:discipline/features/rewards/data/rewards_repository.dart';
+import 'package:discipline/features/rewards/domain/rewards.dart';
+import 'package:discipline/features/settings/backup.dart';
 
 import 'helpers.dart';
 
@@ -44,7 +44,7 @@ class FakeBackupFiles implements BackupFiles {
 Future<void> openTab(WidgetTester tester, String label) async {
   await tester.tap(
     find.descendant(
-      of: find.byType(RitmoNavigationBar),
+      of: find.byType(DisciplineNavigationBar),
       matching: find.text(label),
     ),
   );
@@ -85,7 +85,7 @@ void main() {
   testWidgets('sfida del giorno: aggiungi, riscatta i punti', (tester) async {
     final db = memoryDatabase();
     await seedProfile(db);
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     await openTab(tester, 'Sfide');
 
     expect(find.text('Recluta'), findsOneWidget);
@@ -107,14 +107,14 @@ void main() {
     expect(find.text('40'), findsOneWidget);
     final points = await tester.runAsync(() => RewardsRepository(db).points());
     expect(balanceOf(points!), 40);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('un minuto da solo: record e punti', (tester) async {
     final db = memoryDatabase();
     await seedProfile(db);
     final clock = TestClock();
-    await pumpRitmo(tester, db, clock: clock.call);
+    await pumpDiscipline(tester, db, clock: clock.call);
     await openTab(tester, 'Sfide');
 
     final card = find.text('Un minuto');
@@ -144,7 +144,7 @@ void main() {
     await tester.tap(find.text('Chiudi'));
     await step(tester);
     expect(find.text('Record: 3 push-up'), findsOneWidget);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('codice di un amico: accetta, battilo, rispondi', (tester) async {
@@ -152,7 +152,7 @@ void main() {
     await seedProfile(db);
     final clock = TestClock();
     final shared = <String>[];
-    await pumpRitmo(
+    await pumpDiscipline(
       tester,
       db,
       clock: clock.call,
@@ -194,7 +194,7 @@ void main() {
     await tester.tap(find.text('Rispondi a Luca'));
     await tester.pump();
     expect(shared.single, startsWith('Ti ho battuto, Luca!'));
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('negozio: giorno jolly e colori', (tester) async {
@@ -203,7 +203,7 @@ void main() {
     await tester.runAsync(
       () => RewardsRepository(db).award(PointKind.challenge, 500, at: testNow),
     );
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     await openTab(tester, 'Sfide');
 
     final buy = find.text('Compra · 150 punti');
@@ -223,14 +223,14 @@ void main() {
     // 500 − 150 − 300.
     final points = await tester.runAsync(() => RewardsRepository(db).points());
     expect(balanceOf(points!), 50);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('backup su file: esporta e reimporta', (tester) async {
     final db = memoryDatabase();
     await seedProfile(db);
     final files = FakeBackupFiles();
-    await pumpRitmo(
+    await pumpDiscipline(
       tester,
       db,
       extra: [backupFilesProvider.overrideWithValue(files)],
@@ -248,8 +248,8 @@ void main() {
       () => Future<void>.delayed(const Duration(milliseconds: 300)),
     );
     await settle(tester);
-    expect(files.exportedName, 'ritmo-backup-2026-10-13.json');
-    expect(files.exported, contains('"app": "ritmo"'));
+    expect(files.exportedName, 'discipline-backup-2026-10-13.json');
+    expect(files.exported, contains('"app": "discipline"'));
 
     await tester.ensureVisible(find.text('Importa da un file'));
     await tester.pumpAndSettle();
@@ -258,6 +258,6 @@ void main() {
     await tester.tap(find.text('Importa'));
     await settle(tester);
     expect(find.text('Dati importati'), findsOneWidget);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 }

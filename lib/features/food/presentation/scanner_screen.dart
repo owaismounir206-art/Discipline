@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,7 +104,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                 padding: EdgeInsets.all(24),
                 child: Text(
                   'Non riesco ad aprire la fotocamera. Controlla i permessi '
-                  'di Ritmo nelle impostazioni del telefono.',
+                  'di Discipline nelle impostazioni del telefono.',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.white),
                 ),

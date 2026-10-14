@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:convert';
@@ -7,11 +7,11 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:ritmo/core/utils/local_date.dart';
-import 'package:ritmo/features/food/data/food_repository.dart';
-import 'package:ritmo/features/food/data/open_food_facts.dart';
-import 'package:ritmo/features/food/domain/foods.dart';
-import 'package:ritmo/features/food/domain/nutrition.dart';
+import 'package:discipline/core/utils/local_date.dart';
+import 'package:discipline/features/food/data/food_repository.dart';
+import 'package:discipline/features/food/data/open_food_facts.dart';
+import 'package:discipline/features/food/domain/foods.dart';
+import 'package:discipline/features/food/domain/nutrition.dart';
 
 import '../helpers.dart';
 
@@ -259,7 +259,7 @@ void main() {
         if (request.url.path.contains('/api/v2/product/')) {
           return http.Response('{"status":0}', 404);
         }
-        expect(request.headers['User-Agent'], contains('Ritmo'));
+        expect(request.headers['User-Agent'], contains('Discipline'));
         expect(request.url.queryParameters['search_terms'], 'pane');
         return http.Response(
           jsonEncode({

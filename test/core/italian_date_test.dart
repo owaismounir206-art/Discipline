@@ -1,9 +1,9 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ritmo/core/utils/italian_date.dart';
+import 'package:discipline/core/utils/italian_date.dart';
 
 void main() {
   group('formatItalianDate', () {

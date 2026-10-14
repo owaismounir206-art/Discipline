@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-# Ritmo — app di calisthenics libera e gratuita.
-# Copyright (C) 2026 Ritmo contributors
+# Discipline — app di calisthenics libera e gratuita.
+# Copyright (C) 2026 Discipline contributors
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Disegna icona e splash di Ritmo (un battito stilizzato) in assets/icon/.
+"""Disegna icona e splash di Discipline (un battito stilizzato) in assets/icon/.
 
 Uso: python3 tool/make_icons.py
 Poi: dart run flutter_launcher_icons && dart run flutter_native_splash:create

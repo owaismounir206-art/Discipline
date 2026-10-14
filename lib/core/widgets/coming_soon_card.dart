@@ -1,10 +1,10 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:material_ui/material_ui.dart';
 
-import '../theme/ritmo_theme.dart';
+import '../theme/discipline_theme.dart';
 
 /// Segnaposto per le parti dell'app non ancora costruite.
 class ComingSoonCard extends StatelessWidget {
@@ -32,7 +32,7 @@ class ComingSoonCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(RitmoRadii.cardLarge),
+        borderRadius: BorderRadius.circular(DisciplineRadii.cardLarge),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

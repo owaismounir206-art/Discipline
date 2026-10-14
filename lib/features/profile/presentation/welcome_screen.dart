@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:go_router/go_router.dart';
@@ -8,7 +8,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/widgets/common.dart';
 
-/// Primo avvio: cos'è Ritmo e poi il profilo atleta.
+/// Primo avvio: cos'è Discipline e poi il profilo atleta.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -62,7 +62,7 @@ class WelcomeScreen extends StatelessWidget {
             Semantics(
               header: true,
               child: Text(
-                'Ritmo',
+                'Discipline',
                 style: theme.textTheme.headlineMedium?.copyWith(fontSize: 40),
               ),
             ),

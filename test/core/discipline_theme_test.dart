@@ -1,13 +1,13 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ritmo/core/theme/ritmo_colors.dart';
-import 'package:ritmo/core/theme/ritmo_theme.dart';
+import 'package:discipline/core/theme/discipline_colors.dart';
+import 'package:discipline/core/theme/discipline_theme.dart';
 
 /// Rapporto di contrasto WCAG tra due colori.
 double contrast(Color a, Color b) {
@@ -17,9 +17,9 @@ double contrast(Color a, Color b) {
 }
 
 void main() {
-  group('RitmoColors', () {
+  group('DisciplineColors', () {
     test('il tema chiaro usa i token del design', () {
-      final s = RitmoColors.light;
+      final s = DisciplineColors.light;
       expect(s.brightness, Brightness.light);
       expect(s.primary, const Color(0xFF8F4C38));
       expect(s.primaryContainer, const Color(0xFFFFDBD1));
@@ -31,7 +31,7 @@ void main() {
     });
 
     test('il tema scuro usa i token del design', () {
-      final s = RitmoColors.dark;
+      final s = DisciplineColors.dark;
       expect(s.brightness, Brightness.dark);
       expect(s.primary, const Color(0xFFFFB5A0));
       expect(s.onPrimary, const Color(0xFF561F0F));
@@ -41,8 +41,8 @@ void main() {
     });
 
     for (final (name, s) in [
-      ('chiaro', RitmoColors.light),
-      ('scuro', RitmoColors.dark),
+      ('chiaro', DisciplineColors.light),
+      ('scuro', DisciplineColors.dark),
     ]) {
       test('contrasto del testo almeno 4.5:1 nel tema $name', () {
         final pairs = {
@@ -78,7 +78,7 @@ void main() {
   });
 
   test('il tema usa Material 3 e il font Figtree', () {
-    final theme = RitmoTheme.light;
+    final theme = DisciplineTheme.light;
     expect(theme.useMaterial3, isTrue);
     expect(theme.textTheme.bodyMedium?.fontFamily, 'Figtree');
     expect(theme.navigationBarTheme.backgroundColor, const Color(0xFFFCEAE5));

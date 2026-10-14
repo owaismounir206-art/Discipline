@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'dart:math' as math;
@@ -221,7 +221,7 @@ class _RunningView extends ConsumerWidget {
               onChanged: controller.setValue,
             ),
             const SizedBox(height: 12),
-            RitmoCard(
+            DisciplineCard(
               radius: 24,
               padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
               semanticsLabel: 'Progressione',
@@ -297,7 +297,7 @@ class _RunningView extends ConsumerWidget {
             ),
             if (state.next != null) ...[
               const SizedBox(height: 12),
-              RitmoCard(
+              DisciplineCard(
                 color: scheme.surfaceContainerLow,
                 radius: 20,
                 padding: const EdgeInsets.symmetric(
@@ -600,7 +600,7 @@ class _SummaryView extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           children: [
-            RitmoCard(
+            DisciplineCard(
               color: counts ? scheme.primary : scheme.surfaceContainer,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -642,7 +642,7 @@ class _SummaryView extends ConsumerWidget {
             ),
             if (state.pointsEarned > 0) ...[
               const SizedBox(height: 14),
-              RitmoCard(
+              DisciplineCard(
                 color: scheme.tertiaryContainer,
                 radius: 20,
                 padding: const EdgeInsets.all(16),
@@ -688,7 +688,7 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Expanded(
-      child: RitmoCard(
+      child: DisciplineCard(
         radius: 20,
         padding: const EdgeInsets.all(14),
         child: Column(
@@ -725,7 +725,7 @@ class _SummarySuggestionState extends ConsumerState<_SummarySuggestion> {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final s = widget.suggestion;
-    return RitmoCard(
+    return DisciplineCard(
       color: scheme.secondaryContainer,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

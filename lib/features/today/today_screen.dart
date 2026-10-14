@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/router/routes.dart';
-import '../../core/theme/ritmo_theme.dart';
+import '../../core/theme/discipline_theme.dart';
 import '../../core/utils/italian_date.dart';
 import '../../core/utils/local_date.dart';
 import '../../core/widgets/common.dart';
@@ -116,7 +116,7 @@ class _StreakCard extends ConsumerWidget {
       final n => '$n allenamenti di fila',
     };
 
-    return RitmoCard(
+    return DisciplineCard(
       color: scheme.primary,
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
       semanticsLabel: 'Streak',
@@ -382,9 +382,9 @@ class _LevelCard extends ConsumerWidget {
         'prossima abilità: ${level.nextSkill!.name.toLowerCase()}',
     ].join(' · ');
 
-    return RitmoCard(
+    return DisciplineCard(
       color: scheme.primaryContainer,
-      radius: RitmoRadii.card,
+      radius: DisciplineRadii.card,
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
       onTap: () => context.push(Routes.athleteProfile),
       semanticsLabel:
@@ -468,7 +468,7 @@ class _TodayWorkoutCard extends ConsumerWidget {
         ? 'Oggi · ${today.plan.template.label}'
         : 'Oggi è riposo · allenamento extra';
 
-    return RitmoCard(
+    return DisciplineCard(
       color: scheme.tertiaryContainer,
       semanticsLabel: 'Allenamento di oggi',
       child: Column(
@@ -533,7 +533,7 @@ class _FreezeHint extends ConsumerWidget {
     );
     if (owned <= 0 || missed == null) return const SizedBox.shrink();
     final scheme = Theme.of(context).colorScheme;
-    return RitmoCard(
+    return DisciplineCard(
       color: scheme.secondaryContainer,
       radius: 24,
       padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),

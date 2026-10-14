@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -130,7 +130,7 @@ class NutritionScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           children: [
-            RitmoCard(
+            DisciplineCard(
               color: scheme.primaryContainer,
               padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
               semanticsLabel: 'Il tuo corpo',
@@ -217,7 +217,7 @@ class NutritionScreen extends ConsumerWidget {
             ),
             if (targets.raisedToBmr) ...[
               const SizedBox(height: 8),
-              RitmoCard(
+              DisciplineCard(
                 color: scheme.tertiaryContainer,
                 radius: 16,
                 padding: const EdgeInsets.all(12),
@@ -292,7 +292,7 @@ class _RecipeCardState extends ConsumerState<_RecipeCard> {
     final scheme = theme.colorScheme;
     final r = widget.recipe;
     final added = _entryId != null;
-    return RitmoCard(
+    return DisciplineCard(
       radius: 24,
       padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
       child: Row(

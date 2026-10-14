@@ -1,12 +1,12 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/motion.dart';
-import '../theme/ritmo_theme.dart';
+import '../theme/discipline_theme.dart';
 
 /// Contatore con − e + (ripetizioni, secondi, grammi).
 class ValueStepper extends StatelessWidget {
@@ -45,7 +45,7 @@ class ValueStepper extends StatelessWidget {
       padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 8, 8),
       decoration: BoxDecoration(
         color: background ?? scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(RitmoRadii.card),
+        borderRadius: BorderRadius.circular(DisciplineRadii.card),
       ),
       child: Row(
         children: [
@@ -122,8 +122,8 @@ class SegmentBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TweenAnimationBuilder<double>(
     tween: Tween(end: value.clamp(0.0, 1.0)),
-    duration: RitmoMotion.of(context, RitmoMotion.long),
-    curve: RitmoMotion.decelerate,
+    duration: DisciplineMotion.of(context, DisciplineMotion.long),
+    curve: DisciplineMotion.decelerate,
     builder: (context, v, _) => _build(v),
   );
 
@@ -227,13 +227,13 @@ class SectionTitle extends StatelessWidget {
 }
 
 /// Card con angoli molto arrotondati e colore pieno.
-class RitmoCard extends StatelessWidget {
-  const RitmoCard({
+class DisciplineCard extends StatelessWidget {
+  const DisciplineCard({
     super.key,
     required this.child,
     this.color,
     this.padding = const EdgeInsets.all(18),
-    this.radius = RitmoRadii.cardLarge,
+    this.radius = DisciplineRadii.cardLarge,
     this.onTap,
     this.semanticsLabel,
   });
@@ -327,8 +327,8 @@ class AnimatedProgressBar extends StatelessWidget {
     borderRadius: BorderRadius.circular(height / 2),
     child: TweenAnimationBuilder<double>(
       tween: Tween(end: value.clamp(0.0, 1.0)),
-      duration: RitmoMotion.of(context, RitmoMotion.long),
-      curve: RitmoMotion.decelerate,
+      duration: DisciplineMotion.of(context, DisciplineMotion.long),
+      curve: DisciplineMotion.decelerate,
       builder: (context, v, _) => LinearProgressIndicator(
         value: v,
         minHeight: height,
@@ -349,8 +349,8 @@ class AnimatedCount extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TweenAnimationBuilder<double>(
     tween: Tween(end: value.toDouble()),
-    duration: RitmoMotion.of(context, RitmoMotion.long),
-    curve: RitmoMotion.decelerate,
+    duration: DisciplineMotion.of(context, DisciplineMotion.long),
+    curve: DisciplineMotion.decelerate,
     builder: (context, v, _) => Text(
       '${v.round()}',
       style: style?.copyWith(

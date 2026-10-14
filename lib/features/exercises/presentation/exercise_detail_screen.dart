@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +8,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/data/providers.dart';
 import '../../../core/router/routes.dart';
-import '../../../core/theme/ritmo_theme.dart';
+import '../../../core/theme/discipline_theme.dart';
 import '../../../core/utils/local_date.dart';
 import '../../../core/widgets/common.dart';
 import '../../profile/data/profile_repository.dart';
@@ -61,9 +61,9 @@ class ExerciseDetailScreen extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 16),
-            RitmoCard(
+            DisciplineCard(
               color: scheme.primaryContainer,
-              radius: RitmoRadii.card,
+              radius: DisciplineRadii.card,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 10,
@@ -105,8 +105,8 @@ class ExerciseDetailScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 14),
-            RitmoCard(
-              radius: RitmoRadii.card,
+            DisciplineCard(
+              radius: DisciplineRadii.card,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 8,
@@ -141,7 +141,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
             const SizedBox(height: 6),
             Text(
               'Lavora nell\'intervallo ${exercise.targetLabel}. Quando chiudi '
-              'tutte le serie al massimo per 2 sessioni di fila, Ritmo ti '
+              'tutte le serie al massimo per 2 sessioni di fila, Discipline ti '
               'propone la variante successiva.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: scheme.onSurfaceVariant,
@@ -227,7 +227,7 @@ class _Tag extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: scheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(RitmoRadii.chip),
+        borderRadius: BorderRadius.circular(DisciplineRadii.chip),
       ),
       child: Text(
         text,

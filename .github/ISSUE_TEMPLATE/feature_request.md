@@ -15,4 +15,4 @@ labels: enhancement
 
 ## Note
 
-<!-- Ritmo resta gratuita e senza pubblicità: niente funzioni a pagamento. -->
+<!-- Discipline resta gratuita e senza pubblicità: niente funzioni a pagamento. -->

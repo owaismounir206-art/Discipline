@@ -1,11 +1,11 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ritmo/core/utils/local_date.dart';
-import 'package:ritmo/features/challenge/domain/friend_code.dart';
-import 'package:ritmo/features/challenge/domain/timed.dart';
+import 'package:discipline/core/utils/local_date.dart';
+import 'package:discipline/features/challenge/domain/friend_code.dart';
+import 'package:discipline/features/challenge/domain/timed.dart';
 
 final t0 = DateTime(2026, 10, 13, 18);
 DateTime at(int ms) => t0.add(Duration(milliseconds: ms));

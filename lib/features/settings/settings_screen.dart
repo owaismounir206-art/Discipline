@@ -1,5 +1,5 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +8,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/data/providers.dart';
 import '../../core/router/routes.dart';
-import '../../core/theme/ritmo_theme.dart';
+import '../../core/theme/discipline_theme.dart';
 import '../../core/theme/theme_settings.dart';
 import '../../core/utils/local_date.dart';
 import '../../core/widgets/motion_widgets.dart';
@@ -136,7 +136,7 @@ class SettingsScreen extends ConsumerWidget {
               SwitchListTile(
                 title: const Text('Colori dal tuo sfondo'),
                 subtitle: const Text(
-                  'Usa i colori del telefono invece del corallo di Ritmo. '
+                  'Usa i colori del telefono invece del corallo di Discipline. '
                   'Solo su Android 12 o successivi.',
                 ),
                 value: settings.useDynamicColor,
@@ -176,7 +176,7 @@ class SettingsScreen extends ConsumerWidget {
                 leading: Icon(Icons.favorite_outline),
                 title: Text('Libera e gratuita'),
                 subtitle: Text(
-                  'Ritmo è open source (GPL-3.0): niente pubblicità, '
+                  'Discipline è open source (GPL-3.0): niente pubblicità, '
                   'abbonamenti o tracciamento. Sviluppata con l\'aiuto '
                   'dell\'AI (Claude).',
                 ),
@@ -191,9 +191,9 @@ class SettingsScreen extends ConsumerWidget {
                 title: const Text('Licenze open source'),
                 onTap: () => showLicensePage(
                   context: context,
-                  applicationName: 'Ritmo',
+                  applicationName: 'Discipline',
                   applicationLegalese:
-                      'Copyright (C) 2026 Ritmo contributors\n'
+                      'Copyright (C) 2026 Discipline contributors\n'
                       'Distribuita con licenza GNU GPL v3 o successiva.',
                 ),
               ),
@@ -268,7 +268,7 @@ class _Group extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(RitmoRadii.card),
+        borderRadius: BorderRadius.circular(DisciplineRadii.card),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -1,18 +1,18 @@
-// Ritmo — app di calisthenics libera e gratuita.
-// Copyright (C) 2026 Ritmo contributors
+// Discipline — app di calisthenics libera e gratuita.
+// Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:ritmo/core/widgets/motion_widgets.dart';
-import 'package:ritmo/core/data/database.dart';
+import 'package:discipline/core/widgets/motion_widgets.dart';
+import 'package:discipline/core/data/database.dart';
 
 import 'helpers.dart';
 
 Future<void> openFood(WidgetTester tester) async {
   await tester.tap(
     find.descendant(
-      of: find.byType(RitmoNavigationBar),
+      of: find.byType(DisciplineNavigationBar),
       matching: find.text('Cibo'),
     ),
   );
@@ -26,7 +26,7 @@ void main() {
 
   testWidgets('senza dati chiede peso e obiettivo', (tester) async {
     await tester.runAsync(() => seedProfile(db));
-    await pumpRitmo(tester, db);
+    await pumpDiscipline(tester, db);
     await openFood(tester);
     expect(find.textContaining('Inserisci peso, altezza'), findsOneWidget);
     await tester.tap(find.textContaining('Inserisci peso, altezza'));
@@ -41,13 +41,13 @@ void main() {
     await settle(tester);
     expect(await tester.runAsync(() => db.readJson('body')), isNotNull);
     expect(find.text('rimanenti'), findsOneWidget);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('diario: cerca, sceglie i grammi e aggiunge', (tester) async {
     await tester.runAsync(() => seedProfile(db));
     await tester.runAsync(() => seedFood(db));
-    await pumpRitmo(tester, db, now: DateTime(2026, 10, 13, 20));
+    await pumpDiscipline(tester, db, now: DateTime(2026, 10, 13, 20));
     await openFood(tester);
 
     expect(find.text('Colazione'), findsOneWidget);
@@ -75,13 +75,13 @@ void main() {
     expect(find.text('Cena'), findsOneWidget);
     final rows = await tester.runAsync(() => db.select(db.foodEntries).get());
     expect(rows!.where((r) => r.meal == 'dinner'), hasLength(1));
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 
   testWidgets('consigli: fabbisogno, 3 piatti e nota', (tester) async {
     await tester.runAsync(() => seedProfile(db));
     await tester.runAsync(() => seedFood(db));
-    await pumpRitmo(tester, db, now: DateTime(2026, 10, 13, 20));
+    await pumpDiscipline(tester, db, now: DateTime(2026, 10, 13, 20));
     await openFood(tester);
     await tester.scrollUntilVisible(find.text('Cosa mangio a cena?'), 200);
     await tester.ensureVisible(find.text('Cosa mangio a cena?'));
@@ -102,6 +102,6 @@ void main() {
       scrollable: find.byType(Scrollable).last,
     );
     expect(find.textContaining('Non sostituiscono'), findsOneWidget);
-    await disposeRitmo(tester, db);
+    await disposeDiscipline(tester, db);
   });
 }

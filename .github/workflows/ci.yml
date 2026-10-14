@@ -70,7 +70,7 @@ jobs:
       # È firmato con una chiave di prova: serve solo per provarla sul telefono.
       - uses: actions/upload-artifact@v4
         with:
-          name: ritmo-apk-prova
+          name: discipline-apk-prova
           path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 14
 
