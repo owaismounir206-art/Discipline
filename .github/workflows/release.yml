@@ -1,0 +1,109 @@
+name: Rilascio
+
+# Si avvia quando crei un tag di versione (es. v0.1.0) oppure a mano.
+# Pubblica su GitHub Releases un APK (e un AAB per il Play Store).
+#
+# Segreti facoltativi (Settings > Secrets and variables > Actions):
+#   ANDROID_KEYSTORE_BASE64   keystore .jks codificato in base64
+#   ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_PASSWORD, ANDROID_KEY_ALIAS
+#   SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, LIVEKIT_URL
+# Senza il keystore l'APK è firmato con la chiave di prova (non adatto agli
+# store). Senza SUPABASE_* l'app esce senza sfide online.
+# Vedi docs/PUBBLICAZIONE.md.
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  FLUTTER_VERSION: '3.47.7'
+
+jobs:
+  release:
+    name: APK e AAB firmati
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+      LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+      - name: Firma (se il keystore è nei segreti)
+        env:
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/ritmo-release.jks"
+            {
+              echo "storePassword=$STORE_PASSWORD"
+              echo "keyPassword=$KEY_PASSWORD"
+              echo "keyAlias=$KEY_ALIAS"
+              echo "storeFile=$RUNNER_TEMP/ritmo-release.jks"
+            } > android/key.properties
+            echo "Firma di rilascio attiva."
+          else
+            echo "::warning::Nessun keystore: firma di prova."
+          fi
+
+      - name: Configurazione dei servizi (se nei segreti)
+        run: |
+          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_PUBLISHABLE_KEY" ]; then
+            printf '{"SUPABASE_URL":"%s","SUPABASE_PUBLISHABLE_KEY":"%s","LIVEKIT_URL":"%s"}' \
+              "$SUPABASE_URL" "$SUPABASE_PUBLISHABLE_KEY" "$LIVEKIT_URL" > config/ritmo.json
+          else
+            echo "::warning::SUPABASE_* non impostati: build senza sfide online."
+            echo '{"SUPABASE_URL":""}' > config/ritmo.json
+          fi
+
+      - name: Compila
+        run: |
+          NAME="${GITHUB_REF_NAME#v}"
+          [ "$GITHUB_REF_TYPE" = tag ] || NAME="0.0.0-$GITHUB_SHA"
+          flutter build apk --release --build-name="${NAME%%-*}" \
+            --build-number="$GITHUB_RUN_NUMBER" --dart-define-from-file=config/ritmo.json
+          flutter build appbundle --release --build-name="${NAME%%-*}" \
+            --build-number="$GITHUB_RUN_NUMBER" --dart-define-from-file=config/ritmo.json
+
+      - name: Nomi e impronte dei file
+        run: |
+          mkdir dist
+          TAG="${GITHUB_REF_NAME//\//-}"
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/ritmo-$TAG.apk"
+          cp build/app/outputs/bundle/release/app-release.aab "dist/ritmo-$TAG.aab"
+          (cd dist && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ritmo-release
+          path: dist/
+          retention-days: 30
+
+      - name: Pubblica su GitHub Releases
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true

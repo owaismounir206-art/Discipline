@@ -40,6 +40,30 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.8
 
+# Icona e splash: si rigenerano con
+#   python3 tool/make_icons.py
+#   dart run flutter_launcher_icons
+#   dart run flutter_native_splash:create
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icon/icon.png
+  remove_alpha_ios: true
+  adaptive_icon_background: '#8F4C38'
+  adaptive_icon_foreground: assets/icon/icon_foreground.png
+
+flutter_native_splash:
+  color: '#FFF8F6'
+  image: assets/icon/splash.png
+  color_dark: '#1A110F'
+  image_dark: assets/icon/splash_dark.png
+  android_12:
+    color: '#FFF8F6'
+    image: assets/icon/splash.png
+    color_dark: '#1A110F'
+    image_dark: assets/icon/splash_dark.png
+  fullscreen: false
+
 flutter:
   uses-material-design: true
 
