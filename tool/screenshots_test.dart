@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:ritmo/core/widgets/motion_widgets.dart';
 import 'package:ritmo/app.dart';
 import 'package:ritmo/core/data/database.dart';
 import 'package:ritmo/core/router/routes.dart';
@@ -52,7 +53,10 @@ Future<void> shoot(String name) => expectLater(
 
 Future<void> openTab(WidgetTester tester, String label) async {
   await tester.tap(
-    find.descendant(of: find.byType(NavigationBar), matching: find.text(label)),
+    find.descendant(
+      of: find.byType(RitmoNavigationBar),
+      matching: find.text(label),
+    ),
   );
   await wait(tester);
 }

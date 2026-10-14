@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/motion_widgets.dart';
 import '../../profile/data/profile_repository.dart';
 import '../data/food_repository.dart';
 import '../domain/nutrition.dart';
@@ -58,15 +59,13 @@ class _BodyDataScreenState extends ConsumerState<BodyDataScreen> {
             const SizedBox(height: 16),
             const SectionTitle('Sesso'),
             const SizedBox(height: 8),
-            SegmentedButton<Sex>(
-              showSelectedIcon: false,
+            SlidingSegmented<Sex>(
+              semanticsLabel: 'Sesso',
               segments: [
-                for (final s in Sex.values)
-                  ButtonSegment(value: s, label: Text(s.label)),
+                for (final s in Sex.values) (value: s, label: s.label),
               ],
-              selected: {_body.sex},
-              onSelectionChanged: (s) =>
-                  setState(() => _body = _body.copyWith(sex: s.first)),
+              selected: _body.sex,
+              onChanged: (s) => setState(() => _body = _body.copyWith(sex: s)),
             ),
             const SizedBox(height: 16),
             ValueStepper(
@@ -170,15 +169,13 @@ class _BodyDataScreenState extends ConsumerState<BodyDataScreen> {
             const SizedBox(height: 8),
             const SectionTitle('Alimentazione'),
             const SizedBox(height: 8),
-            SegmentedButton<Diet>(
-              showSelectedIcon: false,
+            SlidingSegmented<Diet>(
+              semanticsLabel: 'Alimentazione',
               segments: [
-                for (final d in Diet.values)
-                  ButtonSegment(value: d, label: Text(d.label)),
+                for (final d in Diet.values) (value: d, label: d.label),
               ],
-              selected: {_body.diet},
-              onSelectionChanged: (s) =>
-                  setState(() => _body = _body.copyWith(diet: s.first)),
+              selected: _body.diet,
+              onChanged: (d) => setState(() => _body = _body.copyWith(diet: d)),
             ),
             const SizedBox(height: 16),
             const SectionTitle('Allergie e intolleranze'),

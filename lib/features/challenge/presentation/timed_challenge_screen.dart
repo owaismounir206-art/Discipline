@@ -16,6 +16,7 @@ import '../../../core/theme/motion.dart';
 import '../../../core/theme/ritmo_theme.dart';
 import '../../../core/utils/local_date.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/motion_widgets.dart';
 import '../../camera/presentation/rep_camera.dart';
 import '../../profile/data/profile_repository.dart';
 import '../../rewards/data/rewards_repository.dart';
@@ -652,41 +653,47 @@ class _RepButton extends StatelessWidget {
         : '+1 push-up';
     return Semantics(
       liveRegion: countdown != null,
-      child: FilledButton(
-        style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(88),
-          backgroundColor: scheme.primary,
-          foregroundColor: scheme.onPrimary,
-          disabledBackgroundColor: scheme.primary.withValues(
-            alpha: countdown != null ? 1 : 0.4,
-          ),
-          disabledForegroundColor: scheme.onPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(RitmoRadii.cardLarge),
-          ),
-        ),
-        onPressed: enabled ? onTap : null,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 2,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+      child: PressScale(
+        scale: 0.96,
+        child: FilledButton(
+          style: FilledButton.styleFrom(
+            minimumSize: const Size.fromHeight(88),
+            backgroundColor: scheme.primary,
+            foregroundColor: scheme.onPrimary,
+            disabledBackgroundColor: scheme.primary.withValues(
+              alpha: countdown != null ? 1 : 0.4,
             ),
-            Text(
-              countdown != null
-                  ? 'Preparati…'
-                  : camera
-                  ? 'Conteggio automatico con la fotocamera attivo'
-                  : 'Tocca a ogni push-up',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: scheme.primaryContainer,
+            disabledForegroundColor: scheme.onPrimary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(RitmoRadii.cardLarge),
+            ),
+          ),
+          onPressed: enabled ? onTap : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 2,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
-            ),
-          ],
+              Text(
+                countdown != null
+                    ? 'Preparati…'
+                    : camera
+                    ? 'Conteggio automatico con la fotocamera attivo'
+                    : 'Tocca a ogni push-up',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: scheme.primaryContainer,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

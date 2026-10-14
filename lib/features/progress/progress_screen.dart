@@ -9,6 +9,7 @@ import '../../core/services/share.dart';
 import '../../core/theme/ritmo_theme.dart';
 import '../../core/utils/local_date.dart';
 import '../../core/widgets/common.dart';
+import '../../core/widgets/motion_widgets.dart';
 import '../../core/widgets/screen_header.dart';
 import '../../core/widgets/tab_scaffold.dart';
 import '../exercises/domain/exercise.dart';
@@ -99,15 +100,13 @@ class ProgressScreen extends ConsumerWidget {
         ],
       ),
       children: [
-        SegmentedButton<ProgressPeriod>(
-          showSelectedIcon: false,
+        SlidingSegmented<ProgressPeriod>(
+          semanticsLabel: 'Periodo',
           segments: [
-            for (final p in ProgressPeriod.values)
-              ButtonSegment(value: p, label: Text(p.label)),
+            for (final p in ProgressPeriod.values) (value: p, label: p.label),
           ],
-          selected: {period},
-          onSelectionChanged: (s) =>
-              ref.read(_periodProvider.notifier).select(s.first),
+          selected: period,
+          onChanged: (p) => ref.read(_periodProvider.notifier).select(p),
         ),
         RitmoCard(
           padding: const EdgeInsets.all(20),

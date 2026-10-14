@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:ritmo/core/widgets/motion_widgets.dart';
 import 'package:ritmo/core/data/database.dart';
 
 import 'helpers.dart';
@@ -75,7 +75,7 @@ void main() {
 
     await tester.tap(find.text('Fine'));
     await step(tester, 6);
-    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byType(RitmoNavigationBar), findsOneWidget);
     await disposeRitmo(tester, db);
   });
 

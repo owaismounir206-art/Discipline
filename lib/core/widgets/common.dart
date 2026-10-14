@@ -120,8 +120,15 @@ class SegmentBar extends StatelessWidget {
   final String? semanticsLabel;
 
   @override
-  Widget build(BuildContext context) {
-    final done = (value.clamp(0.0, 1.0) * 1000).round();
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(end: value.clamp(0.0, 1.0)),
+    duration: RitmoMotion.of(context, RitmoMotion.long),
+    curve: RitmoMotion.decelerate,
+    builder: (context, v, _) => _build(v),
+  );
+
+  Widget _build(double animated) {
+    final done = (animated * 1000).round();
     return Semantics(
       label: semanticsLabel,
       value: '${(value.clamp(0.0, 1.0) * 100).round()}%',

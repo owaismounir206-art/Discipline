@@ -48,6 +48,12 @@ abstract final class RitmoTheme {
         centerTitle: false,
         titleTextStyle: text.titleLarge,
       ),
+      // Cambio schermata Material You: la nuova entra scorrendo e sfumando.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+        },
+      ),
       cardTheme: CardThemeData(
         elevation: 0,
         margin: EdgeInsets.zero,

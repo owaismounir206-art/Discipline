@@ -5,36 +5,30 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
+import 'motion_widgets.dart';
+
 /// Contenitore delle 5 schede con la navigation bar Material 3 in basso.
 class HomeShell extends StatelessWidget {
   const HomeShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
-  static const destinations = [
-    NavigationDestination(
-      icon: Icon(Icons.home_outlined),
-      selectedIcon: Icon(Icons.home),
-      label: 'Oggi',
-    ),
-    NavigationDestination(
-      icon: Icon(Icons.monitor_heart_outlined),
-      selectedIcon: Icon(Icons.monitor_heart),
+  static const items = <NavItem>[
+    (icon: Icons.home_outlined, selectedIcon: Icons.home, label: 'Oggi'),
+    (
+      icon: Icons.monitor_heart_outlined,
+      selectedIcon: Icons.monitor_heart,
       label: 'Allenati',
     ),
-    NavigationDestination(
-      icon: Icon(Icons.group_outlined),
-      selectedIcon: Icon(Icons.group),
-      label: 'Sfide',
-    ),
-    NavigationDestination(
-      icon: Icon(Icons.restaurant_outlined),
-      selectedIcon: Icon(Icons.restaurant),
+    (icon: Icons.group_outlined, selectedIcon: Icons.group, label: 'Sfide'),
+    (
+      icon: Icons.restaurant_outlined,
+      selectedIcon: Icons.restaurant,
       label: 'Cibo',
     ),
-    NavigationDestination(
-      icon: Icon(Icons.show_chart_outlined),
-      selectedIcon: Icon(Icons.show_chart),
+    (
+      icon: Icons.show_chart_outlined,
+      selectedIcon: Icons.show_chart,
       label: 'Progressi',
     ),
   ];
@@ -43,11 +37,11 @@ class HomeShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: RitmoNavigationBar(
         selectedIndex: navigationShell.currentIndex,
-        destinations: destinations,
+        items: items,
         // Toccare di nuovo la scheda attiva riporta all'inizio della scheda.
-        onDestinationSelected: (index) => navigationShell.goBranch(
+        onSelected: (index) => navigationShell.goBranch(
           index,
           initialLocation: index == navigationShell.currentIndex,
         ),

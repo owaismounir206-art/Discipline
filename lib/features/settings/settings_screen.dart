@@ -11,6 +11,7 @@ import '../../core/router/routes.dart';
 import '../../core/theme/ritmo_theme.dart';
 import '../../core/theme/theme_settings.dart';
 import '../../core/utils/local_date.dart';
+import '../../core/widgets/motion_widgets.dart';
 import '../profile/data/profile_repository.dart';
 import '../profile/domain/athlete_profile.dart';
 import '../streak/data/reminders.dart';
@@ -121,21 +122,15 @@ class SettingsScreen extends ConsumerWidget {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: SegmentedButton<ThemeMode>(
-                  showSelectedIcon: false,
+                child: SlidingSegmented<ThemeMode>(
+                  semanticsLabel: 'Tema',
                   segments: const [
-                    ButtonSegment(
-                      value: ThemeMode.system,
-                      label: Text('Sistema'),
-                    ),
-                    ButtonSegment(
-                      value: ThemeMode.light,
-                      label: Text('Chiaro'),
-                    ),
-                    ButtonSegment(value: ThemeMode.dark, label: Text('Scuro')),
+                    (value: ThemeMode.system, label: 'Sistema'),
+                    (value: ThemeMode.light, label: 'Chiaro'),
+                    (value: ThemeMode.dark, label: 'Scuro'),
                   ],
-                  selected: {settings.mode},
-                  onSelectionChanged: (value) => notifier.setMode(value.first),
+                  selected: settings.mode,
+                  onChanged: notifier.setMode,
                 ),
               ),
               SwitchListTile(

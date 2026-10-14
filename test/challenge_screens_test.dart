@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:ritmo/core/widgets/motion_widgets.dart';
 import 'package:ritmo/core/router/routes.dart';
 import 'package:ritmo/core/utils/local_date.dart';
 import 'package:ritmo/features/challenge/domain/friend_code.dart';
@@ -42,7 +43,10 @@ class FakeBackupFiles implements BackupFiles {
 
 Future<void> openTab(WidgetTester tester, String label) async {
   await tester.tap(
-    find.descendant(of: find.byType(NavigationBar), matching: find.text(label)),
+    find.descendant(
+      of: find.byType(RitmoNavigationBar),
+      matching: find.text(label),
+    ),
   );
   await settle(tester);
 }

@@ -10,6 +10,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/router/routes.dart';
 import '../../../core/widgets/common.dart';
+import '../../../core/widgets/motion_widgets.dart';
 import '../../exercises/domain/catalog.dart';
 import '../../exercises/domain/exercise.dart';
 import '../../exercises/domain/progression.dart';
@@ -276,19 +277,23 @@ class _RunningView extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 12),
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(60),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+            PressScale(
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(60),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  textStyle: theme.textTheme.titleMedium?.copyWith(
+                    fontSize: 17,
+                  ),
                 ),
-                textStyle: theme.textTheme.titleMedium?.copyWith(fontSize: 17),
+                onPressed: state.mode == TimerMode.hold
+                    ? null
+                    : controller.completeSet,
+                icon: const Icon(Icons.check),
+                label: const Text('Serie completata'),
               ),
-              onPressed: state.mode == TimerMode.hold
-                  ? null
-                  : controller.completeSet,
-              icon: const Icon(Icons.check),
-              label: const Text('Serie completata'),
             ),
             if (state.next != null) ...[
               const SizedBox(height: 12),

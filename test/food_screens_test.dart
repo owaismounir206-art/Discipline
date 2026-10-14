@@ -4,6 +4,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:ritmo/core/widgets/motion_widgets.dart';
 import 'package:ritmo/core/data/database.dart';
 
 import 'helpers.dart';
@@ -11,7 +12,7 @@ import 'helpers.dart';
 Future<void> openFood(WidgetTester tester) async {
   await tester.tap(
     find.descendant(
-      of: find.byType(NavigationBar),
+      of: find.byType(RitmoNavigationBar),
       matching: find.text('Cibo'),
     ),
   );

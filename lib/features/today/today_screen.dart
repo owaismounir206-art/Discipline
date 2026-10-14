@@ -11,6 +11,7 @@ import '../../core/theme/ritmo_theme.dart';
 import '../../core/utils/italian_date.dart';
 import '../../core/utils/local_date.dart';
 import '../../core/widgets/common.dart';
+import '../../core/widgets/motion_widgets.dart';
 import '../../core/widgets/screen_header.dart';
 import '../../core/widgets/tab_scaffold.dart';
 import '../profile/data/profile_repository.dart';
@@ -501,15 +502,17 @@ class _TodayWorkoutCard extends ConsumerWidget {
               ),
             ],
           ),
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
-              backgroundColor: scheme.tertiary,
-              foregroundColor: scheme.onTertiary,
+          PressScale(
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: scheme.tertiary,
+                foregroundColor: scheme.onTertiary,
+              ),
+              onPressed: () =>
+                  context.push(Routes.session, extra: today.plan.template),
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: Text(done ? 'Allenati ancora' : 'Inizia allenamento'),
             ),
-            onPressed: () =>
-                context.push(Routes.session, extra: today.plan.template),
-            icon: const Icon(Icons.play_arrow_rounded),
-            label: Text(done ? 'Allenati ancora' : 'Inizia allenamento'),
           ),
         ],
       ),

@@ -4,6 +4,8 @@
 
 import 'package:material_ui/material_ui.dart';
 
+import 'motion_widgets.dart';
+
 /// Struttura comune delle schermate nelle 5 schede: intestazione e contenuto
 /// scorrevole con i margini del design (16 px ai lati, 14 px tra i blocchi).
 class TabScaffold extends StatelessWidget {
@@ -20,10 +22,10 @@ class TabScaffold extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
           children: [
-            header,
-            for (final child in children) ...[
+            Entrance(index: 0, child: header),
+            for (final (i, child) in children.indexed) ...[
               const SizedBox(height: 14),
-              child,
+              Entrance(index: i + 1, child: child),
             ],
           ],
         ),

@@ -4,12 +4,15 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:ritmo/core/widgets/motion_widgets.dart';
 import 'package:ritmo/core/data/database.dart';
 
 import 'helpers.dart';
 
-Finder navLabel(String label) =>
-    find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
+Finder navLabel(String label) => find.descendant(
+  of: find.byType(RitmoNavigationBar),
+  matching: find.text(label),
+);
 
 void main() {
   late AppDatabase db;
@@ -65,7 +68,9 @@ void main() {
     await tester.runAsync(() => seedProfile(db));
     await pumpRitmo(tester, db);
 
-    expect(find.byType(NavigationDestination), findsNWidgets(5));
+    for (final label in ['Oggi', 'Allenati', 'Sfide', 'Cibo', 'Progressi']) {
+      expect(navLabel(label), findsOneWidget);
+    }
     expect(find.text('Ciao, Alex'), findsOneWidget);
     // Martedì con giorni L, M, G, S: tocca alla scheda Tirata.
     await tester.scrollUntilVisible(find.text('Oggi · Tirata'), 200);
@@ -95,7 +100,7 @@ void main() {
     await tester.tap(find.byTooltip('Profilo e impostazioni'));
     await settle(tester);
     expect(find.text('Impostazioni'), findsOneWidget);
-    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.byType(RitmoNavigationBar), findsNothing);
 
     await tester.scrollUntilVisible(find.text('Scuro'), 200);
     await tester.tap(find.text('Scuro'));
