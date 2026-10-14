@@ -13,9 +13,10 @@ import '../../core/utils/local_date.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/screen_header.dart';
 import '../../core/widgets/tab_scaffold.dart';
-import '../challenge/presentation/invite_card.dart';
 import '../profile/data/profile_repository.dart';
 import '../profile/domain/athlete_profile.dart';
+import '../rewards/data/rewards_repository.dart';
+import '../rewards/data/rewards_state.dart';
 import '../streak/domain/streak.dart';
 import '../workout/data/today_plan.dart';
 import '../workout/presentation/suggestions_card.dart';
@@ -76,10 +77,10 @@ class TodayScreen extends ConsumerWidget {
       children: [
         if (profile != null) ...[
           _StreakCard(profile: profile),
+          const _FreezeHint(),
           const _LevelCard(),
           const SuggestionsCard(),
           const _TodayWorkoutCard(),
-          const InviteCard(),
         ] else
           const Center(
             child: Padding(
@@ -258,6 +259,13 @@ class _DayCell extends StatelessWidget {
         _Outlined(
           color: muted,
           child: Icon(Icons.healing, size: 16, color: soft),
+        ),
+      ),
+      DayStatus.protected => (
+        'protetto dal giorno jolly',
+        _Outlined(
+          color: muted,
+          child: Icon(Icons.shield_outlined, size: 16, color: soft),
         ),
       ),
       DayStatus.missed => (
@@ -502,6 +510,46 @@ class _TodayWorkoutCard extends ConsumerWidget {
                 context.push(Routes.session, extra: today.plan.template),
             icon: const Icon(Icons.play_arrow_rounded),
             label: Text(done ? 'Allenati ancora' : 'Inizia allenamento'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Hai saltato un allenamento ma hai un giorno jolly: salva la serie.
+class _FreezeHint extends ConsumerWidget {
+  const _FreezeHint();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final owned = ref.watch(freezesOwnedProvider);
+    final missed = freezableDay(
+      ref.watch(streakProvider),
+      ref.watch(todayProvider),
+    );
+    if (owned <= 0 || missed == null) return const SizedBox.shrink();
+    final scheme = Theme.of(context).colorScheme;
+    return RitmoCard(
+      color: scheme.secondaryContainer,
+      radius: 24,
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+      child: Row(
+        spacing: 12,
+        children: [
+          Icon(Icons.shield_outlined, color: scheme.onSecondaryContainer),
+          Expanded(
+            child: Text(
+              'Hai saltato ${formatItalianDate(missed.dateTime)}. '
+              'Usa un giorno jolly per salvare la serie.',
+              style: TextStyle(color: scheme.onSecondaryContainer),
+            ),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+            onPressed: () =>
+                ref.read(rewardsRepositoryProvider).useFreeze(missed),
+            child: const Text('Usa'),
           ),
         ],
       ),

@@ -6,9 +6,8 @@ name: Rilascio
 # Segreti facoltativi (Settings > Secrets and variables > Actions):
 #   ANDROID_KEYSTORE_BASE64   keystore .jks codificato in base64
 #   ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_PASSWORD, ANDROID_KEY_ALIAS
-#   SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, LIVEKIT_URL
 # Senza il keystore l'APK è firmato con la chiave di prova (non adatto agli
-# store). Senza SUPABASE_* l'app esce senza sfide online.
+# store).
 # Vedi docs/PUBBLICAZIONE.md.
 
 on:
@@ -29,9 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
-      LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -69,16 +65,6 @@ jobs:
             echo "::warning::Nessun keystore: firma di prova."
           fi
 
-      - name: Configurazione dei servizi (se nei segreti)
-        run: |
-          if [ -n "$SUPABASE_URL" ] && [ -n "$SUPABASE_PUBLISHABLE_KEY" ]; then
-            printf '{"SUPABASE_URL":"%s","SUPABASE_PUBLISHABLE_KEY":"%s","LIVEKIT_URL":"%s"}' \
-              "$SUPABASE_URL" "$SUPABASE_PUBLISHABLE_KEY" "$LIVEKIT_URL" > config/ritmo.json
-          else
-            echo "::warning::SUPABASE_* non impostati: build senza sfide online."
-            echo '{"SUPABASE_URL":""}' > config/ritmo.json
-          fi
-
       - name: Versione
         id: version
         run: |
@@ -94,9 +80,9 @@ jobs:
         run: |
           NAME="${{ steps.version.outputs.name }}"
           flutter build apk --release --build-name="${NAME%%-*}" \
-            --build-number="$GITHUB_RUN_NUMBER" --dart-define-from-file=config/ritmo.json
+            --build-number="$GITHUB_RUN_NUMBER"
           flutter build appbundle --release --build-name="${NAME%%-*}" \
-            --build-number="$GITHUB_RUN_NUMBER" --dart-define-from-file=config/ritmo.json
+            --build-number="$GITHUB_RUN_NUMBER"
 
       - name: Nomi e impronte dei file
         run: |

@@ -635,6 +635,28 @@ class _SummaryView extends ConsumerWidget {
                 _Stat(label: 'Tempo', value: formatDuration(state.elapsed)),
               ],
             ),
+            if (state.pointsEarned > 0) ...[
+              const SizedBox(height: 14),
+              RitmoCard(
+                color: scheme.tertiaryContainer,
+                radius: 20,
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  spacing: 12,
+                  children: [
+                    Icon(Icons.stars, color: scheme.onTertiaryContainer),
+                    Expanded(
+                      child: Text(
+                        '+${state.pointsEarned} punti',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: scheme.onTertiaryContainer,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             for (final s in state.suggestions) ...[
               const SizedBox(height: 14),
               _SummarySuggestion(suggestion: s),

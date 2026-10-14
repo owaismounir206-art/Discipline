@@ -73,7 +73,7 @@ void main() {
 
     final screens = {
       'Allenati': 'La tua settimana',
-      'Sfida': 'Push-up in diretta con i tuoi amici',
+      'Sfide': 'Guadagna punti, sblocca premi',
       'Cibo': 'Cibo',
       'Progressi': 'Progressi',
       'Oggi': 'Inizia allenamento',
@@ -105,6 +105,7 @@ void main() {
     expect(await tester.runAsync(() => db.readJson('theme')), {
       'mode': 'dark',
       'dynamic': false,
+      'palette': 'coral',
     });
     await disposeRitmo(tester, db);
   });

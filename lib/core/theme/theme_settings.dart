@@ -13,6 +13,7 @@ class ThemeSettings {
   const ThemeSettings({
     this.mode = ThemeMode.system,
     this.useDynamicColor = false,
+    this.palette = 'coral',
   });
 
   /// Chiaro, scuro o come il telefono.
@@ -21,15 +22,23 @@ class ThemeSettings {
   /// Se vero, su Android 12+ usa i colori dello sfondo invece del corallo.
   final bool useDynamicColor;
 
-  ThemeSettings copyWith({ThemeMode? mode, bool? useDynamicColor}) =>
-      ThemeSettings(
-        mode: mode ?? this.mode,
-        useDynamicColor: useDynamicColor ?? this.useDynamicColor,
-      );
+  /// Colori dell'app (nome di un AppPalette sbloccato con i punti).
+  final String palette;
+
+  ThemeSettings copyWith({
+    ThemeMode? mode,
+    bool? useDynamicColor,
+    String? palette,
+  }) => ThemeSettings(
+    mode: mode ?? this.mode,
+    useDynamicColor: useDynamicColor ?? this.useDynamicColor,
+    palette: palette ?? this.palette,
+  );
 
   Map<String, Object?> toJson() => {
     'mode': mode.name,
     'dynamic': useDynamicColor,
+    'palette': palette,
   };
 
   factory ThemeSettings.fromJson(Map<String, Object?> json) => ThemeSettings(
@@ -38,6 +47,7 @@ class ThemeSettings {
       orElse: () => ThemeMode.system,
     ),
     useDynamicColor: json['dynamic'] as bool? ?? false,
+    palette: json['palette'] as String? ?? 'coral',
   );
 }
 
@@ -63,6 +73,9 @@ class ThemeSettingsNotifier extends Notifier<ThemeSettings> {
 
   Future<void> setUseDynamicColor(bool value) =>
       _save(state.copyWith(useDynamicColor: value));
+
+  Future<void> setPalette(String name) =>
+      _save(state.copyWith(palette: name, useDynamicColor: false));
 }
 
 final themeSettingsProvider =

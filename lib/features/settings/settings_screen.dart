@@ -14,7 +14,7 @@ import '../../core/utils/local_date.dart';
 import '../profile/data/profile_repository.dart';
 import '../profile/domain/athlete_profile.dart';
 import '../streak/data/reminders.dart';
-import 'account_section.dart';
+import 'backup.dart';
 
 /// Impostazioni e profilo.
 class SettingsScreen extends ConsumerWidget {
@@ -112,7 +112,6 @@ class SettingsScreen extends ConsumerWidget {
                 ),
             ],
           ),
-          const AccountSection(),
           const _SectionTitle('Aspetto'),
           _Group(
             children: [
@@ -174,6 +173,7 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
+          const BackupSection(),
           const _SectionTitle('Informazioni'),
           _Group(
             children: [

@@ -12,7 +12,7 @@ import 'core/data/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/ritmo_theme.dart';
 import 'core/theme/theme_settings.dart';
-import 'features/account/data/account_providers.dart';
+import 'features/rewards/domain/rewards.dart';
 import 'features/workout/data/today_plan.dart';
 
 class RitmoApp extends ConsumerStatefulWidget {
@@ -30,14 +30,7 @@ class _RitmoAppState extends ConsumerState<RitmoApp> {
   void initState() {
     super.initState();
     // "Oggi" cambia a mezzanotte e quando l'app torna in primo piano.
-    // Gli amici vedono se sei online solo mentre usi l'app.
-    _lifecycle = AppLifecycleListener(
-      onResume: () {
-        _refreshDay();
-        ref.read(presenceProvider).resume();
-      },
-      onPause: () => ref.read(presenceProvider).pause(),
-    );
+    _lifecycle = AppLifecycleListener(onResume: _refreshDay);
     _scheduleMidnight();
   }
 
@@ -64,12 +57,6 @@ class _RitmoAppState extends ConsumerState<RitmoApp> {
   Widget build(BuildContext context) {
     final router = ref.watch(routerProvider);
     final settings = ref.watch(themeSettingsProvider);
-    ref.listen(
-      accountProvider.select((a) => a.value?.id),
-      (_, id) => id == null
-          ? ref.read(presenceProvider).pause()
-          : ref.read(presenceProvider).resume(),
-    );
 
     // Su Android 12+ il sistema fornisce i colori dello sfondo; altrove sono
     // null e restano i colori di Ritmo.
@@ -85,10 +72,10 @@ class _RitmoAppState extends ConsumerState<RitmoApp> {
           debugShowCheckedModeBanner: false,
           theme: useDynamic
               ? RitmoTheme.fromScheme(lightDynamic.harmonized())
-              : RitmoTheme.light,
+              : _paletteTheme(settings.palette, Brightness.light),
           darkTheme: useDynamic
               ? RitmoTheme.fromScheme(darkDynamic.harmonized())
-              : RitmoTheme.dark,
+              : _paletteTheme(settings.palette, Brightness.dark),
           themeMode: settings.mode,
           locale: const Locale('it'),
           supportedLocales: const [Locale('it')],
@@ -98,4 +85,16 @@ class _RitmoAppState extends ConsumerState<RitmoApp> {
       },
     );
   }
+}
+
+/// Tema dai colori scelti: il corallo usa i colori esatti del design, gli
+/// altri sono generati dal loro colore base (Material You).
+ThemeData _paletteTheme(String name, Brightness brightness) {
+  final palette = AppPalette.values.asNameMap()[name] ?? AppPalette.coral;
+  if (palette == AppPalette.coral) {
+    return brightness == Brightness.light ? RitmoTheme.light : RitmoTheme.dark;
+  }
+  return RitmoTheme.fromScheme(
+    ColorScheme.fromSeed(seedColor: palette.seed, brightness: brightness),
+  );
 }

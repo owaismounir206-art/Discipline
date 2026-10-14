@@ -2,12 +2,12 @@
 // Copyright (C) 2026 Ritmo contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-/// Percorsi delle schermate. I link d'invito usano `ritmo://invito/CODICE`.
+/// Percorsi delle schermate.
 abstract final class Routes {
   // Le 5 schede.
   static const today = '/oggi';
   static const workout = '/allenati';
-  static const challenge = '/sfida';
+  static const challenge = '/sfide';
   static const food = '/cibo';
   static const progress = '/progressi';
 
@@ -24,10 +24,14 @@ abstract final class Routes {
   static const foodScanner = '/cibo/scanner';
   static const nutrition = '/cibo/consigli';
   static const bodyData = '/cibo/dati';
-  static const login = '/accesso';
-  static const challengeLive = '/sfida/live';
+  static const timedChallenge = '/sfide/a-tempo';
+  static const friendChallenge = '/sfide/amico';
 
   static String exercise(String id) => '/esercizio/$id';
-  static String live(String id) => '$challengeLive/$id';
-  static String invite(String code) => '/invito/$code';
+
+  /// Sfida a tempo; con [code] è la sfida di un amico.
+  static String timed(String mode, {String? code}) => Uri(
+    path: timedChallenge,
+    queryParameters: {'modo': mode, 'codice': ?code},
+  ).toString();
 }

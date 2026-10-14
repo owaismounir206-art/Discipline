@@ -5,10 +5,10 @@
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../features/account/presentation/invite_link_screen.dart';
-import '../../features/account/presentation/login_screen.dart';
 import '../../features/camera/presentation/camera_counter_screen.dart';
-import '../../features/challenge/presentation/live_challenge_screen.dart';
+import '../../features/challenge/domain/timed.dart';
+import '../../features/challenge/presentation/friend_challenge_screen.dart';
+import '../../features/challenge/presentation/timed_challenge_screen.dart';
 import '../../features/food/domain/nutrition.dart';
 import '../../features/food/presentation/body_data_screen.dart';
 import '../../features/food/presentation/food_search_screen.dart';
@@ -39,18 +39,15 @@ List<RouteBase> extraRoutes(GlobalKey<NavigatorState> root) => [
   _page(root, Routes.nutrition, (_) => const NutritionScreen()),
   _page(root, Routes.bodyData, (_) => const BodyDataScreen()),
   _page(root, Routes.cameraCounter, (_) => const CameraCounterScreen()),
-  _page(root, Routes.login, (_) => const LoginScreen()),
   _page(
     root,
-    '${Routes.challengeLive}/:id',
-    (state) => LiveChallengeScreen(
-      roomId: state.pathParameters['id']!,
-      solo: state.uri.queryParameters['solo'] == '1',
+    Routes.timedChallenge,
+    (state) => TimedChallengeScreen(
+      mode:
+          TimedMode.values.asNameMap()[state.uri.queryParameters['modo']] ??
+          TimedMode.minute,
+      friendCode: state.uri.queryParameters['codice'],
     ),
   ),
-  _page(
-    root,
-    '/invito/:code',
-    (state) => InviteLinkScreen(code: state.pathParameters['code']!),
-  ),
+  _page(root, Routes.friendChallenge, (_) => const FriendChallengeScreen()),
 ];

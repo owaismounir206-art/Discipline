@@ -81,6 +81,19 @@ class WorkoutRepository {
       (_db.update(_db.workoutSessions)..where((t) => t.id.equals(sessionId)))
           .write(WorkoutSessionsCompanion(endedAt: Value(now)));
 
+  /// Miglior valore di ogni esercizio nelle altre sessioni (per capire se
+  /// [sessionId] ha fatto un nuovo record).
+  Future<Map<String, int>> bestBefore(int sessionId) async {
+    final rows = await (_db.select(
+      _db.setLogs,
+    )..where((t) => t.sessionId.equals(sessionId).not())).get();
+    final best = <String, int>{};
+    for (final r in rows) {
+      if (r.value > (best[r.exerciseId] ?? 0)) best[r.exerciseId] = r.value;
+    }
+    return best;
+  }
+
   /// Elimina una sessione senza serie (allenamento abbandonato subito).
   Future<void> discardIfEmpty(int sessionId) async {
     final count = await (_db.select(

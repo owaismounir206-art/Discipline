@@ -5,6 +5,7 @@
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../theme/motion.dart';
 import '../theme/ritmo_theme.dart';
 
 /// Contatore con − e + (ripetizioni, secondi, grammi).
@@ -258,15 +259,17 @@ class IconBadge extends StatelessWidget {
   const IconBadge({
     super.key,
     required this.icon,
-    required this.background,
-    required this.foreground,
+    this.background,
+    this.foreground,
     this.size = 40,
     this.radius = 12,
   });
 
   final IconData icon;
-  final Color background;
-  final Color foreground;
+
+  /// Di serie: il contenitore primario del tema.
+  final Color? background;
+  final Color? foreground;
   final double size;
   final double radius;
 
@@ -276,10 +279,14 @@ class IconBadge extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: background,
+        color: background ?? Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(radius),
       ),
-      child: Icon(icon, color: foreground, size: size * 0.55),
+      child: Icon(
+        icon,
+        color: foreground ?? Theme.of(context).colorScheme.onPrimaryContainer,
+        size: size * 0.55,
+      ),
     ),
   );
 }
@@ -290,4 +297,58 @@ String formatDuration(int totalSeconds) {
   final minutes = s ~/ 60;
   final seconds = s % 60;
   return '${totalSeconds < 0 ? '-' : ''}$minutes:${seconds.toString().padLeft(2, '0')}';
+}
+
+/// Barra di avanzamento che scorre fino al nuovo valore (parte veloce e si
+/// posa dolcemente).
+class AnimatedProgressBar extends StatelessWidget {
+  const AnimatedProgressBar({
+    super.key,
+    required this.value,
+    required this.color,
+    required this.background,
+    this.height = 10,
+  });
+
+  final double value;
+  final Color color;
+  final Color background;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(height / 2),
+    child: TweenAnimationBuilder<double>(
+      tween: Tween(end: value.clamp(0.0, 1.0)),
+      duration: RitmoMotion.of(context, RitmoMotion.long),
+      curve: RitmoMotion.decelerate,
+      builder: (context, v, _) => LinearProgressIndicator(
+        value: v,
+        minHeight: height,
+        color: color,
+        backgroundColor: background,
+      ),
+    ),
+  );
+}
+
+/// Numero che scorre fino al nuovo valore (punti, contatori).
+class AnimatedCount extends StatelessWidget {
+  const AnimatedCount({super.key, required this.value, this.style});
+
+  final int value;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(end: value.toDouble()),
+    duration: RitmoMotion.of(context, RitmoMotion.long),
+    curve: RitmoMotion.decelerate,
+    builder: (context, v, _) => Text(
+      '${v.round()}',
+      style: style?.copyWith(
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
+    ),
+  );
 }

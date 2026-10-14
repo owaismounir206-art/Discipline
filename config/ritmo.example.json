@@ -1,6 +1,0 @@
-{
-  "_LEGGIMI": "Copia questo file in config/ritmo.json (escluso da git) e inserisci i valori del TUO progetto Supabase: Project Settings > API Keys. Usa la 'publishable key' (o la vecchia 'anon'): è pensata per stare nelle app. Non mettere MAI la 'secret' / 'service_role' qui. Lascia vuoto per usare Ritmo senza server (sfide online e backup disattivati). Avvio: flutter run --dart-define-from-file=config/ritmo.json",
-  "SUPABASE_URL": "",
-  "SUPABASE_PUBLISHABLE_KEY": "",
-  "LIVEKIT_URL": ""
-}

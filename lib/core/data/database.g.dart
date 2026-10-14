@@ -2454,42 +2454,754 @@ class FavoriteFoodsCompanion extends UpdateCompanion<FavoriteFood> {
   }
 }
 
-class $ChallengeResultsTable extends ChallengeResults
-    with TableInfo<$ChallengeResultsTable, ChallengeResult> {
+class $PointEntriesTable extends PointEntries
+    with TableInfo<$PointEntriesTable, PointRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $ChallengeResultsTable(this.attachedDatabase, [this._alias]);
+  $PointEntriesTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
     'id',
     aliasedName,
     false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
   );
-  static const VerificationMeta _friendIdMeta = const VerificationMeta(
-    'friendId',
-  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
   @override
-  late final GeneratedColumn<String> friendId = GeneratedColumn<String>(
-    'friend_id',
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _friendNameMeta = const VerificationMeta(
-    'friendName',
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _atMeta = const VerificationMeta('at');
+  @override
+  late final GeneratedColumn<DateTime> at = GeneratedColumn<DateTime>(
+    'at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _refMeta = const VerificationMeta('ref');
+  @override
+  late final GeneratedColumn<String> ref = GeneratedColumn<String>(
+    'ref',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   @override
-  late final GeneratedColumn<String> friendName = GeneratedColumn<String>(
-    'friend_name',
+  List<GeneratedColumn> get $columns => [id, kind, amount, at, ref, note];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'point_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PointRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('at')) {
+      context.handle(_atMeta, at.isAcceptableOrUnknown(data['at']!, _atMeta));
+    } else if (isInserting) {
+      context.missing(_atMeta);
+    }
+    if (data.containsKey('ref')) {
+      context.handle(
+        _refMeta,
+        ref.isAcceptableOrUnknown(data['ref']!, _refMeta),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PointRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PointRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      )!,
+      at: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}at'],
+      )!,
+      ref: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ref'],
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+    );
+  }
+
+  @override
+  $PointEntriesTable createAlias(String alias) {
+    return $PointEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class PointRow extends DataClass implements Insertable<PointRow> {
+  final int id;
+
+  /// Vedi PointKind.
+  final String kind;
+  final int amount;
+  final DateTime at;
+
+  /// Chiave unica ("allenamento-12"): gli stessi punti non si danno due volte.
+  final String? ref;
+  final String? note;
+  const PointRow({
+    required this.id,
+    required this.kind,
+    required this.amount,
+    required this.at,
+    this.ref,
+    this.note,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['kind'] = Variable<String>(kind);
+    map['amount'] = Variable<int>(amount);
+    map['at'] = Variable<DateTime>(at);
+    if (!nullToAbsent || ref != null) {
+      map['ref'] = Variable<String>(ref);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    return map;
+  }
+
+  PointEntriesCompanion toCompanion(bool nullToAbsent) {
+    return PointEntriesCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      amount: Value(amount),
+      at: Value(at),
+      ref: ref == null && nullToAbsent ? const Value.absent() : Value(ref),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+    );
+  }
+
+  factory PointRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PointRow(
+      id: serializer.fromJson<int>(json['id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      amount: serializer.fromJson<int>(json['amount']),
+      at: serializer.fromJson<DateTime>(json['at']),
+      ref: serializer.fromJson<String?>(json['ref']),
+      note: serializer.fromJson<String?>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'kind': serializer.toJson<String>(kind),
+      'amount': serializer.toJson<int>(amount),
+      'at': serializer.toJson<DateTime>(at),
+      'ref': serializer.toJson<String?>(ref),
+      'note': serializer.toJson<String?>(note),
+    };
+  }
+
+  PointRow copyWith({
+    int? id,
+    String? kind,
+    int? amount,
+    DateTime? at,
+    Value<String?> ref = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+  }) => PointRow(
+    id: id ?? this.id,
+    kind: kind ?? this.kind,
+    amount: amount ?? this.amount,
+    at: at ?? this.at,
+    ref: ref.present ? ref.value : this.ref,
+    note: note.present ? note.value : this.note,
+  );
+  PointRow copyWithCompanion(PointEntriesCompanion data) {
+    return PointRow(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      at: data.at.present ? data.at.value : this.at,
+      ref: data.ref.present ? data.ref.value : this.ref,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PointRow(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('amount: $amount, ')
+          ..write('at: $at, ')
+          ..write('ref: $ref, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, kind, amount, at, ref, note);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PointRow &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.amount == this.amount &&
+          other.at == this.at &&
+          other.ref == this.ref &&
+          other.note == this.note);
+}
+
+class PointEntriesCompanion extends UpdateCompanion<PointRow> {
+  final Value<int> id;
+  final Value<String> kind;
+  final Value<int> amount;
+  final Value<DateTime> at;
+  final Value<String?> ref;
+  final Value<String?> note;
+  const PointEntriesCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.at = const Value.absent(),
+    this.ref = const Value.absent(),
+    this.note = const Value.absent(),
+  });
+  PointEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required String kind,
+    required int amount,
+    required DateTime at,
+    this.ref = const Value.absent(),
+    this.note = const Value.absent(),
+  }) : kind = Value(kind),
+       amount = Value(amount),
+       at = Value(at);
+  static Insertable<PointRow> custom({
+    Expression<int>? id,
+    Expression<String>? kind,
+    Expression<int>? amount,
+    Expression<DateTime>? at,
+    Expression<String>? ref,
+    Expression<String>? note,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (amount != null) 'amount': amount,
+      if (at != null) 'at': at,
+      if (ref != null) 'ref': ref,
+      if (note != null) 'note': note,
+    });
+  }
+
+  PointEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? kind,
+    Value<int>? amount,
+    Value<DateTime>? at,
+    Value<String?>? ref,
+    Value<String?>? note,
+  }) {
+    return PointEntriesCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      amount: amount ?? this.amount,
+      at: at ?? this.at,
+      ref: ref ?? this.ref,
+      note: note ?? this.note,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (at.present) {
+      map['at'] = Variable<DateTime>(at.value);
+    }
+    if (ref.present) {
+      map['ref'] = Variable<String>(ref.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PointEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('amount: $amount, ')
+          ..write('at: $at, ')
+          ..write('ref: $ref, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ChallengeEntriesTable extends ChallengeEntries
+    with TableInfo<$ChallengeEntriesTable, ChallengeEntryRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChallengeEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _challengeIdMeta = const VerificationMeta(
+    'challengeId',
+  );
+  @override
+  late final GeneratedColumn<String> challengeId = GeneratedColumn<String>(
+    'challenge_id',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<int> value = GeneratedColumn<int>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _verifiedMeta = const VerificationMeta(
+    'verified',
+  );
+  @override
+  late final GeneratedColumn<bool> verified = GeneratedColumn<bool>(
+    'verified',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("verified" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _atMeta = const VerificationMeta('at');
+  @override
+  late final GeneratedColumn<DateTime> at = GeneratedColumn<DateTime>(
+    'at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, challengeId, value, verified, at];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'challenge_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ChallengeEntryRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('challenge_id')) {
+      context.handle(
+        _challengeIdMeta,
+        challengeId.isAcceptableOrUnknown(
+          data['challenge_id']!,
+          _challengeIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_challengeIdMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    if (data.containsKey('verified')) {
+      context.handle(
+        _verifiedMeta,
+        verified.isAcceptableOrUnknown(data['verified']!, _verifiedMeta),
+      );
+    }
+    if (data.containsKey('at')) {
+      context.handle(_atMeta, at.isAcceptableOrUnknown(data['at']!, _atMeta));
+    } else if (isInserting) {
+      context.missing(_atMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ChallengeEntryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChallengeEntryRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      challengeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}challenge_id'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}value'],
+      )!,
+      verified: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}verified'],
+      )!,
+      at: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}at'],
+      )!,
+    );
+  }
+
+  @override
+  $ChallengeEntriesTable createAlias(String alias) {
+    return $ChallengeEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class ChallengeEntryRow extends DataClass
+    implements Insertable<ChallengeEntryRow> {
+  final int id;
+  final String challengeId;
+  final int value;
+
+  /// Contati dalla fotocamera.
+  final bool verified;
+  final DateTime at;
+  const ChallengeEntryRow({
+    required this.id,
+    required this.challengeId,
+    required this.value,
+    required this.verified,
+    required this.at,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['challenge_id'] = Variable<String>(challengeId);
+    map['value'] = Variable<int>(value);
+    map['verified'] = Variable<bool>(verified);
+    map['at'] = Variable<DateTime>(at);
+    return map;
+  }
+
+  ChallengeEntriesCompanion toCompanion(bool nullToAbsent) {
+    return ChallengeEntriesCompanion(
+      id: Value(id),
+      challengeId: Value(challengeId),
+      value: Value(value),
+      verified: Value(verified),
+      at: Value(at),
+    );
+  }
+
+  factory ChallengeEntryRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChallengeEntryRow(
+      id: serializer.fromJson<int>(json['id']),
+      challengeId: serializer.fromJson<String>(json['challengeId']),
+      value: serializer.fromJson<int>(json['value']),
+      verified: serializer.fromJson<bool>(json['verified']),
+      at: serializer.fromJson<DateTime>(json['at']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'challengeId': serializer.toJson<String>(challengeId),
+      'value': serializer.toJson<int>(value),
+      'verified': serializer.toJson<bool>(verified),
+      'at': serializer.toJson<DateTime>(at),
+    };
+  }
+
+  ChallengeEntryRow copyWith({
+    int? id,
+    String? challengeId,
+    int? value,
+    bool? verified,
+    DateTime? at,
+  }) => ChallengeEntryRow(
+    id: id ?? this.id,
+    challengeId: challengeId ?? this.challengeId,
+    value: value ?? this.value,
+    verified: verified ?? this.verified,
+    at: at ?? this.at,
+  );
+  ChallengeEntryRow copyWithCompanion(ChallengeEntriesCompanion data) {
+    return ChallengeEntryRow(
+      id: data.id.present ? data.id.value : this.id,
+      challengeId: data.challengeId.present
+          ? data.challengeId.value
+          : this.challengeId,
+      value: data.value.present ? data.value.value : this.value,
+      verified: data.verified.present ? data.verified.value : this.verified,
+      at: data.at.present ? data.at.value : this.at,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChallengeEntryRow(')
+          ..write('id: $id, ')
+          ..write('challengeId: $challengeId, ')
+          ..write('value: $value, ')
+          ..write('verified: $verified, ')
+          ..write('at: $at')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, challengeId, value, verified, at);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChallengeEntryRow &&
+          other.id == this.id &&
+          other.challengeId == this.challengeId &&
+          other.value == this.value &&
+          other.verified == this.verified &&
+          other.at == this.at);
+}
+
+class ChallengeEntriesCompanion extends UpdateCompanion<ChallengeEntryRow> {
+  final Value<int> id;
+  final Value<String> challengeId;
+  final Value<int> value;
+  final Value<bool> verified;
+  final Value<DateTime> at;
+  const ChallengeEntriesCompanion({
+    this.id = const Value.absent(),
+    this.challengeId = const Value.absent(),
+    this.value = const Value.absent(),
+    this.verified = const Value.absent(),
+    this.at = const Value.absent(),
+  });
+  ChallengeEntriesCompanion.insert({
+    this.id = const Value.absent(),
+    required String challengeId,
+    required int value,
+    this.verified = const Value.absent(),
+    required DateTime at,
+  }) : challengeId = Value(challengeId),
+       value = Value(value),
+       at = Value(at);
+  static Insertable<ChallengeEntryRow> custom({
+    Expression<int>? id,
+    Expression<String>? challengeId,
+    Expression<int>? value,
+    Expression<bool>? verified,
+    Expression<DateTime>? at,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (challengeId != null) 'challenge_id': challengeId,
+      if (value != null) 'value': value,
+      if (verified != null) 'verified': verified,
+      if (at != null) 'at': at,
+    });
+  }
+
+  ChallengeEntriesCompanion copyWith({
+    Value<int>? id,
+    Value<String>? challengeId,
+    Value<int>? value,
+    Value<bool>? verified,
+    Value<DateTime>? at,
+  }) {
+    return ChallengeEntriesCompanion(
+      id: id ?? this.id,
+      challengeId: challengeId ?? this.challengeId,
+      value: value ?? this.value,
+      verified: verified ?? this.verified,
+      at: at ?? this.at,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (challengeId.present) {
+      map['challenge_id'] = Variable<String>(challengeId.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<int>(value.value);
+    }
+    if (verified.present) {
+      map['verified'] = Variable<bool>(verified.value);
+    }
+    if (at.present) {
+      map['at'] = Variable<DateTime>(at.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChallengeEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('challengeId: $challengeId, ')
+          ..write('value: $value, ')
+          ..write('verified: $verified, ')
+          ..write('at: $at')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TimedResultsTable extends TimedResults
+    with TableInfo<$TimedResultsTable, TimedResultRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TimedResultsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
   );
   static const VerificationMeta _modeMeta = const VerificationMeta('mode');
   @override
@@ -2500,23 +3212,10 @@ class $ChallengeResultsTable extends ChallengeResults
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _myScoreMeta = const VerificationMeta(
-    'myScore',
-  );
+  static const VerificationMeta _repsMeta = const VerificationMeta('reps');
   @override
-  late final GeneratedColumn<int> myScore = GeneratedColumn<int>(
-    'my_score',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _friendScoreMeta = const VerificationMeta(
-    'friendScore',
-  );
-  @override
-  late final GeneratedColumn<int> friendScore = GeneratedColumn<int>(
-    'friend_score',
+  late final GeneratedColumn<int> reps = GeneratedColumn<int>(
+    'reps',
     aliasedName,
     false,
     type: DriftSqlType.int,
@@ -2531,26 +3230,54 @@ class $ChallengeResultsTable extends ChallengeResults
     aliasedName,
     false,
     type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
-  static const VerificationMeta _outcomeMeta = const VerificationMeta(
-    'outcome',
-  );
-  @override
-  late final GeneratedColumn<String> outcome = GeneratedColumn<String>(
-    'outcome',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _playedAtMeta = const VerificationMeta(
-    'playedAt',
+  static const VerificationMeta _elapsedMsMeta = const VerificationMeta(
+    'elapsedMs',
   );
   @override
-  late final GeneratedColumn<DateTime> playedAt = GeneratedColumn<DateTime>(
-    'played_at',
+  late final GeneratedColumn<int> elapsedMs = GeneratedColumn<int>(
+    'elapsed_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  @override
+  late final GeneratedColumn<int> score = GeneratedColumn<int>(
+    'score',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _friendNameMeta = const VerificationMeta(
+    'friendName',
+  );
+  @override
+  late final GeneratedColumn<String> friendName = GeneratedColumn<String>(
+    'friend_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _friendScoreMeta = const VerificationMeta(
+    'friendScore',
+  );
+  @override
+  late final GeneratedColumn<int> friendScore = GeneratedColumn<int>(
+    'friend_score',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _atMeta = const VerificationMeta('at');
+  @override
+  late final GeneratedColumn<DateTime> at = GeneratedColumn<DateTime>(
+    'at',
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
@@ -2559,47 +3286,29 @@ class $ChallengeResultsTable extends ChallengeResults
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    friendId,
-    friendName,
     mode,
-    myScore,
-    friendScore,
+    reps,
     manualReps,
-    outcome,
-    playedAt,
+    elapsedMs,
+    score,
+    friendName,
+    friendScore,
+    at,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'challenge_results';
+  static const String $name = 'timed_results';
   @override
   VerificationContext validateIntegrity(
-    Insertable<ChallengeResult> instance, {
+    Insertable<TimedResultRow> instance, {
     bool isInserting = false,
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('friend_id')) {
-      context.handle(
-        _friendIdMeta,
-        friendId.isAcceptableOrUnknown(data['friend_id']!, _friendIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_friendIdMeta);
-    }
-    if (data.containsKey('friend_name')) {
-      context.handle(
-        _friendNameMeta,
-        friendName.isAcceptableOrUnknown(data['friend_name']!, _friendNameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_friendNameMeta);
     }
     if (data.containsKey('mode')) {
       context.handle(
@@ -2609,13 +3318,41 @@ class $ChallengeResultsTable extends ChallengeResults
     } else if (isInserting) {
       context.missing(_modeMeta);
     }
-    if (data.containsKey('my_score')) {
+    if (data.containsKey('reps')) {
       context.handle(
-        _myScoreMeta,
-        myScore.isAcceptableOrUnknown(data['my_score']!, _myScoreMeta),
+        _repsMeta,
+        reps.isAcceptableOrUnknown(data['reps']!, _repsMeta),
       );
     } else if (isInserting) {
-      context.missing(_myScoreMeta);
+      context.missing(_repsMeta);
+    }
+    if (data.containsKey('manual_reps')) {
+      context.handle(
+        _manualRepsMeta,
+        manualReps.isAcceptableOrUnknown(data['manual_reps']!, _manualRepsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_manualRepsMeta);
+    }
+    if (data.containsKey('elapsed_ms')) {
+      context.handle(
+        _elapsedMsMeta,
+        elapsedMs.isAcceptableOrUnknown(data['elapsed_ms']!, _elapsedMsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_elapsedMsMeta);
+    }
+    if (data.containsKey('score')) {
+      context.handle(
+        _scoreMeta,
+        score.isAcceptableOrUnknown(data['score']!, _scoreMeta),
+      );
+    }
+    if (data.containsKey('friend_name')) {
+      context.handle(
+        _friendNameMeta,
+        friendName.isAcceptableOrUnknown(data['friend_name']!, _friendNameMeta),
+      );
     }
     if (data.containsKey('friend_score')) {
       context.handle(
@@ -2625,30 +3362,11 @@ class $ChallengeResultsTable extends ChallengeResults
           _friendScoreMeta,
         ),
       );
-    } else if (isInserting) {
-      context.missing(_friendScoreMeta);
     }
-    if (data.containsKey('manual_reps')) {
-      context.handle(
-        _manualRepsMeta,
-        manualReps.isAcceptableOrUnknown(data['manual_reps']!, _manualRepsMeta),
-      );
-    }
-    if (data.containsKey('outcome')) {
-      context.handle(
-        _outcomeMeta,
-        outcome.isAcceptableOrUnknown(data['outcome']!, _outcomeMeta),
-      );
+    if (data.containsKey('at')) {
+      context.handle(_atMeta, at.isAcceptableOrUnknown(data['at']!, _atMeta));
     } else if (isInserting) {
-      context.missing(_outcomeMeta);
-    }
-    if (data.containsKey('played_at')) {
-      context.handle(
-        _playedAtMeta,
-        playedAt.isAcceptableOrUnknown(data['played_at']!, _playedAtMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_playedAtMeta);
+      context.missing(_atMeta);
     }
     return context;
   }
@@ -2656,194 +3374,208 @@ class $ChallengeResultsTable extends ChallengeResults
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  ChallengeResult map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TimedResultRow map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ChallengeResult(
+    return TimedResultRow(
       id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
+        DriftSqlType.int,
         data['${effectivePrefix}id'],
-      )!,
-      friendId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}friend_id'],
-      )!,
-      friendName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}friend_name'],
       )!,
       mode: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}mode'],
       )!,
-      myScore: attachedDatabase.typeMapping.read(
+      reps: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
-        data['${effectivePrefix}my_score'],
-      )!,
-      friendScore: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}friend_score'],
+        data['${effectivePrefix}reps'],
       )!,
       manualReps: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}manual_reps'],
       )!,
-      outcome: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}outcome'],
+      elapsedMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}elapsed_ms'],
       )!,
-      playedAt: attachedDatabase.typeMapping.read(
+      score: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}score'],
+      ),
+      friendName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}friend_name'],
+      ),
+      friendScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}friend_score'],
+      ),
+      at: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
-        data['${effectivePrefix}played_at'],
+        data['${effectivePrefix}at'],
       )!,
     );
   }
 
   @override
-  $ChallengeResultsTable createAlias(String alias) {
-    return $ChallengeResultsTable(attachedDatabase, alias);
+  $TimedResultsTable createAlias(String alias) {
+    return $TimedResultsTable(attachedDatabase, alias);
   }
 }
 
-class ChallengeResult extends DataClass implements Insertable<ChallengeResult> {
-  final String id;
-  final String friendId;
-  final String friendName;
+class TimedResultRow extends DataClass implements Insertable<TimedResultRow> {
+  final int id;
+
+  /// minute, race50.
   final String mode;
-  final int myScore;
-  final int friendScore;
-
-  /// Ripetizioni contate a mano con "+1".
+  final int reps;
   final int manualReps;
+  final int elapsedMs;
 
-  /// win, loss, draw, team.
-  final String outcome;
-  final DateTime playedAt;
-  const ChallengeResult({
+  /// Punteggio confrontabile (null = gara a 50 non finita).
+  final int? score;
+
+  /// Sfida di un amico: nome e punteggio da battere.
+  final String? friendName;
+  final int? friendScore;
+  final DateTime at;
+  const TimedResultRow({
     required this.id,
-    required this.friendId,
-    required this.friendName,
     required this.mode,
-    required this.myScore,
-    required this.friendScore,
+    required this.reps,
     required this.manualReps,
-    required this.outcome,
-    required this.playedAt,
+    required this.elapsedMs,
+    this.score,
+    this.friendName,
+    this.friendScore,
+    required this.at,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['friend_id'] = Variable<String>(friendId);
-    map['friend_name'] = Variable<String>(friendName);
+    map['id'] = Variable<int>(id);
     map['mode'] = Variable<String>(mode);
-    map['my_score'] = Variable<int>(myScore);
-    map['friend_score'] = Variable<int>(friendScore);
+    map['reps'] = Variable<int>(reps);
     map['manual_reps'] = Variable<int>(manualReps);
-    map['outcome'] = Variable<String>(outcome);
-    map['played_at'] = Variable<DateTime>(playedAt);
+    map['elapsed_ms'] = Variable<int>(elapsedMs);
+    if (!nullToAbsent || score != null) {
+      map['score'] = Variable<int>(score);
+    }
+    if (!nullToAbsent || friendName != null) {
+      map['friend_name'] = Variable<String>(friendName);
+    }
+    if (!nullToAbsent || friendScore != null) {
+      map['friend_score'] = Variable<int>(friendScore);
+    }
+    map['at'] = Variable<DateTime>(at);
     return map;
   }
 
-  ChallengeResultsCompanion toCompanion(bool nullToAbsent) {
-    return ChallengeResultsCompanion(
+  TimedResultsCompanion toCompanion(bool nullToAbsent) {
+    return TimedResultsCompanion(
       id: Value(id),
-      friendId: Value(friendId),
-      friendName: Value(friendName),
       mode: Value(mode),
-      myScore: Value(myScore),
-      friendScore: Value(friendScore),
+      reps: Value(reps),
       manualReps: Value(manualReps),
-      outcome: Value(outcome),
-      playedAt: Value(playedAt),
+      elapsedMs: Value(elapsedMs),
+      score: score == null && nullToAbsent
+          ? const Value.absent()
+          : Value(score),
+      friendName: friendName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(friendName),
+      friendScore: friendScore == null && nullToAbsent
+          ? const Value.absent()
+          : Value(friendScore),
+      at: Value(at),
     );
   }
 
-  factory ChallengeResult.fromJson(
+  factory TimedResultRow.fromJson(
     Map<String, dynamic> json, {
     ValueSerializer? serializer,
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ChallengeResult(
-      id: serializer.fromJson<String>(json['id']),
-      friendId: serializer.fromJson<String>(json['friendId']),
-      friendName: serializer.fromJson<String>(json['friendName']),
+    return TimedResultRow(
+      id: serializer.fromJson<int>(json['id']),
       mode: serializer.fromJson<String>(json['mode']),
-      myScore: serializer.fromJson<int>(json['myScore']),
-      friendScore: serializer.fromJson<int>(json['friendScore']),
+      reps: serializer.fromJson<int>(json['reps']),
       manualReps: serializer.fromJson<int>(json['manualReps']),
-      outcome: serializer.fromJson<String>(json['outcome']),
-      playedAt: serializer.fromJson<DateTime>(json['playedAt']),
+      elapsedMs: serializer.fromJson<int>(json['elapsedMs']),
+      score: serializer.fromJson<int?>(json['score']),
+      friendName: serializer.fromJson<String?>(json['friendName']),
+      friendScore: serializer.fromJson<int?>(json['friendScore']),
+      at: serializer.fromJson<DateTime>(json['at']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'friendId': serializer.toJson<String>(friendId),
-      'friendName': serializer.toJson<String>(friendName),
+      'id': serializer.toJson<int>(id),
       'mode': serializer.toJson<String>(mode),
-      'myScore': serializer.toJson<int>(myScore),
-      'friendScore': serializer.toJson<int>(friendScore),
+      'reps': serializer.toJson<int>(reps),
       'manualReps': serializer.toJson<int>(manualReps),
-      'outcome': serializer.toJson<String>(outcome),
-      'playedAt': serializer.toJson<DateTime>(playedAt),
+      'elapsedMs': serializer.toJson<int>(elapsedMs),
+      'score': serializer.toJson<int?>(score),
+      'friendName': serializer.toJson<String?>(friendName),
+      'friendScore': serializer.toJson<int?>(friendScore),
+      'at': serializer.toJson<DateTime>(at),
     };
   }
 
-  ChallengeResult copyWith({
-    String? id,
-    String? friendId,
-    String? friendName,
+  TimedResultRow copyWith({
+    int? id,
     String? mode,
-    int? myScore,
-    int? friendScore,
+    int? reps,
     int? manualReps,
-    String? outcome,
-    DateTime? playedAt,
-  }) => ChallengeResult(
+    int? elapsedMs,
+    Value<int?> score = const Value.absent(),
+    Value<String?> friendName = const Value.absent(),
+    Value<int?> friendScore = const Value.absent(),
+    DateTime? at,
+  }) => TimedResultRow(
     id: id ?? this.id,
-    friendId: friendId ?? this.friendId,
-    friendName: friendName ?? this.friendName,
     mode: mode ?? this.mode,
-    myScore: myScore ?? this.myScore,
-    friendScore: friendScore ?? this.friendScore,
+    reps: reps ?? this.reps,
     manualReps: manualReps ?? this.manualReps,
-    outcome: outcome ?? this.outcome,
-    playedAt: playedAt ?? this.playedAt,
+    elapsedMs: elapsedMs ?? this.elapsedMs,
+    score: score.present ? score.value : this.score,
+    friendName: friendName.present ? friendName.value : this.friendName,
+    friendScore: friendScore.present ? friendScore.value : this.friendScore,
+    at: at ?? this.at,
   );
-  ChallengeResult copyWithCompanion(ChallengeResultsCompanion data) {
-    return ChallengeResult(
+  TimedResultRow copyWithCompanion(TimedResultsCompanion data) {
+    return TimedResultRow(
       id: data.id.present ? data.id.value : this.id,
-      friendId: data.friendId.present ? data.friendId.value : this.friendId,
-      friendName: data.friendName.present
-          ? data.friendName.value
-          : this.friendName,
       mode: data.mode.present ? data.mode.value : this.mode,
-      myScore: data.myScore.present ? data.myScore.value : this.myScore,
-      friendScore: data.friendScore.present
-          ? data.friendScore.value
-          : this.friendScore,
+      reps: data.reps.present ? data.reps.value : this.reps,
       manualReps: data.manualReps.present
           ? data.manualReps.value
           : this.manualReps,
-      outcome: data.outcome.present ? data.outcome.value : this.outcome,
-      playedAt: data.playedAt.present ? data.playedAt.value : this.playedAt,
+      elapsedMs: data.elapsedMs.present ? data.elapsedMs.value : this.elapsedMs,
+      score: data.score.present ? data.score.value : this.score,
+      friendName: data.friendName.present
+          ? data.friendName.value
+          : this.friendName,
+      friendScore: data.friendScore.present
+          ? data.friendScore.value
+          : this.friendScore,
+      at: data.at.present ? data.at.value : this.at,
     );
   }
 
   @override
   String toString() {
-    return (StringBuffer('ChallengeResult(')
+    return (StringBuffer('TimedResultRow(')
           ..write('id: $id, ')
-          ..write('friendId: $friendId, ')
-          ..write('friendName: $friendName, ')
           ..write('mode: $mode, ')
-          ..write('myScore: $myScore, ')
-          ..write('friendScore: $friendScore, ')
+          ..write('reps: $reps, ')
           ..write('manualReps: $manualReps, ')
-          ..write('outcome: $outcome, ')
-          ..write('playedAt: $playedAt')
+          ..write('elapsedMs: $elapsedMs, ')
+          ..write('score: $score, ')
+          ..write('friendName: $friendName, ')
+          ..write('friendScore: $friendScore, ')
+          ..write('at: $at')
           ..write(')'))
         .toString();
   }
@@ -2851,121 +3583,111 @@ class ChallengeResult extends DataClass implements Insertable<ChallengeResult> {
   @override
   int get hashCode => Object.hash(
     id,
-    friendId,
-    friendName,
     mode,
-    myScore,
-    friendScore,
+    reps,
     manualReps,
-    outcome,
-    playedAt,
+    elapsedMs,
+    score,
+    friendName,
+    friendScore,
+    at,
   );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is ChallengeResult &&
+      (other is TimedResultRow &&
           other.id == this.id &&
-          other.friendId == this.friendId &&
-          other.friendName == this.friendName &&
           other.mode == this.mode &&
-          other.myScore == this.myScore &&
-          other.friendScore == this.friendScore &&
+          other.reps == this.reps &&
           other.manualReps == this.manualReps &&
-          other.outcome == this.outcome &&
-          other.playedAt == this.playedAt);
+          other.elapsedMs == this.elapsedMs &&
+          other.score == this.score &&
+          other.friendName == this.friendName &&
+          other.friendScore == this.friendScore &&
+          other.at == this.at);
 }
 
-class ChallengeResultsCompanion extends UpdateCompanion<ChallengeResult> {
-  final Value<String> id;
-  final Value<String> friendId;
-  final Value<String> friendName;
+class TimedResultsCompanion extends UpdateCompanion<TimedResultRow> {
+  final Value<int> id;
   final Value<String> mode;
-  final Value<int> myScore;
-  final Value<int> friendScore;
+  final Value<int> reps;
   final Value<int> manualReps;
-  final Value<String> outcome;
-  final Value<DateTime> playedAt;
-  final Value<int> rowid;
-  const ChallengeResultsCompanion({
+  final Value<int> elapsedMs;
+  final Value<int?> score;
+  final Value<String?> friendName;
+  final Value<int?> friendScore;
+  final Value<DateTime> at;
+  const TimedResultsCompanion({
     this.id = const Value.absent(),
-    this.friendId = const Value.absent(),
-    this.friendName = const Value.absent(),
     this.mode = const Value.absent(),
-    this.myScore = const Value.absent(),
+    this.reps = const Value.absent(),
+    this.manualReps = const Value.absent(),
+    this.elapsedMs = const Value.absent(),
+    this.score = const Value.absent(),
+    this.friendName = const Value.absent(),
     this.friendScore = const Value.absent(),
-    this.manualReps = const Value.absent(),
-    this.outcome = const Value.absent(),
-    this.playedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
+    this.at = const Value.absent(),
   });
-  ChallengeResultsCompanion.insert({
-    required String id,
-    required String friendId,
-    required String friendName,
+  TimedResultsCompanion.insert({
+    this.id = const Value.absent(),
     required String mode,
-    required int myScore,
-    required int friendScore,
-    this.manualReps = const Value.absent(),
-    required String outcome,
-    required DateTime playedAt,
-    this.rowid = const Value.absent(),
-  }) : id = Value(id),
-       friendId = Value(friendId),
-       friendName = Value(friendName),
-       mode = Value(mode),
-       myScore = Value(myScore),
-       friendScore = Value(friendScore),
-       outcome = Value(outcome),
-       playedAt = Value(playedAt);
-  static Insertable<ChallengeResult> custom({
-    Expression<String>? id,
-    Expression<String>? friendId,
-    Expression<String>? friendName,
+    required int reps,
+    required int manualReps,
+    required int elapsedMs,
+    this.score = const Value.absent(),
+    this.friendName = const Value.absent(),
+    this.friendScore = const Value.absent(),
+    required DateTime at,
+  }) : mode = Value(mode),
+       reps = Value(reps),
+       manualReps = Value(manualReps),
+       elapsedMs = Value(elapsedMs),
+       at = Value(at);
+  static Insertable<TimedResultRow> custom({
+    Expression<int>? id,
     Expression<String>? mode,
-    Expression<int>? myScore,
-    Expression<int>? friendScore,
+    Expression<int>? reps,
     Expression<int>? manualReps,
-    Expression<String>? outcome,
-    Expression<DateTime>? playedAt,
-    Expression<int>? rowid,
+    Expression<int>? elapsedMs,
+    Expression<int>? score,
+    Expression<String>? friendName,
+    Expression<int>? friendScore,
+    Expression<DateTime>? at,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (friendId != null) 'friend_id': friendId,
-      if (friendName != null) 'friend_name': friendName,
       if (mode != null) 'mode': mode,
-      if (myScore != null) 'my_score': myScore,
-      if (friendScore != null) 'friend_score': friendScore,
+      if (reps != null) 'reps': reps,
       if (manualReps != null) 'manual_reps': manualReps,
-      if (outcome != null) 'outcome': outcome,
-      if (playedAt != null) 'played_at': playedAt,
-      if (rowid != null) 'rowid': rowid,
+      if (elapsedMs != null) 'elapsed_ms': elapsedMs,
+      if (score != null) 'score': score,
+      if (friendName != null) 'friend_name': friendName,
+      if (friendScore != null) 'friend_score': friendScore,
+      if (at != null) 'at': at,
     });
   }
 
-  ChallengeResultsCompanion copyWith({
-    Value<String>? id,
-    Value<String>? friendId,
-    Value<String>? friendName,
+  TimedResultsCompanion copyWith({
+    Value<int>? id,
     Value<String>? mode,
-    Value<int>? myScore,
-    Value<int>? friendScore,
+    Value<int>? reps,
     Value<int>? manualReps,
-    Value<String>? outcome,
-    Value<DateTime>? playedAt,
-    Value<int>? rowid,
+    Value<int>? elapsedMs,
+    Value<int?>? score,
+    Value<String?>? friendName,
+    Value<int?>? friendScore,
+    Value<DateTime>? at,
   }) {
-    return ChallengeResultsCompanion(
+    return TimedResultsCompanion(
       id: id ?? this.id,
-      friendId: friendId ?? this.friendId,
-      friendName: friendName ?? this.friendName,
       mode: mode ?? this.mode,
-      myScore: myScore ?? this.myScore,
-      friendScore: friendScore ?? this.friendScore,
+      reps: reps ?? this.reps,
       manualReps: manualReps ?? this.manualReps,
-      outcome: outcome ?? this.outcome,
-      playedAt: playedAt ?? this.playedAt,
-      rowid: rowid ?? this.rowid,
+      elapsedMs: elapsedMs ?? this.elapsedMs,
+      score: score ?? this.score,
+      friendName: friendName ?? this.friendName,
+      friendScore: friendScore ?? this.friendScore,
+      at: at ?? this.at,
     );
   }
 
@@ -2973,51 +3695,47 @@ class ChallengeResultsCompanion extends UpdateCompanion<ChallengeResult> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (friendId.present) {
-      map['friend_id'] = Variable<String>(friendId.value);
-    }
-    if (friendName.present) {
-      map['friend_name'] = Variable<String>(friendName.value);
+      map['id'] = Variable<int>(id.value);
     }
     if (mode.present) {
       map['mode'] = Variable<String>(mode.value);
     }
-    if (myScore.present) {
-      map['my_score'] = Variable<int>(myScore.value);
-    }
-    if (friendScore.present) {
-      map['friend_score'] = Variable<int>(friendScore.value);
+    if (reps.present) {
+      map['reps'] = Variable<int>(reps.value);
     }
     if (manualReps.present) {
       map['manual_reps'] = Variable<int>(manualReps.value);
     }
-    if (outcome.present) {
-      map['outcome'] = Variable<String>(outcome.value);
+    if (elapsedMs.present) {
+      map['elapsed_ms'] = Variable<int>(elapsedMs.value);
     }
-    if (playedAt.present) {
-      map['played_at'] = Variable<DateTime>(playedAt.value);
+    if (score.present) {
+      map['score'] = Variable<int>(score.value);
     }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
+    if (friendName.present) {
+      map['friend_name'] = Variable<String>(friendName.value);
+    }
+    if (friendScore.present) {
+      map['friend_score'] = Variable<int>(friendScore.value);
+    }
+    if (at.present) {
+      map['at'] = Variable<DateTime>(at.value);
     }
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('ChallengeResultsCompanion(')
+    return (StringBuffer('TimedResultsCompanion(')
           ..write('id: $id, ')
-          ..write('friendId: $friendId, ')
-          ..write('friendName: $friendName, ')
           ..write('mode: $mode, ')
-          ..write('myScore: $myScore, ')
-          ..write('friendScore: $friendScore, ')
+          ..write('reps: $reps, ')
           ..write('manualReps: $manualReps, ')
-          ..write('outcome: $outcome, ')
-          ..write('playedAt: $playedAt, ')
-          ..write('rowid: $rowid')
+          ..write('elapsedMs: $elapsedMs, ')
+          ..write('score: $score, ')
+          ..write('friendName: $friendName, ')
+          ..write('friendScore: $friendScore, ')
+          ..write('at: $at')
           ..write(')'))
         .toString();
   }
@@ -3033,9 +3751,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SetLogsTable setLogs = $SetLogsTable(this);
   late final $FoodEntriesTable foodEntries = $FoodEntriesTable(this);
   late final $FavoriteFoodsTable favoriteFoods = $FavoriteFoodsTable(this);
-  late final $ChallengeResultsTable challengeResults = $ChallengeResultsTable(
+  late final $PointEntriesTable pointEntries = $PointEntriesTable(this);
+  late final $ChallengeEntriesTable challengeEntries = $ChallengeEntriesTable(
     this,
   );
+  late final $TimedResultsTable timedResults = $TimedResultsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3046,7 +3766,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     setLogs,
     foodEntries,
     favoriteFoods,
-    challengeResults,
+    pointEntries,
+    challengeEntries,
+    timedResults,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -4541,277 +5263,410 @@ typedef $$FavoriteFoodsTableProcessedTableManager =
       FavoriteFood,
       PrefetchHooks Function()
     >;
-typedef $$ChallengeResultsTableCreateCompanionBuilder =
-    ChallengeResultsCompanion Function({
-      required String id,
-      required String friendId,
-      required String friendName,
-      required String mode,
-      required int myScore,
-      required int friendScore,
-      Value<int> manualReps,
-      required String outcome,
-      required DateTime playedAt,
-      Value<int> rowid,
+typedef $$PointEntriesTableCreateCompanionBuilder =
+    PointEntriesCompanion Function({
+      Value<int> id,
+      required String kind,
+      required int amount,
+      required DateTime at,
+      Value<String?> ref,
+      Value<String?> note,
     });
-typedef $$ChallengeResultsTableUpdateCompanionBuilder =
-    ChallengeResultsCompanion Function({
-      Value<String> id,
-      Value<String> friendId,
-      Value<String> friendName,
-      Value<String> mode,
-      Value<int> myScore,
-      Value<int> friendScore,
-      Value<int> manualReps,
-      Value<String> outcome,
-      Value<DateTime> playedAt,
-      Value<int> rowid,
+typedef $$PointEntriesTableUpdateCompanionBuilder =
+    PointEntriesCompanion Function({
+      Value<int> id,
+      Value<String> kind,
+      Value<int> amount,
+      Value<DateTime> at,
+      Value<String?> ref,
+      Value<String?> note,
     });
 
-class $$ChallengeResultsTableFilterComposer
-    extends Composer<_$AppDatabase, $ChallengeResultsTable> {
-  $$ChallengeResultsTableFilterComposer({
+class $$PointEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $PointEntriesTable> {
+  $$PointEntriesTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<String> get id => $composableBuilder(
+  ColumnFilters<int> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get friendId => $composableBuilder(
-    column: $table.friendId,
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get friendName => $composableBuilder(
-    column: $table.friendName,
+  ColumnFilters<int> get amount => $composableBuilder(
+    column: $table.amount,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get mode => $composableBuilder(
-    column: $table.mode,
+  ColumnFilters<DateTime> get at => $composableBuilder(
+    column: $table.at,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get myScore => $composableBuilder(
-    column: $table.myScore,
+  ColumnFilters<String> get ref => $composableBuilder(
+    column: $table.ref,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get friendScore => $composableBuilder(
-    column: $table.friendScore,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get manualReps => $composableBuilder(
-    column: $table.manualReps,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get outcome => $composableBuilder(
-    column: $table.outcome,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get playedAt => $composableBuilder(
-    column: $table.playedAt,
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
     builder: (column) => ColumnFilters(column),
   );
 }
 
-class $$ChallengeResultsTableOrderingComposer
-    extends Composer<_$AppDatabase, $ChallengeResultsTable> {
-  $$ChallengeResultsTableOrderingComposer({
+class $$PointEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $PointEntriesTable> {
+  $$PointEntriesTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<String> get id => $composableBuilder(
+  ColumnOrderings<int> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get friendId => $composableBuilder(
-    column: $table.friendId,
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get friendName => $composableBuilder(
-    column: $table.friendName,
+  ColumnOrderings<int> get amount => $composableBuilder(
+    column: $table.amount,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get mode => $composableBuilder(
-    column: $table.mode,
+  ColumnOrderings<DateTime> get at => $composableBuilder(
+    column: $table.at,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get myScore => $composableBuilder(
-    column: $table.myScore,
+  ColumnOrderings<String> get ref => $composableBuilder(
+    column: $table.ref,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get friendScore => $composableBuilder(
-    column: $table.friendScore,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get manualReps => $composableBuilder(
-    column: $table.manualReps,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get outcome => $composableBuilder(
-    column: $table.outcome,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get playedAt => $composableBuilder(
-    column: $table.playedAt,
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
     builder: (column) => ColumnOrderings(column),
   );
 }
 
-class $$ChallengeResultsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $ChallengeResultsTable> {
-  $$ChallengeResultsTableAnnotationComposer({
+class $$PointEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PointEntriesTable> {
+  $$PointEntriesTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<String> get id =>
+  GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get friendId =>
-      $composableBuilder(column: $table.friendId, builder: (column) => column);
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
 
-  GeneratedColumn<String> get friendName => $composableBuilder(
-    column: $table.friendName,
-    builder: (column) => column,
-  );
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
 
-  GeneratedColumn<String> get mode =>
-      $composableBuilder(column: $table.mode, builder: (column) => column);
+  GeneratedColumn<DateTime> get at =>
+      $composableBuilder(column: $table.at, builder: (column) => column);
 
-  GeneratedColumn<int> get myScore =>
-      $composableBuilder(column: $table.myScore, builder: (column) => column);
+  GeneratedColumn<String> get ref =>
+      $composableBuilder(column: $table.ref, builder: (column) => column);
 
-  GeneratedColumn<int> get friendScore => $composableBuilder(
-    column: $table.friendScore,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<int> get manualReps => $composableBuilder(
-    column: $table.manualReps,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get outcome =>
-      $composableBuilder(column: $table.outcome, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get playedAt =>
-      $composableBuilder(column: $table.playedAt, builder: (column) => column);
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
 }
 
-class $$ChallengeResultsTableTableManager
+class $$PointEntriesTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $ChallengeResultsTable,
-          ChallengeResult,
-          $$ChallengeResultsTableFilterComposer,
-          $$ChallengeResultsTableOrderingComposer,
-          $$ChallengeResultsTableAnnotationComposer,
-          $$ChallengeResultsTableCreateCompanionBuilder,
-          $$ChallengeResultsTableUpdateCompanionBuilder,
+          $PointEntriesTable,
+          PointRow,
+          $$PointEntriesTableFilterComposer,
+          $$PointEntriesTableOrderingComposer,
+          $$PointEntriesTableAnnotationComposer,
+          $$PointEntriesTableCreateCompanionBuilder,
+          $$PointEntriesTableUpdateCompanionBuilder,
           (
-            ChallengeResult,
-            BaseReferences<
-              _$AppDatabase,
-              $ChallengeResultsTable,
-              ChallengeResult
-            >,
+            PointRow,
+            BaseReferences<_$AppDatabase, $PointEntriesTable, PointRow>,
           ),
-          ChallengeResult,
+          PointRow,
           PrefetchHooks Function()
         > {
-  $$ChallengeResultsTableTableManager(
+  $$PointEntriesTableTableManager(_$AppDatabase db, $PointEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PointEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PointEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PointEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<DateTime> at = const Value.absent(),
+                Value<String?> ref = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+              }) => PointEntriesCompanion(
+                id: id,
+                kind: kind,
+                amount: amount,
+                at: at,
+                ref: ref,
+                note: note,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String kind,
+                required int amount,
+                required DateTime at,
+                Value<String?> ref = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+              }) => PointEntriesCompanion.insert(
+                id: id,
+                kind: kind,
+                amount: amount,
+                at: at,
+                ref: ref,
+                note: note,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PointEntriesTable, PointRow>(table),
+                  BaseReferences<_$AppDatabase, $PointEntriesTable, PointRow>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PointEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PointEntriesTable,
+      PointRow,
+      $$PointEntriesTableFilterComposer,
+      $$PointEntriesTableOrderingComposer,
+      $$PointEntriesTableAnnotationComposer,
+      $$PointEntriesTableCreateCompanionBuilder,
+      $$PointEntriesTableUpdateCompanionBuilder,
+      (PointRow, BaseReferences<_$AppDatabase, $PointEntriesTable, PointRow>),
+      PointRow,
+      PrefetchHooks Function()
+    >;
+typedef $$ChallengeEntriesTableCreateCompanionBuilder =
+    ChallengeEntriesCompanion Function({
+      Value<int> id,
+      required String challengeId,
+      required int value,
+      Value<bool> verified,
+      required DateTime at,
+    });
+typedef $$ChallengeEntriesTableUpdateCompanionBuilder =
+    ChallengeEntriesCompanion Function({
+      Value<int> id,
+      Value<String> challengeId,
+      Value<int> value,
+      Value<bool> verified,
+      Value<DateTime> at,
+    });
+
+class $$ChallengeEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $ChallengeEntriesTable> {
+  $$ChallengeEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get challengeId => $composableBuilder(
+    column: $table.challengeId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get verified => $composableBuilder(
+    column: $table.verified,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ChallengeEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChallengeEntriesTable> {
+  $$ChallengeEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get challengeId => $composableBuilder(
+    column: $table.challengeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get verified => $composableBuilder(
+    column: $table.verified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ChallengeEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChallengeEntriesTable> {
+  $$ChallengeEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get challengeId => $composableBuilder(
+    column: $table.challengeId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<bool> get verified =>
+      $composableBuilder(column: $table.verified, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get at =>
+      $composableBuilder(column: $table.at, builder: (column) => column);
+}
+
+class $$ChallengeEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ChallengeEntriesTable,
+          ChallengeEntryRow,
+          $$ChallengeEntriesTableFilterComposer,
+          $$ChallengeEntriesTableOrderingComposer,
+          $$ChallengeEntriesTableAnnotationComposer,
+          $$ChallengeEntriesTableCreateCompanionBuilder,
+          $$ChallengeEntriesTableUpdateCompanionBuilder,
+          (
+            ChallengeEntryRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ChallengeEntriesTable,
+              ChallengeEntryRow
+            >,
+          ),
+          ChallengeEntryRow,
+          PrefetchHooks Function()
+        > {
+  $$ChallengeEntriesTableTableManager(
     _$AppDatabase db,
-    $ChallengeResultsTable table,
+    $ChallengeEntriesTable table,
   ) : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$ChallengeResultsTableFilterComposer($db: db, $table: table),
+              $$ChallengeEntriesTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$ChallengeResultsTableOrderingComposer($db: db, $table: table),
+              $$ChallengeEntriesTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$ChallengeResultsTableAnnotationComposer($db: db, $table: table),
+              $$ChallengeEntriesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
-                Value<String> id = const Value.absent(),
-                Value<String> friendId = const Value.absent(),
-                Value<String> friendName = const Value.absent(),
-                Value<String> mode = const Value.absent(),
-                Value<int> myScore = const Value.absent(),
-                Value<int> friendScore = const Value.absent(),
-                Value<int> manualReps = const Value.absent(),
-                Value<String> outcome = const Value.absent(),
-                Value<DateTime> playedAt = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => ChallengeResultsCompanion(
+                Value<int> id = const Value.absent(),
+                Value<String> challengeId = const Value.absent(),
+                Value<int> value = const Value.absent(),
+                Value<bool> verified = const Value.absent(),
+                Value<DateTime> at = const Value.absent(),
+              }) => ChallengeEntriesCompanion(
                 id: id,
-                friendId: friendId,
-                friendName: friendName,
-                mode: mode,
-                myScore: myScore,
-                friendScore: friendScore,
-                manualReps: manualReps,
-                outcome: outcome,
-                playedAt: playedAt,
-                rowid: rowid,
+                challengeId: challengeId,
+                value: value,
+                verified: verified,
+                at: at,
               ),
           createCompanionCallback:
               ({
-                required String id,
-                required String friendId,
-                required String friendName,
-                required String mode,
-                required int myScore,
-                required int friendScore,
-                Value<int> manualReps = const Value.absent(),
-                required String outcome,
-                required DateTime playedAt,
-                Value<int> rowid = const Value.absent(),
-              }) => ChallengeResultsCompanion.insert(
+                Value<int> id = const Value.absent(),
+                required String challengeId,
+                required int value,
+                Value<bool> verified = const Value.absent(),
+                required DateTime at,
+              }) => ChallengeEntriesCompanion.insert(
                 id: id,
-                friendId: friendId,
-                friendName: friendName,
-                mode: mode,
-                myScore: myScore,
-                friendScore: friendScore,
-                manualReps: manualReps,
-                outcome: outcome,
-                playedAt: playedAt,
-                rowid: rowid,
+                challengeId: challengeId,
+                value: value,
+                verified: verified,
+                at: at,
               ),
           withReferenceMapper: (p0) => p0
               .map(
                 (e) => (
-                  e.readTable<$ChallengeResultsTable, ChallengeResult>(table),
+                  e.readTable<$ChallengeEntriesTable, ChallengeEntryRow>(table),
                   BaseReferences<
                     _$AppDatabase,
-                    $ChallengeResultsTable,
-                    ChallengeResult
+                    $ChallengeEntriesTable,
+                    ChallengeEntryRow
                   >(db, table, e),
                 ),
               )
@@ -4821,21 +5676,310 @@ class $$ChallengeResultsTableTableManager
       );
 }
 
-typedef $$ChallengeResultsTableProcessedTableManager =
+typedef $$ChallengeEntriesTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $ChallengeResultsTable,
-      ChallengeResult,
-      $$ChallengeResultsTableFilterComposer,
-      $$ChallengeResultsTableOrderingComposer,
-      $$ChallengeResultsTableAnnotationComposer,
-      $$ChallengeResultsTableCreateCompanionBuilder,
-      $$ChallengeResultsTableUpdateCompanionBuilder,
+      $ChallengeEntriesTable,
+      ChallengeEntryRow,
+      $$ChallengeEntriesTableFilterComposer,
+      $$ChallengeEntriesTableOrderingComposer,
+      $$ChallengeEntriesTableAnnotationComposer,
+      $$ChallengeEntriesTableCreateCompanionBuilder,
+      $$ChallengeEntriesTableUpdateCompanionBuilder,
       (
-        ChallengeResult,
-        BaseReferences<_$AppDatabase, $ChallengeResultsTable, ChallengeResult>,
+        ChallengeEntryRow,
+        BaseReferences<
+          _$AppDatabase,
+          $ChallengeEntriesTable,
+          ChallengeEntryRow
+        >,
       ),
-      ChallengeResult,
+      ChallengeEntryRow,
+      PrefetchHooks Function()
+    >;
+typedef $$TimedResultsTableCreateCompanionBuilder =
+    TimedResultsCompanion Function({
+      Value<int> id,
+      required String mode,
+      required int reps,
+      required int manualReps,
+      required int elapsedMs,
+      Value<int?> score,
+      Value<String?> friendName,
+      Value<int?> friendScore,
+      required DateTime at,
+    });
+typedef $$TimedResultsTableUpdateCompanionBuilder =
+    TimedResultsCompanion Function({
+      Value<int> id,
+      Value<String> mode,
+      Value<int> reps,
+      Value<int> manualReps,
+      Value<int> elapsedMs,
+      Value<int?> score,
+      Value<String?> friendName,
+      Value<int?> friendScore,
+      Value<DateTime> at,
+    });
+
+class $$TimedResultsTableFilterComposer
+    extends Composer<_$AppDatabase, $TimedResultsTable> {
+  $$TimedResultsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get mode => $composableBuilder(
+    column: $table.mode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reps => $composableBuilder(
+    column: $table.reps,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get manualReps => $composableBuilder(
+    column: $table.manualReps,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get elapsedMs => $composableBuilder(
+    column: $table.elapsedMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get friendName => $composableBuilder(
+    column: $table.friendName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get friendScore => $composableBuilder(
+    column: $table.friendScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$TimedResultsTableOrderingComposer
+    extends Composer<_$AppDatabase, $TimedResultsTable> {
+  $$TimedResultsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get mode => $composableBuilder(
+    column: $table.mode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reps => $composableBuilder(
+    column: $table.reps,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get manualReps => $composableBuilder(
+    column: $table.manualReps,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get elapsedMs => $composableBuilder(
+    column: $table.elapsedMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get friendName => $composableBuilder(
+    column: $table.friendName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get friendScore => $composableBuilder(
+    column: $table.friendScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get at => $composableBuilder(
+    column: $table.at,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$TimedResultsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TimedResultsTable> {
+  $$TimedResultsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get mode =>
+      $composableBuilder(column: $table.mode, builder: (column) => column);
+
+  GeneratedColumn<int> get reps =>
+      $composableBuilder(column: $table.reps, builder: (column) => column);
+
+  GeneratedColumn<int> get manualReps => $composableBuilder(
+    column: $table.manualReps,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get elapsedMs =>
+      $composableBuilder(column: $table.elapsedMs, builder: (column) => column);
+
+  GeneratedColumn<int> get score =>
+      $composableBuilder(column: $table.score, builder: (column) => column);
+
+  GeneratedColumn<String> get friendName => $composableBuilder(
+    column: $table.friendName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get friendScore => $composableBuilder(
+    column: $table.friendScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get at =>
+      $composableBuilder(column: $table.at, builder: (column) => column);
+}
+
+class $$TimedResultsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $TimedResultsTable,
+          TimedResultRow,
+          $$TimedResultsTableFilterComposer,
+          $$TimedResultsTableOrderingComposer,
+          $$TimedResultsTableAnnotationComposer,
+          $$TimedResultsTableCreateCompanionBuilder,
+          $$TimedResultsTableUpdateCompanionBuilder,
+          (
+            TimedResultRow,
+            BaseReferences<_$AppDatabase, $TimedResultsTable, TimedResultRow>,
+          ),
+          TimedResultRow,
+          PrefetchHooks Function()
+        > {
+  $$TimedResultsTableTableManager(_$AppDatabase db, $TimedResultsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TimedResultsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TimedResultsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TimedResultsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> mode = const Value.absent(),
+                Value<int> reps = const Value.absent(),
+                Value<int> manualReps = const Value.absent(),
+                Value<int> elapsedMs = const Value.absent(),
+                Value<int?> score = const Value.absent(),
+                Value<String?> friendName = const Value.absent(),
+                Value<int?> friendScore = const Value.absent(),
+                Value<DateTime> at = const Value.absent(),
+              }) => TimedResultsCompanion(
+                id: id,
+                mode: mode,
+                reps: reps,
+                manualReps: manualReps,
+                elapsedMs: elapsedMs,
+                score: score,
+                friendName: friendName,
+                friendScore: friendScore,
+                at: at,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String mode,
+                required int reps,
+                required int manualReps,
+                required int elapsedMs,
+                Value<int?> score = const Value.absent(),
+                Value<String?> friendName = const Value.absent(),
+                Value<int?> friendScore = const Value.absent(),
+                required DateTime at,
+              }) => TimedResultsCompanion.insert(
+                id: id,
+                mode: mode,
+                reps: reps,
+                manualReps: manualReps,
+                elapsedMs: elapsedMs,
+                score: score,
+                friendName: friendName,
+                friendScore: friendScore,
+                at: at,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$TimedResultsTable, TimedResultRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $TimedResultsTable,
+                    TimedResultRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$TimedResultsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $TimedResultsTable,
+      TimedResultRow,
+      $$TimedResultsTableFilterComposer,
+      $$TimedResultsTableOrderingComposer,
+      $$TimedResultsTableAnnotationComposer,
+      $$TimedResultsTableCreateCompanionBuilder,
+      $$TimedResultsTableUpdateCompanionBuilder,
+      (
+        TimedResultRow,
+        BaseReferences<_$AppDatabase, $TimedResultsTable, TimedResultRow>,
+      ),
+      TimedResultRow,
       PrefetchHooks Function()
     >;
 
@@ -4852,6 +5996,10 @@ class $AppDatabaseManager {
       $$FoodEntriesTableTableManager(_db, _db.foodEntries);
   $$FavoriteFoodsTableTableManager get favoriteFoods =>
       $$FavoriteFoodsTableTableManager(_db, _db.favoriteFoods);
-  $$ChallengeResultsTableTableManager get challengeResults =>
-      $$ChallengeResultsTableTableManager(_db, _db.challengeResults);
+  $$PointEntriesTableTableManager get pointEntries =>
+      $$PointEntriesTableTableManager(_db, _db.pointEntries);
+  $$ChallengeEntriesTableTableManager get challengeEntries =>
+      $$ChallengeEntriesTableTableManager(_db, _db.challengeEntries);
+  $$TimedResultsTableTableManager get timedResults =>
+      $$TimedResultsTableTableManager(_db, _db.timedResults);
 }

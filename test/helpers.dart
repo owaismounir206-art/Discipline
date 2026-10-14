@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:ritmo/app.dart';
 import 'package:ritmo/core/data/database.dart';
 import 'package:ritmo/core/data/providers.dart';
+import 'package:ritmo/core/services/share.dart';
 import 'package:ritmo/core/utils/local_date.dart';
 import 'package:ritmo/features/exercises/domain/exercise.dart';
 import 'package:ritmo/features/food/data/food_repository.dart';
@@ -215,3 +216,7 @@ Future<void> seedFood(AppDatabase db, {DateTime? now}) async {
     }
   }
 }
+
+/// Raccoglie i testi condivisi invece di aprire il menu del telefono.
+Override shareOverride(List<String> sink) =>
+    shareTextProvider.overrideWithValue((text) async => sink.add(text));

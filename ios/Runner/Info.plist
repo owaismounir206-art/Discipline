@@ -58,22 +58,7 @@
 			<string>UIInterfaceOrientationPortrait</string>
 		</array>
 		<key>NSCameraUsageDescription</key>
-		<string>Ritmo usa la fotocamera per contare i push-up (le immagini restano sul telefono), per leggere i codici a barre degli alimenti e per il video nelle sfide.</string>
-		<key>NSMicrophoneUsageDescription</key>
-		<string>Ritmo usa il microfono solo per parlare con il tuo amico durante una sfida video.</string>
-		<key>CFBundleURLTypes</key>
-		<array>
-			<dict>
-				<key>CFBundleURLName</key>
-				<string>io.github.owaismounir206art.ritmo</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<string>ritmo</string>
-				</array>
-			</dict>
-		</array>
-		<key>FlutterDeepLinkingEnabled</key>
-		<true/>
+		<string>Ritmo usa la fotocamera per contare i push-up (le immagini restano sul telefono) e per leggere i codici a barre degli alimenti.</string>
 		<key>ITSAppUsesNonExemptEncryption</key>
 		<false/>
 		<key>UISupportedInterfaceOrientations~ipad</key>

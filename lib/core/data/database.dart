@@ -82,24 +82,51 @@ class FavoriteFoods extends Table {
   TextColumn get barcode => text().nullable()();
 }
 
-/// Storico delle sfide (anche offline).
-class ChallengeResults extends Table {
-  TextColumn get id => text()();
-  TextColumn get friendId => text()();
-  TextColumn get friendName => text()();
+/// Salvadanaio dei punti: ogni riga è un guadagno (+) o una spesa (−).
+@DataClassName('PointRow')
+class PointEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// Vedi PointKind.
+  TextColumn get kind => text()();
+  IntColumn get amount => integer()();
+  DateTimeColumn get at => dateTime()();
+
+  /// Chiave unica ("allenamento-12"): gli stessi punti non si danno due volte.
+  TextColumn get ref => text().nullable().unique()();
+  TextColumn get note => text().nullable()();
+}
+
+/// Ripetizioni o secondi aggiunti a una sfida del giorno/settimana.
+@DataClassName('ChallengeEntryRow')
+class ChallengeEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get challengeId => text()();
+  IntColumn get value => integer()();
+
+  /// Contati dalla fotocamera.
+  BoolColumn get verified => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get at => dateTime()();
+}
+
+/// Sfide a tempo fatte (da soli o contro il codice di un amico).
+@DataClassName('TimedResultRow')
+class TimedResults extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// minute, race50.
   TextColumn get mode => text()();
-  IntColumn get myScore => integer()();
-  IntColumn get friendScore => integer()();
+  IntColumn get reps => integer()();
+  IntColumn get manualReps => integer()();
+  IntColumn get elapsedMs => integer()();
 
-  /// Ripetizioni contate a mano con "+1".
-  IntColumn get manualReps => integer().withDefault(const Constant(0))();
+  /// Punteggio confrontabile (null = gara a 50 non finita).
+  IntColumn get score => integer().nullable()();
 
-  /// win, loss, draw, team.
-  TextColumn get outcome => text()();
-  DateTimeColumn get playedAt => dateTime()();
-
-  @override
-  Set<Column> get primaryKey => {id};
+  /// Sfida di un amico: nome e punteggio da battere.
+  TextColumn get friendName => text().nullable()();
+  IntColumn get friendScore => integer().nullable()();
+  DateTimeColumn get at => dateTime()();
 }
 
 @DriftDatabase(
@@ -109,7 +136,9 @@ class ChallengeResults extends Table {
     SetLogs,
     FoodEntries,
     FavoriteFoods,
-    ChallengeResults,
+    PointEntries,
+    ChallengeEntries,
+    TimedResults,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -117,10 +146,20 @@ class AppDatabase extends _$AppDatabase {
     : super(executor ?? driftDatabase(name: 'ritmo'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // Le sfide online non esistono più: al loro posto punti e sfide
+        // generate dall'app.
+        await m.deleteTable('challenge_results');
+        await m.createTable(pointEntries);
+        await m.createTable(challengeEntries);
+        await m.createTable(timedResults);
+      }
+    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
@@ -198,9 +237,14 @@ class AppDatabase extends _$AppDatabase {
             favoriteFoods,
             rows(favoriteFoods).map(FavoriteFood.fromJson),
           )
+          ..insertAll(pointEntries, rows(pointEntries).map(PointRow.fromJson))
           ..insertAll(
-            challengeResults,
-            rows(challengeResults).map(ChallengeResult.fromJson),
+            challengeEntries,
+            rows(challengeEntries).map(ChallengeEntryRow.fromJson),
+          )
+          ..insertAll(
+            timedResults,
+            rows(timedResults).map(TimedResultRow.fromJson),
           );
       });
     });

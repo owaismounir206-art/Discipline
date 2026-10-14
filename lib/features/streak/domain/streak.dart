@@ -73,6 +73,9 @@ enum DayStatus {
   /// Giorno programmato saltato ma salvato dal giorno di recupero.
   recovered,
 
+  /// Giorno programmato saltato ma protetto da un giorno jolly.
+  protected,
+
   /// Oggi è programmato e non è ancora fatto.
   today,
 
@@ -124,11 +127,13 @@ bool _recoveryReady(LocalDate? last, LocalDate day) =>
 /// Calcola la streak.
 ///
 /// [completions] è la quota completata (0–1) per giorno, già il massimo
-/// delle sessioni di quel giorno.
+/// delle sessioni di quel giorno. [protectedDays] sono i giorni salvati con
+/// un giorno jolly: non azzerano la serie e non la allungano.
 StreakResult computeStreak({
   required List<ScheduleChange> schedule,
   required Map<LocalDate, double> completions,
   required LocalDate today,
+  Set<LocalDate> protectedDays = const {},
 }) {
   if (schedule.isEmpty || schedule.first.from.isAfter(today)) {
     return StreakResult.empty;
@@ -154,6 +159,8 @@ StreakResult computeStreak({
       statuses[day] = DayStatus.done;
     } else if (day == today) {
       statuses[day] = DayStatus.today;
+    } else if (protectedDays.contains(day)) {
+      statuses[day] = DayStatus.protected;
     } else if (current > 0 && _recoveryReady(lastRecovery, day)) {
       lastRecovery = day;
       statuses[day] = DayStatus.recovered;
@@ -192,4 +199,18 @@ List<(LocalDate, DayStatus)> weekStrip({
         return (day, DayStatus.rest);
       }(),
   ];
+}
+
+/// Ultimo giorno programmato saltato che si può ancora proteggere con un
+/// giorno jolly (entro [windowDays] giorni da oggi), se c'è.
+LocalDate? freezableDay(
+  StreakResult streak,
+  LocalDate today, {
+  int windowDays = 3,
+}) {
+  for (var i = 1; i <= windowDays; i++) {
+    final day = today.addDays(-i);
+    if (streak.statuses[day] == DayStatus.missed) return day;
+  }
+  return null;
 }

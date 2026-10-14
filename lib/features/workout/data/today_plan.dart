@@ -8,6 +8,7 @@ import '../../../core/data/providers.dart';
 import '../../../core/utils/local_date.dart';
 import '../../exercises/domain/exercise.dart';
 import '../../profile/data/profile_repository.dart';
+import '../../rewards/data/rewards_state.dart';
 import '../../streak/domain/streak.dart';
 import '../domain/workout_plan.dart';
 import 'workout_repository.dart';
@@ -52,5 +53,6 @@ final streakProvider = Provider<StreakResult>((ref) {
     schedule: schedule,
     completions: completions,
     today: ref.watch(todayProvider),
+    protectedDays: ref.watch(protectedDaysProvider).value ?? const {},
   );
 });

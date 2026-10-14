@@ -253,4 +253,31 @@ void main() {
       expect(strip[6].$2, DayStatus.scheduled);
     });
   });
+
+  group('Giorno jolly', () {
+    // Lun 5 fatto, mar 6 saltato (salvato dal recupero automatico), gio 8
+    // fatto, sab 10 saltato di nuovo: lì serve il giorno jolly.
+    final completions = doneOn([monday, monday.addDays(3), monday.addDays(7)]);
+    final today = monday.addDays(8); // martedì 13
+
+    test('senza jolly il secondo salto azzera la serie', () {
+      final r = run(completions, today);
+      expect(r.statuses[monday.addDays(1)], DayStatus.recovered);
+      expect(r.statuses[monday.addDays(5)], DayStatus.missed);
+      expect(r.current, 1);
+      expect(freezableDay(r, today), monday.addDays(5));
+      expect(freezableDay(r, today, windowDays: 2), isNull);
+    });
+
+    test('il giorno protetto non azzera la serie', () {
+      final r = computeStreak(
+        schedule: [const ScheduleChange(from: monday, days: lmgs)],
+        completions: completions,
+        today: today,
+        protectedDays: {monday.addDays(5)},
+      );
+      expect(r.statuses[monday.addDays(5)], DayStatus.protected);
+      expect(r.current, 3);
+    });
+  });
 }

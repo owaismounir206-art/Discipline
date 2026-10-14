@@ -14,6 +14,9 @@ import '../../exercises/domain/exercise.dart';
 import '../../exercises/domain/progression.dart';
 import '../../profile/data/profile_repository.dart';
 import '../../profile/domain/athlete_profile.dart';
+import '../../rewards/data/rewards_repository.dart';
+import '../../rewards/domain/rewards.dart';
+import '../../streak/domain/streak.dart';
 import '../domain/workout_plan.dart';
 import 'session_feedback.dart';
 import 'today_plan.dart';
@@ -76,6 +79,7 @@ class SessionState {
     this.timerSeconds = 0,
     this.finished = false,
     this.suggestions = const [],
+    this.pointsEarned = 0,
   });
 
   final WorkoutTemplate template;
@@ -106,6 +110,9 @@ class SessionState {
 
   /// Proposte di progressione calcolate alla fine.
   final List<ProgressionSuggestion> suggestions;
+
+  /// Punti guadagnati con questo allenamento (calcolati alla fine).
+  final int pointsEarned;
 
   SessionExercise get current => exercises[index];
 
@@ -138,6 +145,7 @@ class SessionState {
     int? timerSeconds,
     bool? finished,
     List<ProgressionSuggestion>? suggestions,
+    int? pointsEarned,
   }) => SessionState(
     template: template,
     difficulty: difficulty,
@@ -152,6 +160,7 @@ class SessionState {
     timerSeconds: timerSeconds ?? this.timerSeconds,
     finished: finished ?? this.finished,
     suggestions: suggestions ?? this.suggestions,
+    pointsEarned: pointsEarned ?? this.pointsEarned,
   );
 }
 
@@ -373,6 +382,56 @@ class SessionController extends Notifier<SessionState?> {
     );
   }
 
+  /// Punti dell'allenamento: base, serie di allenamenti e nuovi record.
+  Future<int> _award(SessionState s, DateTime now, LocalDate today) async {
+    final rewards = ref.read(rewardsRepositoryProvider);
+    final id = s.sessionId!;
+    var total = 0;
+    Future<void> give(
+      PointKind kind,
+      int amount,
+      String ref, [
+      String? note,
+    ]) async {
+      if (await rewards.award(kind, amount, at: now, ref: ref, note: note)) {
+        total += amount;
+      }
+    }
+
+    await give(PointKind.workout, pointsWorkout, 'allenamento-$id');
+
+    // La serie conta solo se l'allenamento di oggi è programmato e fatto.
+    final streak = ref.read(streakProvider);
+    if (streak.statuses[today] == DayStatus.today &&
+        s.progress >= doneThreshold - 1e-9) {
+      await give(
+        PointKind.streak,
+        streakBonus(streak.current + 1),
+        'serie-${today.key}',
+      );
+    }
+
+    final best = await _repo.bestBefore(id);
+    for (final e in s.exercises) {
+      final values = [
+        for (final d in e.done)
+          if (d.exerciseId == e.exercise.id) d.value,
+      ];
+      if (values.isEmpty) continue;
+      final top = values.reduce((a, b) => a > b ? a : b);
+      final before = best[e.exercise.id] ?? 0;
+      if (before > 0 && top > before) {
+        await give(
+          PointKind.record,
+          pointsRecord,
+          'record-$id-${e.exercise.id}',
+          e.exercise.name,
+        );
+      }
+    }
+    return total;
+  }
+
   /// Chiude la sessione: salva, aggiorna la progressione e calcola le
   /// proposte di cambio variante.
   Future<void> finish() async {
@@ -383,11 +442,13 @@ class SessionController extends Notifier<SessionState?> {
     final now = _now();
     final today = LocalDate.fromDateTime(now);
 
+    var points = 0;
     if (s.sessionId != null) {
       if (s.completedSets == 0) {
         await _repo.discardIfEmpty(s.sessionId!);
       } else {
         await _repo.finishSession(s.sessionId!, now);
+        points = await _award(s, now, today);
       }
     }
 
@@ -408,6 +469,7 @@ class SessionController extends Notifier<SessionState?> {
     final profile = await repo.loadProfile();
     state = s.copyWith(
       finished: true,
+      pointsEarned: points,
       mode: TimerMode.ready,
       suggestions: profile == null
           ? const []

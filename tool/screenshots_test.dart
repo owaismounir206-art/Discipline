@@ -15,12 +15,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:ritmo/app.dart';
 import 'package:ritmo/core/data/database.dart';
 import 'package:ritmo/core/router/routes.dart';
-
-import 'package:ritmo/features/account/data/account_providers.dart';
-import 'package:ritmo/features/account/data/memory_backend.dart';
-import 'package:ritmo/features/account/domain/backend.dart';
-import 'package:ritmo/features/challenge/data/challenge_repository.dart';
-import 'package:ritmo/features/challenge/domain/challenge.dart';
+import 'package:ritmo/core/utils/local_date.dart';
+import 'package:ritmo/features/challenge/domain/friend_code.dart';
+import 'package:ritmo/features/challenge/domain/timed.dart';
+import 'package:ritmo/features/rewards/data/rewards_repository.dart';
+import 'package:ritmo/features/rewards/domain/rewards.dart';
 
 import '../test/helpers.dart';
 
@@ -135,111 +134,49 @@ void main() {
     await disposeRitmo(tester, db);
   });
 
-  Future<MemoryBackend> friends(DateTime Function() clock) async {
-    final backend = MemoryBackend(isConfigured: true, clock: clock)
-      ..addUser(
-        const Friend(
-          id: 'luca',
-          name: 'Luca',
-          presence: Presence.online,
-          level: 'Intermedio',
-        ),
-        'LUCA22',
-      )
-      ..addUser(
-        const Friend(
-          id: 'sara',
-          name: 'Sara',
-          presence: Presence.training,
-          level: 'Avanzato',
-        ),
-        'SARA22',
-      )
-      ..addUser(
-        Friend(
-          id: 'davide',
-          name: 'Davide',
-          lastSeen: testNow.subtract(const Duration(hours: 2)),
-        ),
-        'DAVJDE',
-      );
-    await backend.signUp(
-      email: 'alex@example.org',
-      password: 'password',
-      name: 'Alex',
-    );
-    for (final code in ['LUCA22', 'SARA22', 'DAVJDE']) {
-      await backend.addFriend(code);
-    }
-    return backend;
-  }
-
-  testWidgets('sfida', (tester) async {
-    await tester.runAsync(() => seedHistory(db));
-    final backend = await friends(() => testNow);
-    final repo = ChallengeRepository(db);
+  testWidgets('sfide', (tester) async {
     await tester.runAsync(() async {
-      for (final (i, (mine, theirs)) in [
-        (30, 34),
-        (35, 31),
-        (28, 28),
-        (40, 36),
-        (33, 37),
-        (38, 30),
-        (41, 39),
-        (39, 41),
-        (42, 38),
-      ].indexed) {
-        final room = ChallengeRoom(
-          id: 'r$i',
-          mode: ChallengeMode.headToHead,
-          hostId: 'u1',
-          players: const {'u1': 'Alex', 'luca': 'Luca'},
-        ).withCount('u1', mine).withCount('luca', theirs);
-        await repo.save(
-          room.resultFor('u1'),
-          testNow.subtract(Duration(days: 20 - i)),
-        );
-      }
+      await seedHistory(db);
+      final repo = RewardsRepository(db);
+      await repo.award(PointKind.workout, 1240, at: testNow, ref: 'storico');
+      await repo.addChallengeEntry(
+        'giorno-${LocalDate.fromDateTime(testNow).key}',
+        20,
+        verified: true,
+        at: testNow,
+      );
     });
-    await pumpRitmo(
-      tester,
-      db,
-      extra: [backendProvider.overrideWithValue(backend)],
-    );
-    await openTab(tester, 'Sfida');
-    await shoot('sfida');
+    await pumpRitmo(tester, db);
+    await openTab(tester, 'Sfide');
+    await shoot('sfide');
     await disposeRitmo(tester, db);
   });
 
-  testWidgets('sfida in diretta', (tester) async {
+  testWidgets('sfida a tempo', (tester) async {
     var now = testNow;
     await tester.runAsync(() => seedHistory(db));
-    final backend = await friends(() => now);
-    final id = await backend.createRoom(
-      ChallengeMode.headToHead,
-      friendId: 'luca',
-    );
-    backend.simulateJoin(id, 'luca');
-    await backend.startRoom(id);
-    await pumpRitmo(
-      tester,
-      db,
-      clock: () => now,
-      extra: [backendProvider.overrideWithValue(backend)],
-    );
-    await openTab(tester, 'Sfida');
+    await pumpRitmo(tester, db, clock: () => now);
     final context = tester.element(find.byType(Scaffold).first);
-    unawaited(GoRouter.of(context).push(Routes.live(id)));
-    now = now.add(const Duration(seconds: 29));
+    final code = encodeFriendChallenge(
+      const FriendChallenge(
+        mode: TimedMode.minute,
+        score: 23,
+        name: 'Luca',
+        date: LocalDate(2026, 10, 12),
+      ),
+    );
+    unawaited(GoRouter.of(context).push(Routes.timed('minute', code: code)));
     await wait(tester);
+    await tester.tap(find.text('Via!'));
+    now = now.add(const Duration(seconds: 3));
+    await wait(tester, 2);
     for (var i = 0; i < 27; i++) {
       await tester.tap(find.text('+1 push-up'));
       await tester.pump();
     }
-    backend.simulateCount(id, 'luca', 23);
-    await wait(tester, 3);
-    await shoot('sfida-live');
+    now = now.add(const Duration(seconds: 26));
+    await wait(tester, 2);
+    await shoot('sfida-tempo');
     await disposeRitmo(tester, db);
   });
 }

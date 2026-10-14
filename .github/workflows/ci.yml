@@ -64,9 +64,7 @@ jobs:
           cache: true
 
       - name: Compila APK
-        run: |
-          echo '{"SUPABASE_URL":""}' > config/ritmo.json
-          flutter build apk --release --dart-define-from-file=config/ritmo.json
+        run: flutter build apk --release
 
       # L'APK si scarica dalla pagina dell'esecuzione, sezione "Artifacts".
       # È firmato con una chiave di prova: serve solo per provarla sul telefono.

@@ -6,6 +6,3 @@
 -keep class * extends androidx.room.RoomDatabase { <init>(); }
 -keep class androidx.work.impl.WorkDatabase_Impl { *; }
 
-# LiveKit / WebRTC: classi usate dal codice nativo (JNI).
--keep class org.webrtc.** { *; }
--dontwarn org.webrtc.**

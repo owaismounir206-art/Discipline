@@ -1,12 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Internet: ricerca alimenti, account e sfide. -->
+    <!-- Internet: solo per la ricerca degli alimenti (Open Food Facts). -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- Fotocamera: conteggio dei push-up, scanner dei codici a barre e video nella sfida. -->
+    <!-- Fotocamera: conteggio dei push-up e scanner dei codici a barre. -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <!-- Microfono: solo per parlare con l'amico durante la sfida video. -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <!-- Promemoria di allenamento. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -15,7 +12,6 @@
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
-    <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <application
         android:label="Ritmo"
@@ -42,13 +38,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-            <!-- Link d'invito: ritmo://app/invito/CODICE -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="ritmo" android:host="app" />
             </intent-filter>
         </activity>
 

@@ -44,9 +44,7 @@ jobs:
           cache: true
 
       - name: Compila APK di release
-        run: |
-          echo '{"SUPABASE_URL":""}' > config/ritmo.json
-          flutter build apk --release --dart-define-from-file=config/ritmo.json
+        run: flutter build apk --release
 
       - name: Avvia sull'emulatore
         uses: reactivecircus/android-emulator-runner@v2

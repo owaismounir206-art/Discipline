@@ -8,352 +8,416 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/data/providers.dart';
 import '../../core/router/routes.dart';
-import '../../core/services/share.dart';
+import '../../core/theme/motion.dart';
 import '../../core/theme/ritmo_theme.dart';
+import '../../core/theme/theme_settings.dart';
+import '../../core/utils/italian_date.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/screen_header.dart';
 import '../../core/widgets/tab_scaffold.dart';
-import '../account/data/account_providers.dart';
-import '../account/domain/backend.dart';
-import 'data/challenge_repository.dart';
-import 'domain/challenge.dart';
-import 'presentation/invite_card.dart';
+import '../exercises/domain/exercise.dart';
+import '../rewards/data/rewards_repository.dart';
+import '../rewards/data/rewards_state.dart';
+import '../rewards/domain/rewards.dart';
+import '../streak/domain/streak.dart';
+import '../workout/data/today_plan.dart';
+import 'domain/generated.dart';
+import 'domain/timed.dart';
 
-/// Scheda "Sfida": push-up in diretta con gli amici (design "SfidaLobby").
-class ChallengeScreen extends ConsumerStatefulWidget {
+void _snack(BuildContext context, String text) => ScaffoldMessenger.of(context)
+  ..hideCurrentSnackBar()
+  ..showSnackBar(SnackBar(content: Text(text)));
+
+/// Scheda "Sfide": sfide generate, punti, negozio e badge. Tutto offline.
+class ChallengeScreen extends ConsumerWidget {
   const ChallengeScreen({super.key});
 
   @override
-  ConsumerState<ChallengeScreen> createState() => _ChallengeScreenState();
-}
-
-class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
-  var _mode = ChallengeMode.headToHead;
-  var _busy = false;
-
-  void _snack(String text) => ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(text)));
-
-  Future<void> _invite() async {
-    final backend = ref.read(backendProvider);
-    final account = ref.read(accountProvider).value;
-    if (!backend.isConfigured) {
-      _snack('Per invitare gli amici serve un server: vedi Impostazioni.');
-      return;
-    }
-    if (account == null) {
-      await context.push(Routes.login);
-      return;
-    }
-    await ref.read(shareTextProvider)(
-      inviteMessage(account.name, account.friendCode),
-    );
-  }
-
-  Future<void> _challenge(Friend friend) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      final id = await ref
-          .read(backendProvider)
-          .createRoom(_mode, friendId: friend.id);
-      if (mounted) await context.push(Routes.live(id));
-    } on BackendException catch (e) {
-      _snack(e.message);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _practice() async {
-    final id = await ref.read(practiceBackendProvider).createRoom(_mode);
-    if (mounted) await context.push('${Routes.live(id)}?solo=1');
-  }
-
-  Future<void> _nudge(Friend friend) async {
-    final account = ref.read(accountProvider).value;
-    await ref.read(shareTextProvider)(
-      'Ciao ${friend.name}! Ti va una sfida di push-up su Ritmo? '
-      'Apri l\'app, ti aspetto 💪'
-      '${account == null ? '' : ' (${account.name})'}',
-    );
-  }
-
-  Future<void> _addFriend() async {
-    final code = await showDialog<String>(
-      context: context,
-      builder: (context) => const _FriendCodeDialog(),
-    );
-    if (code == null || code.trim().isEmpty) return;
-    try {
-      final friend = await ref.read(backendProvider).addFriend(code);
-      _snack('${friend.name} è tra i tuoi amici');
-    } on BackendException catch (e) {
-      _snack(e.message);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final backend = ref.watch(backendProvider);
-    final account = ref.watch(accountProvider).value;
-    final friends = ref.watch(friendsProvider).value ?? const <Friend>[];
-    final history = ref.watch(challengeHistoryProvider).value ?? const [];
-    final now = ref.watch(clockProvider)();
-    final last = history.where((r) => r.friendId != null).firstOrNull;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final balance = ref.watch(balanceProvider);
+    final challenges = ref.watch(activeChallengesProvider);
 
     return TabScaffold(
       header: ScreenHeader(
-        title: 'Sfida',
-        subtitle: 'Push-up in diretta con i tuoi amici',
-        actions: [
-          HeaderPillButton(
-            icon: Icons.add,
-            label: 'Invita',
-            onPressed: _invite,
-          ),
-        ],
+        title: 'Sfide',
+        subtitle: 'Guadagna punti, sblocca premi',
+        actions: [_PointsPill(points: balance)],
       ),
       children: [
-        const InviteCard(),
+        const _RankCard(),
+        for (final c in challenges) _GeneratedCard(status: c),
+        const SectionTitle('A tempo'),
+        for (final mode in TimedMode.values) _TimedCard(mode: mode),
         RitmoCard(
-          color: scheme.surfaceContainer,
-          radius: RitmoRadii.cardLarge,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 8,
+          color: Theme.of(context).colorScheme.secondaryContainer,
+          radius: 24,
+          padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+          onTap: () => context.push(Routes.friendChallenge),
+          child: const Row(
+            spacing: 12,
             children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 4, bottom: 4),
-                child: SectionTitle('Modalità'),
-              ),
-              for (final m in ChallengeMode.values)
-                _ModeOption(
-                  mode: m,
-                  selected: m == _mode,
-                  onTap: () => setState(() => _mode = m),
+              IconBadge(icon: Icons.groups_outlined),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Sfida un amico',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      'Con un codice, senza account né internet',
+                      style: TextStyle(fontSize: 13),
+                    ),
+                  ],
                 ),
+              ),
+              Icon(Icons.chevron_right),
             ],
           ),
         ),
-        const SectionTitle('Amici'),
-        if (!backend.isConfigured)
-          const _InfoCard(
-            icon: Icons.cloud_off_outlined,
-            text:
-                'Le sfide con gli amici hanno bisogno di un server, che in '
-                'questa versione non è collegato. Intanto puoi allenarti in '
-                'modalità sfida da solo.',
-          )
-        else if (account == null)
-          _InfoCard(
-            icon: Icons.group_outlined,
-            text: 'Accedi per aggiungere amici e sfidarli in diretta.',
-            action: FilledButton(
-              onPressed: () => context.push(Routes.login),
-              child: const Text('Accedi'),
-            ),
-          )
-        else ...[
-          if (friends.isEmpty)
-            Text(
-              'Non hai ancora amici su Ritmo: invitali o aggiungi il loro '
-              'codice. Il tuo è ${account.friendCode}.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
-            ),
-          for (final f in friends)
-            _FriendRow(
-              friend: f,
-              now: now,
-              onChallenge: _busy ? null : () => _challenge(f),
-              onNudge: () => _nudge(f),
-            ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              icon: const Icon(Icons.person_add_alt_outlined),
-              label: const Text('Aggiungi con un codice'),
-              onPressed: _addFriend,
-            ),
-          ),
-        ],
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(52),
-          ),
-          icon: const Icon(Icons.timer_outlined),
-          label: Text('Allenati da solo · ${_mode.label}'),
-          onPressed: _practice,
-        ),
-        if (last != null) _LastChallengeCard(last: last, history: history),
+        const SectionTitle('Negozio'),
+        const _FreezeCard(),
+        const _PaletteCard(),
+        const SectionTitle('Badge'),
+        const _BadgeGrid(),
       ],
     );
   }
 }
 
-class _ModeOption extends StatelessWidget {
-  const _ModeOption({
-    required this.mode,
-    required this.selected,
-    required this.onTap,
-  });
+class _PointsPill extends StatelessWidget {
+  const _PointsPill({required this.points});
 
-  final ChallengeMode mode;
-  final bool selected;
-  final VoidCallback onTap;
+  final int points;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Semantics(
-      selected: selected,
-      inMutuallyExclusiveGroup: true,
-      button: true,
-      label: '${mode.label}, ${mode.description}',
+      label: '$points punti',
       excludeSemantics: true,
-      child: Material(
-        color: selected ? scheme.surface : Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: BorderSide(
-            color: selected ? scheme.primary : Colors.transparent,
-            width: 2,
-          ),
+      child: Container(
+        height: 40,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(
+          color: scheme.tertiaryContainer,
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: onTap,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 60),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              child: Row(
-                spacing: 14,
-                children: [
-                  Icon(
-                    selected
-                        ? Icons.radio_button_checked
-                        : Icons.radio_button_unchecked,
-                    color: selected ? scheme.primary : scheme.onSurfaceVariant,
-                    size: 22,
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          mode.label,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                          mode.description,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 6,
+          children: [
+            Icon(Icons.stars, size: 20, color: scheme.onTertiaryContainer),
+            AnimatedCount(
+              value: points,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: scheme.onTertiaryContainer,
               ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _FriendRow extends StatelessWidget {
-  const _FriendRow({
-    required this.friend,
-    required this.now,
-    required this.onChallenge,
-    required this.onNudge,
-  });
-
-  final Friend friend;
-  final DateTime now;
-  final VoidCallback? onChallenge;
-  final VoidCallback onNudge;
+class _RankCard extends ConsumerWidget {
+  const _RankCard();
 
   @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final online = friend.presence == Presence.online;
-    final training = friend.presence == Presence.training;
-    final dot = switch (friend.presence) {
-      Presence.online => const Color(0xFF2E7D32),
-      Presence.training => const Color(0xFFC77700),
-      Presence.offline => null,
-    };
-    const buttonSize = Size(0, 48);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        spacing: 12,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final info = ref.watch(rankProvider);
+    final next = info.next;
+    return RitmoCard(
+      color: scheme.primaryContainer,
+      radius: RitmoRadii.cardLarge,
+      semanticsLabel: 'Grado ${info.rank.label}',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10,
         children: [
-          Stack(
-            clipBehavior: Clip.none,
+          Row(
+            spacing: 12,
             children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: dot == null
-                    ? scheme.surfaceContainerHighest
-                    : online
-                    ? scheme.secondary
-                    : scheme.tertiary,
-                foregroundColor: dot == null
-                    ? scheme.onSurfaceVariant
-                    : Colors.white,
+              Icon(
+                Icons.military_tech,
+                size: 36,
+                color: scheme.onPrimaryContainer,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Il tuo grado',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: scheme.onPrimaryContainer,
+                      ),
+                    ),
+                    Text(
+                      info.rank.label,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: scheme.onPrimaryContainer,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          AnimatedProgressBar(
+            value: info.progress,
+            color: scheme.primary,
+            background: scheme.surface.withValues(alpha: 0.7),
+          ),
+          Text(
+            next == null
+                ? 'Hai raggiunto il grado più alto!'
+                : 'Mancano ${info.missing} punti per diventare ${next.label}',
+            style: TextStyle(fontSize: 13, color: scheme.onPrimaryContainer),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _GeneratedCard extends ConsumerWidget {
+  const _GeneratedCard({required this.status});
+
+  final ChallengeStatus status;
+
+  Future<void> _add(BuildContext context, WidgetRef ref) async {
+    final c = status.challenge;
+    final left = (c.target - status.progress.done).clamp(1, c.target);
+    final added = await showModalBottomSheet<({int value, bool verified})>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => _AddSheet(challenge: c, initial: left),
+    );
+    if (added == null || added.value <= 0) return;
+    await ref
+        .read(rewardsRepositoryProvider)
+        .addChallengeEntry(
+          c.id,
+          added.value,
+          verified: added.verified,
+          at: ref.read(clockProvider)(),
+        );
+  }
+
+  Future<void> _claim(BuildContext context, WidgetRef ref) async {
+    final points = pointsFor(status.challenge, status.progress);
+    final ok = await ref
+        .read(rewardsRepositoryProvider)
+        .award(
+          PointKind.challenge,
+          points,
+          at: ref.read(clockProvider)(),
+          ref: 'sfida-${status.challenge.id}',
+          note: status.challenge.goalText,
+        );
+    if (ok && context.mounted) _snack(context, '+$points punti!');
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final c = status.challenge;
+    final p = status.progress;
+    final points = pointsFor(c, p);
+
+    return RitmoCard(
+      radius: RitmoRadii.cardLarge,
+      semanticsLabel: '${c.period.label}: ${c.goalText}',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 8,
+        children: [
+          Row(
+            children: [
+              Expanded(
                 child: Text(
-                  friend.initial,
-                  style: const TextStyle(
-                    fontSize: 17,
+                  c.period.label,
+                  style: TextStyle(
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
+                    color: scheme.primary,
                   ),
                 ),
               ),
-              if (dot != null)
-                Positioned(
-                  right: -1,
-                  bottom: -1,
-                  child: Container(
-                    width: 14,
-                    height: 14,
-                    decoration: BoxDecoration(
-                      color: dot,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: scheme.surface, width: 2),
-                    ),
+              Text(
+                p.cameraBonus
+                    ? '$points punti · bonus fotocamera'
+                    : '$points punti',
+                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+              ),
+            ],
+          ),
+          Text(c.goalText, style: theme.textTheme.titleLarge),
+          Text(
+            c.description,
+            style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
+          ),
+          AnimatedProgressBar(
+            value: p.ratio,
+            color: p.completed ? scheme.tertiary : scheme.primary,
+            background: scheme.surfaceContainerHighest,
+          ),
+          Row(
+            spacing: 8,
+            children: [
+              Expanded(
+                child: Text(
+                  '${c.amount(p.done)} di ${c.amount(c.target)}',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+              if (status.claimed)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 4,
+                  children: [
+                    Icon(Icons.check_circle, color: scheme.tertiary),
+                    const Text('Completata'),
+                  ],
+                )
+              else if (p.completed)
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+                  icon: const Icon(Icons.stars, size: 18),
+                  label: Text('Riscatta +$points'),
+                  onPressed: () => _claim(context, ref),
+                )
+              else
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 48),
                   ),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: const Text('Aggiungi'),
+                  onPressed: () => _add(context, ref),
                 ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AddSheet extends StatefulWidget {
+  const _AddSheet({required this.challenge, required this.initial});
+
+  final GeneratedChallenge challenge;
+  final int initial;
+
+  @override
+  State<_AddSheet> createState() => _AddSheetState();
+}
+
+class _AddSheetState extends State<_AddSheet> {
+  late int _value = widget.initial;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = widget.challenge;
+    final seconds = c.measure == Measure.seconds;
+    final canCount = !seconds && c.exercise.chain == ChainId.push;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 12,
+          children: [
+            Text(
+              'Quanti ne hai fatti?',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            ValueStepper(
+              label: c.exercise.name,
+              value: _value,
+              min: 1,
+              max: 999,
+              step: seconds ? 15 : 1,
+              suffix: seconds ? ' s' : null,
+              onChanged: (v) => setState(() => _value = v),
+            ),
+            if (canCount)
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                ),
+                icon: const Icon(Icons.videocam_outlined),
+                label: const Text('Conta con la fotocamera (×1,5 punti)'),
+                onPressed: () async {
+                  final reps = await context.push<int>(Routes.cameraCounter);
+                  if (reps != null && reps > 0 && context.mounted) {
+                    Navigator.pop(context, (value: reps, verified: true));
+                  }
+                },
+              ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+              ),
+              onPressed: () =>
+                  Navigator.pop(context, (value: _value, verified: false)),
+              child: const Text('Aggiungi'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TimedCard extends ConsumerWidget {
+  const _TimedCard({required this.mode});
+
+  final TimedMode mode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final best = ref.watch(bestTimedProvider)[mode];
+    return RitmoCard(
+      radius: 24,
+      padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+      onTap: () => context.push(Routes.timed(mode.name)),
+      semanticsLabel: '${mode.label}, ${mode.description}',
+      child: Row(
+        spacing: 12,
+        children: [
+          IconBadge(
+            icon: mode == TimedMode.minute
+                ? Icons.timer_outlined
+                : Icons.flag_outlined,
           ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 2,
               children: [
+                Text(mode.label, style: theme.textTheme.titleMedium),
                 Text(
-                  friend.name,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  friend.statusLine(now),
+                  best == null
+                      ? mode.description
+                      : 'Record: ${scoreText(mode, best)}',
                   style: TextStyle(
                     fontSize: 13,
                     color: scheme.onSurfaceVariant,
@@ -362,153 +426,292 @@ class _FriendRow extends StatelessWidget {
               ],
             ),
           ),
-          if (online)
-            FilledButton(
-              style: FilledButton.styleFrom(minimumSize: buttonSize),
-              onPressed: onChallenge,
-              child: Text('Sfida', semanticsLabel: 'Sfida ${friend.name}'),
-            )
-          else if (training)
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(minimumSize: buttonSize),
-              onPressed: onChallenge,
-              child: Text('Sfida', semanticsLabel: 'Sfida ${friend.name}'),
-            )
-          else
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                minimumSize: buttonSize,
-                foregroundColor: scheme.onSurfaceVariant,
-              ),
-              onPressed: onNudge,
-              child: Text('Avvisa', semanticsLabel: 'Avvisa ${friend.name}'),
-            ),
+          Icon(Icons.play_circle, size: 36, color: scheme.primary),
         ],
       ),
     );
   }
 }
 
-class _InfoCard extends StatelessWidget {
-  const _InfoCard({required this.icon, required this.text, this.action});
-
-  final IconData icon;
-  final String text;
-  final Widget? action;
+class _FreezeCard extends ConsumerWidget {
+  const _FreezeCard();
 
   @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final owned = ref.watch(freezesOwnedProvider);
+    final balance = ref.watch(balanceProvider);
+    final today = ref.watch(todayProvider);
+    final missed = freezableDay(ref.watch(streakProvider), today);
+    final repo = ref.read(rewardsRepositoryProvider);
+
     return RitmoCard(
-      color: scheme.surfaceContainerLow,
-      radius: 20,
-      padding: const EdgeInsets.all(16),
+      radius: 24,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10,
+        children: [
+          Row(
+            spacing: 12,
+            children: [
+              const IconBadge(icon: Icons.shield_outlined),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Giorno jolly', style: theme.textTheme.titleMedium),
+                    Text(
+                      'Protegge la serie se salti un allenamento. '
+                      'Ne hai $owned su $maxFreezes.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilledButton.tonal(
+                style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+                onPressed: owned >= maxFreezes || balance < freezeCost
+                    ? null
+                    : () async {
+                        try {
+                          await repo.buyFreeze(ref.read(clockProvider)());
+                          if (context.mounted) {
+                            _snack(context, 'Giorno jolly comprato');
+                          }
+                        } on RewardsException catch (e) {
+                          if (context.mounted) _snack(context, e.message);
+                        }
+                      },
+                child: const Text('Compra · $freezeCost punti'),
+              ),
+              if (missed != null && owned > 0)
+                FilledButton(
+                  style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
+                  onPressed: () async {
+                    await repo.useFreeze(missed);
+                    if (context.mounted) {
+                      _snack(context, 'Serie salvata!');
+                    }
+                  },
+                  child: Text('Salva ${formatItalianDate(missed.dateTime)}'),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaletteCard extends ConsumerWidget {
+  const _PaletteCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final unlocked = ref.watch(unlockedPalettesProvider);
+    final current = ref.watch(themeSettingsProvider);
+    final balance = ref.watch(balanceProvider);
+    final settings = ref.read(themeSettingsProvider.notifier);
+
+    return RitmoCard(
+      radius: 24,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 12,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 12,
             children: [
-              Icon(icon, color: scheme.primary),
-              Expanded(child: Text(text)),
+              const IconBadge(icon: Icons.palette_outlined),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Colori dell\'app',
+                      style: theme.textTheme.titleMedium,
+                    ),
+                    Text(
+                      'Ogni tema costa ${AppPalette.ocean.cost} punti',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
-          ?action,
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final p in AppPalette.values)
+                _PaletteChip(
+                  palette: p,
+                  owned: unlocked.contains(p),
+                  selected:
+                      !current.useDynamicColor && current.palette == p.name,
+                  affordable: balance >= p.cost,
+                  onTap: () async {
+                    if (!unlocked.contains(p)) {
+                      try {
+                        await ref
+                            .read(rewardsRepositoryProvider)
+                            .buyPalette(p, ref.read(clockProvider)());
+                      } on RewardsException catch (e) {
+                        if (context.mounted) _snack(context, e.message);
+                        return;
+                      }
+                    }
+                    await settings.setPalette(p.name);
+                  },
+                ),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _LastChallengeCard extends StatelessWidget {
-  const _LastChallengeCard({required this.last, required this.history});
+class _PaletteChip extends StatelessWidget {
+  const _PaletteChip({
+    required this.palette,
+    required this.owned,
+    required this.selected,
+    required this.affordable,
+    required this.onTap,
+  });
 
-  final ChallengeResult last;
-  final List<ChallengeResult> history;
+  final AppPalette palette;
+  final bool owned;
+  final bool selected;
+  final bool affordable;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final balance = balanceAgainst(history, last.friendId!);
-    return RitmoCard(
-      color: scheme.tertiaryContainer,
-      radius: 20,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        spacing: 12,
-        children: [
-          Icon(Icons.emoji_events_outlined, color: scheme.onTertiaryContainer),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Ultima sfida con ${last.friendName}',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: scheme.onTertiaryContainer,
-                  ),
-                ),
-                Text(
-                  '${last.summary} · bilancio '
-                  '${balance.wins}–${balance.losses}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: scheme.onTertiaryContainer,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+    return FilterChip(
+      selected: selected,
+      showCheckmark: false,
+      avatar: CircleAvatar(backgroundColor: palette.seed, radius: 10),
+      label: Text(owned ? palette.label : '${palette.label} · ${palette.cost}'),
+      tooltip: owned
+          ? 'Usa ${palette.label}'
+          : 'Sblocca ${palette.label} per ${palette.cost} punti',
+      labelStyle: TextStyle(
+        color: !owned && !affordable ? scheme.onSurfaceVariant : null,
       ),
+      onSelected: !owned && !affordable ? null : (_) => onTap(),
     );
   }
 }
 
-class _FriendCodeDialog extends StatefulWidget {
-  const _FriendCodeDialog();
+class _BadgeGrid extends ConsumerWidget {
+  const _BadgeGrid();
 
   @override
-  State<_FriendCodeDialog> createState() => _FriendCodeDialogState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final badges = ref.watch(badgesProvider);
+    final rows = <List<Achievement>>[
+      for (var i = 0; i < badges.length; i += 2)
+        badges.sublist(i, i + 2 > badges.length ? badges.length : i + 2),
+    ];
+    return Column(
+      spacing: 10,
+      children: [
+        for (final row in rows)
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 10,
+              children: [
+                for (final b in row)
+                  Expanded(child: _AchievementTile(badge: b)),
+                if (row.length == 1) const Expanded(child: SizedBox()),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
 }
 
-class _FriendCodeDialogState extends State<_FriendCodeDialog> {
-  final _controller = TextEditingController();
+class _AchievementTile extends StatelessWidget {
+  const _AchievementTile({required this.badge});
+
+  final Achievement badge;
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final earned = badge.earned;
+    return Semantics(
+      label:
+          '${badge.title}: ${badge.description}. '
+          '${earned ? 'Ottenuto' : '${badge.value} su ${badge.goal}'}',
+      excludeSemantics: true,
+      child: AnimatedContainer(
+        duration: RitmoMotion.of(context, RitmoMotion.long),
+        curve: RitmoMotion.decelerate,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: earned ? scheme.tertiaryContainer : scheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 6,
+          children: [
+            Icon(
+              badge.icon,
+              color: earned
+                  ? scheme.onTertiaryContainer
+                  : scheme.onSurfaceVariant,
+            ),
+            Text(
+              badge.title,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: earned ? scheme.onTertiaryContainer : scheme.onSurface,
+              ),
+            ),
+            Text(
+              badge.description,
+              style: TextStyle(
+                fontSize: 12,
+                color: earned
+                    ? scheme.onTertiaryContainer
+                    : scheme.onSurfaceVariant,
+              ),
+            ),
+            const Spacer(),
+            if (!earned)
+              AnimatedProgressBar(
+                value: badge.progress,
+                color: scheme.primary,
+                background: scheme.surfaceContainerHighest,
+                height: 6,
+              ),
+          ],
+        ),
+      ),
+    );
   }
-
-  @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Aggiungi un amico'),
-    content: TextField(
-      controller: _controller,
-      autofocus: true,
-      textCapitalization: TextCapitalization.characters,
-      maxLength: 7,
-      decoration: const InputDecoration(
-        labelText: 'Codice amico',
-        hintText: 'Es. K7P2QX',
-        border: OutlineInputBorder(),
-      ),
-      onSubmitted: (v) => Navigator.pop(context, v),
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.pop(context),
-        child: const Text('Annulla'),
-      ),
-      FilledButton(
-        onPressed: () => Navigator.pop(context, _controller.text),
-        child: const Text('Aggiungi'),
-      ),
-    ],
-  );
 }
