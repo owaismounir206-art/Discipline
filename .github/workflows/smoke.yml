@@ -1,0 +1,65 @@
+name: Prova su emulatore
+
+# Installa l'APK di release su un emulatore Android, lo apre e controlla
+# che non si chiuda da solo. Il log (logcat) resta negli Artifacts.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'android/**'
+      - 'pubspec.*'
+      - 'lib/main.dart'
+      - '.github/workflows/smoke.yml'
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: '3.47.7'
+
+jobs:
+  smoke:
+    name: Avvio dell'APK di release
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Abilita KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Compila APK di release
+        run: |
+          echo '{"SUPABASE_URL":""}' > config/ritmo.json
+          flutter build apk --release --dart-define-from-file=config/ritmo.json
+
+      - name: Avvia sull'emulatore
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          script: bash tool/smoke_test.sh build/app/outputs/flutter-apk/app-release.apk
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logcat
+          path: logcat.txt
+          retention-days: 14
