@@ -37,6 +37,8 @@ chiave copia `android/key.properties.example` in `android/key.properties`.
    git tag v0.2.0
    git push origin v0.2.0
    ```
+   In alternativa: scheda **Actions → Rilascio → Run workflow**: legge la
+   versione da `pubspec.yaml` e crea lei tag e release.
 3. L'azione **Rilascio** esegue analisi e test, compila `.apk` e `.aab` e
    crea la release su GitHub con le impronte `SHA256SUMS.txt`.
 

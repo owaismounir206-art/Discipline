@@ -14,6 +14,7 @@ name: Rilascio
 on:
   push:
     tags: ['v*.*.*']
+  # Avvio a mano: legge la versione da pubspec.yaml e crea lei il tag.
   workflow_dispatch:
 
 permissions:
@@ -78,10 +79,20 @@ jobs:
             echo '{"SUPABASE_URL":""}' > config/ritmo.json
           fi
 
+      - name: Versione
+        id: version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            NAME="${GITHUB_REF_NAME#v}"
+          else
+            NAME="$(sed -n 's/^version: *\([0-9.]*\).*/\1/p' pubspec.yaml)"
+          fi
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "tag=v$NAME" >> "$GITHUB_OUTPUT"
+
       - name: Compila
         run: |
-          NAME="${GITHUB_REF_NAME#v}"
-          [ "$GITHUB_REF_TYPE" = tag ] || NAME="0.0.0-$GITHUB_SHA"
+          NAME="${{ steps.version.outputs.name }}"
           flutter build apk --release --build-name="${NAME%%-*}" \
             --build-number="$GITHUB_RUN_NUMBER" --dart-define-from-file=config/ritmo.json
           flutter build appbundle --release --build-name="${NAME%%-*}" \
@@ -90,7 +101,7 @@ jobs:
       - name: Nomi e impronte dei file
         run: |
           mkdir dist
-          TAG="${GITHUB_REF_NAME//\//-}"
+          TAG="${{ steps.version.outputs.tag }}"
           cp build/app/outputs/flutter-apk/app-release.apk "dist/ritmo-$TAG.apk"
           cp build/app/outputs/bundle/release/app-release.aab "dist/ritmo-$TAG.aab"
           (cd dist && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt)
@@ -102,8 +113,12 @@ jobs:
           retention-days: 30
 
       - name: Pubblica su GitHub Releases
-        if: github.ref_type == 'tag'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: Ritmo ${{ steps.version.outputs.name }}
           files: dist/*
           generate_release_notes: true
+          # Senza keystore nei segreti l'APK è firmato con la chiave di prova.
+          prerelease: ${{ env.KEYSTORE_B64 == '' }}
