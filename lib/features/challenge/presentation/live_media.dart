@@ -4,14 +4,17 @@
 
 import 'package:material_ui/material_ui.dart';
 
-/// Anteprima della tua fotocamera che conta i push-up (fase 9).
+import '../../camera/presentation/rep_camera.dart';
+
+/// Anteprima della tua fotocamera che conta i push-up.
 class LocalCameraView extends StatelessWidget {
   const LocalCameraView({super.key, required this.onRep});
 
   final VoidCallback onRep;
 
   @override
-  Widget build(BuildContext context) => const SizedBox.shrink();
+  Widget build(BuildContext context) =>
+      RepCameraView(onRep: onRep, compact: true);
 }
 
 /// Video dell'amico (fase 10).
