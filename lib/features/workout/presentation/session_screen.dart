@@ -2,6 +2,8 @@
 // Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import '../../camera/presentation/camera_counter_screen.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -138,11 +140,13 @@ class _RunningView extends ConsumerWidget {
                 case 'how':
                   await context.push(Routes.exercise(exercise.id));
                 case 'camera':
-                  final reps = await context.push<int>(
+                  final reps = await context.push<CameraCount>(
                     Routes.cameraCounter,
                     extra: exercise.id,
                   );
-                  if (reps != null) controller.setValue(reps);
+                  if (reps != null) {
+                    controller.setValue(reps.camera + reps.manual);
+                  }
                 case 'skip':
                   await controller.skipExercise();
                 case 'end':

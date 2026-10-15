@@ -45,6 +45,10 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
   var _lastBeep = -1;
   bool? _awarded;
 
+  /// Secondi saltati in avanti con "Passo successivo": i punti valgono solo
+  /// se hai fatto davvero almeno l'80% del tempo.
+  var _skipped = Duration.zero;
+
   @override
   void initState() {
     super.initState();
@@ -81,6 +85,11 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
   }
 
   Future<void> _finish() async {
+    final total = Duration(seconds: totalSeconds(_steps));
+    if (_skipped.inMilliseconds > total.inMilliseconds * 0.2) {
+      setState(() => _awarded = null);
+      return;
+    }
     final now = ref.read(clockProvider)();
     final ok = await ref
         .read(rewardsRepositoryProvider)
@@ -112,6 +121,7 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
       seconds: startOf(_steps, index.clamp(0, _steps.length)),
     );
     _ticker.stop();
+    if (target > _elapsed) _skipped += target - _elapsed;
     setState(() {
       _before = target;
       _elapsed = target;

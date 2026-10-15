@@ -88,13 +88,18 @@ class RewardsRepository {
       )..where((t) => t.ref.equals(ref))).getSingleOrNull() !=
       null;
 
+  /// Spende punti. I controlli ([guard]) stanno nella stessa transazione:
+  /// due tocchi veloci su "Compra" non superano i limiti. Se [guard]
+  /// restituisce false non si spende nulla.
   Future<void> _spend(
     PointKind kind,
     int cost, {
     required DateTime at,
     String? ref,
     String? note,
+    Future<bool> Function()? guard,
   }) => _db.transaction(() async {
+    if (guard != null && !await guard()) return;
     final balance = balanceOf(await points());
     if (balance < cost) {
       throw RewardsException(
@@ -136,14 +141,20 @@ class RewardsRepository {
     return bought - (await protectedDays()).length;
   }
 
-  Future<void> buyFreeze(DateTime now) async {
-    if (await freezesOwned() >= maxFreezes) {
-      throw const RewardsException(
-        'Hai già $maxFreezes giorni jolly: usali prima di comprarne altri.',
-      );
-    }
-    await _spend(PointKind.freeze, freezeCost, at: now, note: 'Giorno jolly');
-  }
+  Future<void> buyFreeze(DateTime now) => _spend(
+    PointKind.freeze,
+    freezeCost,
+    at: now,
+    note: 'Giorno jolly',
+    guard: () async {
+      if (await freezesOwned() >= maxFreezes) {
+        throw const RewardsException(
+          'Hai già $maxFreezes giorni jolly: usali prima di comprarne altri.',
+        );
+      }
+      return true;
+    },
+  );
 
   /// Protegge un allenamento saltato con un giorno jolly.
   Future<void> useFreeze(LocalDate day) async {
@@ -159,13 +170,15 @@ class RewardsRepository {
   // --- Temi ---
 
   Future<void> buyPalette(AppPalette palette, DateTime now) async {
-    if (palette.free || await hasRef('tema-${palette.name}')) return;
+    if (palette.free) return;
     await _spend(
       PointKind.theme,
       palette.cost,
       at: now,
       ref: 'tema-${palette.name}',
       note: palette.label,
+      // Già comprato (anche da un tocco appena prima): niente.
+      guard: () async => !await hasRef('tema-${palette.name}'),
     );
   }
 

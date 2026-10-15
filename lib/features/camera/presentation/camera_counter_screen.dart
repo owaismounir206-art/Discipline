@@ -31,7 +31,10 @@ class _CameraCounterScreenState extends State<CameraCounterScreen> {
 
   int get _total => _state.count + _manual;
 
-  void _finish() => context.pop(_total);
+  /// Restituisce le ripetizioni viste dalla fotocamera e quelle aggiunte a
+  /// mano, separate: solo le prime valgono come "verificate".
+  void _finish() =>
+      context.pop<CameraCount>((camera: _state.count, manual: _manual));
 
   @override
   Widget build(BuildContext context) {
@@ -189,3 +192,6 @@ class _CameraCounterScreenState extends State<CameraCounterScreen> {
     );
   }
 }
+
+/// Risultato del conteggio con la fotocamera.
+typedef CameraCount = ({int camera, int manual});

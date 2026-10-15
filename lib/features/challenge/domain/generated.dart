@@ -178,12 +178,17 @@ List<GeneratedChallenge> generateChallenges({
   required Difficulty difficulty,
 }) {
   final monday = today.startOfWeek;
-  final daySeed = today.dateTime.difference(DateTime(2026)).inDays;
-  final weekSeed = monday.dateTime.difference(DateTime(2026)).inDays ~/ 7;
-  final dayChain = _chains[daySeed % _chains.length];
-  var weekChain = _chains[(weekSeed * 3 + 1) % _chains.length];
-  if (weekChain == dayChain) {
-    weekChain = _chains[(_chains.indexOf(weekChain) + 1) % _chains.length];
+  // Giorni di calendario (senza ore): il cambio dell'ora legale non fa
+  // ripetere la stessa sfida due giorni di fila.
+  const epoch = LocalDate(2026, 1, 1);
+  final daySeed = today.daysSince(epoch);
+  final weekSeed = monday.daysSince(epoch) ~/ 7;
+  // La sfida della settimana resta la stessa per tutta la settimana; se
+  // coincide con quella del giorno, è quella del giorno a spostarsi.
+  final weekChain = _chains[(weekSeed * 3 + 1) % _chains.length];
+  var dayChain = _chains[daySeed % _chains.length];
+  if (dayChain == weekChain) {
+    dayChain = _chains[(_chains.indexOf(dayChain) + 1) % _chains.length];
   }
   final mult = _multiplier(difficulty);
 

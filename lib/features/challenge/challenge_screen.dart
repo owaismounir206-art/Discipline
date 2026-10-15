@@ -2,6 +2,8 @@
 // Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import '../camera/presentation/camera_counter_screen.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -201,20 +203,32 @@ class _GeneratedCard extends ConsumerWidget {
   Future<void> _add(BuildContext context, WidgetRef ref) async {
     final c = status.challenge;
     final left = (c.target - status.progress.done).clamp(1, c.target);
-    final added = await showModalBottomSheet<({int value, bool verified})>(
+    final added = await showModalBottomSheet<CameraCount>(
       context: context,
       showDragHandle: true,
       builder: (_) => _AddSheet(challenge: c, initial: left),
     );
-    if (added == null || added.value <= 0) return;
-    await ref
-        .read(rewardsRepositoryProvider)
-        .addChallengeEntry(
-          c.id,
-          added.value,
-          verified: added.verified,
-          at: ref.read(clockProvider)(),
-        );
+    if (added == null) return;
+    final rewards = ref.read(rewardsRepositoryProvider);
+    final at = ref.read(clockProvider)();
+    // Le ripetizioni viste dalla fotocamera valgono di più; quelle toccate a
+    // mano no, anche se aggiunte dalla schermata della fotocamera.
+    if (added.camera > 0) {
+      await rewards.addChallengeEntry(
+        c.id,
+        added.camera,
+        verified: true,
+        at: at,
+      );
+    }
+    if (added.manual > 0) {
+      await rewards.addChallengeEntry(
+        c.id,
+        added.manual,
+        verified: false,
+        at: at,
+      );
+    }
   }
 
   Future<void> _claim(BuildContext context, WidgetRef ref) async {
@@ -372,9 +386,13 @@ class _AddSheetState extends State<_AddSheet> {
                 icon: const Icon(Icons.videocam_outlined),
                 label: const Text('Conta con la fotocamera (×1,5 punti)'),
                 onPressed: () async {
-                  final reps = await context.push<int>(Routes.cameraCounter);
-                  if (reps != null && reps > 0 && context.mounted) {
-                    Navigator.pop(context, (value: reps, verified: true));
+                  final reps = await context.push<CameraCount>(
+                    Routes.cameraCounter,
+                  );
+                  if (reps != null &&
+                      reps.camera + reps.manual > 0 &&
+                      context.mounted) {
+                    Navigator.pop(context, reps);
                   }
                 },
               ),
@@ -382,8 +400,10 @@ class _AddSheetState extends State<_AddSheet> {
               style: FilledButton.styleFrom(
                 minimumSize: const Size.fromHeight(52),
               ),
-              onPressed: () =>
-                  Navigator.pop(context, (value: _value, verified: false)),
+              onPressed: () => Navigator.pop<CameraCount>(context, (
+                camera: 0,
+                manual: _value,
+              )),
               child: const Text('Aggiungi'),
             ),
           ],

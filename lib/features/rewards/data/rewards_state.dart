@@ -57,10 +57,16 @@ final timedResultsProvider = StreamProvider<List<SavedTimedResult>>(
 );
 
 /// Il record personale per ogni modalità (sfide da solo e con amici).
-final bestTimedProvider = Provider<Map<TimedMode, int>>((ref) {
+final bestTimedProvider = Provider<Map<TimedMode, int>>(
+  (ref) => bestScores(
+    ref.watch(timedResultsProvider).value ?? const <SavedTimedResult>[],
+  ),
+);
+
+/// Il record di ogni modalità.
+Map<TimedMode, int> bestScores(List<SavedTimedResult> results) {
   final best = <TimedMode, int>{};
-  for (final t
-      in ref.watch(timedResultsProvider).value ?? const <SavedTimedResult>[]) {
+  for (final t in results) {
     final score = t.result.score;
     if (score == null) continue;
     final old = best[t.result.mode];
@@ -69,7 +75,7 @@ final bestTimedProvider = Provider<Map<TimedMode, int>>((ref) {
     }
   }
   return best;
-});
+}
 
 typedef ChallengeStatus = ({
   GeneratedChallenge challenge,

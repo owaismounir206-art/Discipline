@@ -67,6 +67,11 @@ class _RankWatcher extends ConsumerWidget {
       final before = previous?.value;
       final after = next.value;
       if (before == null || after == null) return;
+      // Solo pochi punti nuovi (un allenamento, una sfida): un backup
+      // importato o i dati cancellati cambiano tutto in una volta e non
+      // sono una promozione.
+      final added = after.length - before.length;
+      if (added < 1 || added > 5) return;
       final old = rankFor(lifetimeOf(before));
       final now = rankFor(lifetimeOf(after));
       if (now.rank.index <= old.rank.index) return;

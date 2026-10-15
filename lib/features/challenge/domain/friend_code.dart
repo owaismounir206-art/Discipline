@@ -45,7 +45,9 @@ class FriendChallenge {
 
 const _version = 1;
 const _maxNameBytes = 12;
-final _epoch = DateTime.utc(2026);
+
+/// Giorno zero delle date nel codice (giorni di calendario, senza fuso).
+const _epochDay = LocalDate(2026, 1, 1);
 
 /// Alfabeto Crockford: niente I, L, O, U (si confondono dettando).
 const _alphabet = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
@@ -69,10 +71,7 @@ int _checksum(List<int> bytes) {
 
 /// Codice da condividere, es. "0H2K-5Z9A-…" (lettere e numeri a gruppi).
 String encodeFriendChallenge(FriendChallenge c) {
-  final days = c.date.dateTime
-      .difference(DateTime(2026))
-      .inDays
-      .clamp(0, 65535);
+  final days = c.date.daysSince(_epochDay).clamp(0, 65535);
   final score = c.score.clamp(0, 65535);
   final name = utf8.encode(_shortName(c.name));
   final bytes = <int>[
@@ -143,7 +142,7 @@ FriendChallenge? decodeFriendChallenge(String code) {
     mode: TimedMode.values[body[1]],
     score: (body[2] << 8) | body[3],
     name: name,
-    date: LocalDate.fromDateTime(_epoch.add(Duration(days: days))),
+    date: _epochDay.addDays(days),
   );
 }
 

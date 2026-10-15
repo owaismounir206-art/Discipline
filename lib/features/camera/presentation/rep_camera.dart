@@ -72,6 +72,12 @@ class _RepCameraViewState extends ConsumerState<RepCameraView> {
   }
 
   Future<void> _open() async {
+    // Nuova fotocamera (es. cambio frontale/posteriore): via l'errore vecchio.
+    // (Avviso dopo il frame: qui siamo ancora dentro initState.)
+    if (_state.error != null) {
+      _state.error = null;
+      scheduleMicrotask(_state._changed);
+    }
     try {
       final session = await ref
           .read(poseCameraProvider)

@@ -12,6 +12,9 @@ import 'package:discipline/features/camera/data/pose_camera.dart';
 import 'package:discipline/features/camera/domain/rep_counter.dart';
 
 import 'features/rep_counter_test.dart' as counter;
+
+import 'package:discipline/features/camera/presentation/camera_counter_screen.dart';
+
 import 'helpers.dart';
 
 class FakeSession implements PoseCameraSession {
@@ -59,7 +62,7 @@ void main() {
     tester,
   ) async {
     final camera = FakeCamera();
-    int? result;
+    CameraCount? result;
     final db = memoryDatabase();
     await seedProfile(db);
     await pumpDiscipline(
@@ -70,7 +73,7 @@ void main() {
     final context = tester.element(find.byType(Scaffold).first);
     unawaited(
       GoRouter.of(context)
-          .push<int>(Routes.cameraCounter)
+          .push<CameraCount>(Routes.cameraCounter)
           .then((v) => result = v),
     );
     await settle(tester);
@@ -95,7 +98,8 @@ void main() {
 
     await tester.tap(find.text('Fatto'));
     await settle(tester);
-    expect(result, 3);
+    // Solo 2 viste dalla fotocamera: quella a mano non è "verificata".
+    expect(result, (camera: 2, manual: 1));
     expect(camera.session.closed, isTrue);
     await disposeDiscipline(tester, db);
   });
@@ -110,7 +114,7 @@ void main() {
       extra: [poseCameraProvider.overrideWithValue(camera)],
     );
     final context = tester.element(find.byType(Scaffold).first);
-    unawaited(GoRouter.of(context).push<int>(Routes.cameraCounter));
+    unawaited(GoRouter.of(context).push<CameraCount>(Routes.cameraCounter));
     await settle(tester);
     expect(find.text('Discipline non ha il permesso.'), findsOneWidget);
     await tester.tap(find.text('+1 a mano'));

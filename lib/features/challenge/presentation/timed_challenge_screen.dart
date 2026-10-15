@@ -61,7 +61,20 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
     _friend = code == null ? null : decodeFriendChallenge(code);
     _run = TimedRun(mode: _friend?.mode ?? widget.mode);
     _previousBest = ref.read(bestTimedProvider)[_run.mode];
+    // Il valore in memoria può essere vecchio (es. dopo "Ancora una volta"
+    // la scheda Sfide è in pausa sotto questa schermata): si rilegge.
+    unawaited(
+      ref.read(rewardsRepositoryProvider).watchTimed().first.then((all) {
+        if (mounted && _result == null) {
+          setState(() => _previousBest = bestScores(all)[_run.mode]);
+        }
+      }),
+    );
   }
+
+  /// Il dialogo "Fermare la sfida?" è aperto: il tempo che scade intanto
+  /// non salva il risultato finché non si sceglie.
+  var _confirmingExit = false;
 
   @override
   void dispose() {
@@ -91,6 +104,11 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
       _lastPhase = phase;
       if (phase == TimedPhase.running) unawaited(_feedback.restFinished());
       if (phase == TimedPhase.finished) {
+        if (_confirmingExit) {
+          // Si decide alla chiusura del dialogo.
+          _lastPhase = null;
+          return;
+        }
         unawaited(_finish());
         return;
       }
@@ -162,6 +180,7 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
   Future<void> _close() async {
     final phase = _run.phaseAt(_clock());
     if (phase == TimedPhase.running || phase == TimedPhase.countdown) {
+      _confirmingExit = true;
       final leave = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
@@ -179,7 +198,13 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
           ],
         ),
       );
-      if (leave != true) return;
+      _confirmingExit = false;
+      if (leave != true) {
+        // Continua: se nel frattempo il tempo è finito, si chiude ora.
+        _tick();
+        return;
+      }
+      _ticker?.cancel();
     }
     if (mounted) context.pop();
   }
