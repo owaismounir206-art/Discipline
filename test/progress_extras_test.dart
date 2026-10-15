@@ -7,6 +7,7 @@ import 'package:discipline/core/data/database.dart';
 import 'package:discipline/core/utils/local_date.dart';
 import 'package:discipline/core/widgets/motion_widgets.dart';
 import 'package:discipline/features/food/data/food_repository.dart';
+import 'package:discipline/features/food/domain/foods.dart';
 import 'package:discipline/features/food/domain/nutrition.dart';
 import 'package:discipline/features/rewards/data/rewards_repository.dart';
 import 'package:discipline/features/rewards/domain/rewards.dart';
@@ -39,6 +40,22 @@ void main() {
     expect((await repo.watchBody().first)!.weightKg, 79.5);
     await repo.removeWeight(const LocalDate(2026, 10, 1));
     expect(await repo.watchWeights().first, hasLength(1));
+    await db.close();
+  });
+
+  test('un prodotto creato dallo scanner conserva il codice a barre', () async {
+    final repo = FoodRepository(db);
+    await repo.addFavorite(
+      const FoodItem(
+        name: 'Barretta',
+        source: FoodSource.custom,
+        barcode: '8001234567890',
+        per100: Nutrients(kcal: 400, protein: 20, carbs: 50, fat: 12),
+      ),
+      100,
+    );
+    final saved = await repo.watchFavorites().first;
+    expect(saved.single.barcode, '8001234567890');
     await db.close();
   });
 

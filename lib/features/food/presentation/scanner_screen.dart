@@ -6,8 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../data/food_repository.dart';
 import '../data/open_food_facts.dart';
 import '../domain/foods.dart';
+import 'custom_food_sheet.dart';
 
 /// Risultato dello scanner.
 class ScannedFood {
@@ -36,6 +38,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
   bool _busy = false;
   String? _message;
 
+  /// Codice letto ma non trovato: si può creare il prodotto.
+  String? _missing;
+
   @override
   void dispose() {
     _controller.dispose();
@@ -48,9 +53,20 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         .map((b) => b.rawValue)
         .whereType<String>()
         .firstOrNull;
-    if (code == null) return;
+    if (code == null || code == _missing) return;
+    // Prima i prodotti già salvati sul telefono (funziona anche offline).
+    final saved =
+        (await ref.read(foodRepositoryProvider).watchFavorites().first)
+            .where((f) => f.barcode == code)
+            .firstOrNull;
+    if (!mounted) return;
+    if (saved != null) {
+      Navigator.of(context).pop(ScannedFood(saved));
+      return;
+    }
     setState(() {
       _busy = true;
+      _missing = null;
       _message = 'Cerco il codice $code…';
     });
     try {
@@ -59,9 +75,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
       if (item == null) {
         setState(() {
           _busy = false;
+          _missing = code;
           _message =
-              'Prodotto non trovato. Puoi cercarlo per nome o aggiungerlo '
-              'su openfoodfacts.org.';
+              'Prodotto non trovato. Crealo copiando i valori '
+              'dell\'etichetta: la prossima volta lo riconosco subito.';
         });
         return;
       }
@@ -74,6 +91,15 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         });
       }
     }
+  }
+
+  Future<void> _create() async {
+    final code = _missing;
+    if (code == null) return;
+    final food = await showCustomFoodSheet(context, barcode: code);
+    if (food == null || !mounted) return;
+    await ref.read(foodRepositoryProvider).addFavorite(food, 100);
+    if (mounted) Navigator.of(context).pop(ScannedFood(food));
   }
 
   @override
@@ -131,22 +157,34 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
                 color: scheme.surface,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 12,
                 children: [
-                  if (_busy)
-                    const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  Expanded(
-                    child: Text(
-                      _message ??
-                          'Inquadra il codice a barre della confezione. '
-                              'I dati arrivano da Open Food Facts.',
-                    ),
+                  Row(
+                    spacing: 12,
+                    children: [
+                      if (_busy)
+                        const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      Expanded(
+                        child: Text(
+                          _message ??
+                              'Inquadra il codice a barre della confezione. '
+                                  'I dati arrivano da Open Food Facts.',
+                        ),
+                      ),
+                    ],
                   ),
+                  if (_missing != null)
+                    FilledButton.icon(
+                      icon: const Icon(Icons.edit_note),
+                      label: const Text('Crea il prodotto'),
+                      onPressed: _create,
+                    ),
                 ],
               ),
             ),

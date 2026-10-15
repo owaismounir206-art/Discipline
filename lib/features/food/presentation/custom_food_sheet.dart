@@ -13,17 +13,22 @@ import '../domain/nutrition.dart';
 Future<FoodItem?> showCustomFoodSheet(
   BuildContext context, {
   String name = '',
+  String? barcode,
 }) => showModalBottomSheet<FoodItem>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
-  builder: (_) => CustomFoodSheet(initialName: name),
+  builder: (_) => CustomFoodSheet(initialName: name, barcode: barcode),
 );
 
 class CustomFoodSheet extends StatefulWidget {
-  const CustomFoodSheet({super.key, this.initialName = ''});
+  const CustomFoodSheet({super.key, this.initialName = '', this.barcode});
 
   final String initialName;
+
+  /// Codice a barre del prodotto (dallo scanner): la prossima scansione lo
+  /// ritrova subito, anche senza internet.
+  final String? barcode;
 
   @override
   State<CustomFoodSheet> createState() => _CustomFoodSheetState();
@@ -83,6 +88,7 @@ class _CustomFoodSheetState extends State<CustomFoodSheet> {
       FoodItem(
         name: _name.text.trim(),
         source: FoodSource.custom,
+        barcode: widget.barcode,
         per100: Nutrients(
           kcal: _read('kcal'),
           protein: _read('protein'),
