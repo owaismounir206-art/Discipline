@@ -157,6 +157,7 @@ List<Exercise> _variety(ChainId chain) => [
       'acc_chin_up',
       'acc_scap_pull',
       'acc_dead_hang',
+      'acc_hanging_knee_raise',
     }.contains(e.id))
       e,
 ];

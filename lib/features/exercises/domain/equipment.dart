@@ -52,7 +52,8 @@ Set<Equipment> needs(Exercise e) => switch (e.id) {
   'skill_muscle_up' ||
   'acc_chin_up' ||
   'acc_scap_pull' ||
-  'acc_dead_hang' => {Equipment.bar},
+  'acc_dead_hang' ||
+  'acc_hanging_knee_raise' => {Equipment.bar},
   _ => {},
 };
 
@@ -82,6 +83,7 @@ Exercise adaptTo(Exercise e, TrainingPlace place) {
           : Catalog.byId('skill_wall_handstand')!,
     _ => switch (e.id) {
       'acc_chin_up' || 'acc_scap_pull' => Catalog.byId('acc_table_row')!,
+      'acc_hanging_knee_raise' => Catalog.byId('acc_reverse_crunch')!,
       _ => Catalog.byId('acc_superman')!,
     },
   };

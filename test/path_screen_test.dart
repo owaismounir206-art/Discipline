@@ -66,7 +66,7 @@ void main() {
     await settle(tester);
     await tester.tap(find.text('Mobilità'));
     await settle(tester);
-    expect(find.textContaining('9 esercizi per variare'), findsOneWidget);
+    expect(find.textContaining('12 esercizi per variare'), findsOneWidget);
     expect(find.byIcon(Icons.lock_outline), findsNothing);
 
     await tester.tap(find.text('Cerchi con le braccia').first);

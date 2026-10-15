@@ -1832,6 +1832,280 @@ const couchStretch = Motion(
   ms: 3200,
 );
 
+// ---- Esercizi aggiunti nella 1.2 -------------------------------------------
+
+/// Crunch: sdraiato, ginocchia piegate, le spalle si staccano da terra.
+const crunch = Motion(
+  'crunch',
+  [
+    (
+      Pose(
+        hip: Offset(0, -0.06),
+        low: 2,
+        neck: 0,
+        arm: Ang(-170, -175),
+        leg: To(-0.28, -0.03),
+      ),
+      1,
+    ),
+    (
+      Pose(
+        hip: Offset(0, -0.06),
+        low: -8,
+        high: -38,
+        neck: -45,
+        arm: Ang(-165, -170),
+        leg: To(-0.28, -0.03),
+      ),
+      1,
+    ),
+  ],
+  legBend: 1,
+  ms: 1800,
+);
+
+/// Crunch inverso: le ginocchia vengono al petto e il bacino si stacca.
+const reverseCrunch = Motion(
+  'reverseCrunch',
+  [
+    (
+      Pose(
+        hip: Offset(0, -0.06),
+        low: 2,
+        neck: 0,
+        arm: To(0.30, -0.02),
+        leg: Ang(-95, 180),
+      ),
+      1,
+    ),
+    (
+      Pose(
+        hip: Offset(0, -0.11),
+        low: 9,
+        neck: 4,
+        arm: To(0.30, -0.02),
+        leg: Ang(-55, -140),
+      ),
+      1,
+    ),
+  ],
+  armBend: -1,
+  ms: 1800,
+);
+
+/// Torsioni russe, viste di fronte: busto inclinato, mani da un lato
+/// all'altro.
+const russianTwist = Motion('russianTwist', [
+  (
+    Pose(
+      hip: Offset(0, -0.06),
+      low: -120,
+      neck: -105,
+      arm: To(0.10, -0.20),
+      leg: To(0.30, -0.14),
+    ),
+    1,
+  ),
+  (
+    Pose(
+      hip: Offset(0, -0.06),
+      low: -122,
+      neck: -110,
+      arm: To(-0.01, -0.06),
+      leg: To(0.30, -0.14),
+    ),
+    1,
+  ),
+], ms: 1400);
+
+/// Push-up con i piedi su un rialzo.
+const declinePushUp = Motion(
+  'declinePushUp',
+  [
+    (
+      Pose(
+        hip: Offset(0.44, -0.31),
+        low: 0,
+        neck: -2,
+        arm: To(0.72, -0.01),
+        leg: To(0, -0.31),
+      ),
+      1,
+    ),
+    (
+      Pose(
+        hip: Offset(0.425, -0.196),
+        low: 15,
+        neck: 18,
+        arm: To(0.72, -0.01),
+        leg: To(0, -0.31),
+      ),
+      1,
+    ),
+  ],
+  props: [Block(-0.16, -0.28, 0.08, 0)],
+);
+
+/// Pseudo-planche: spalle oltre le mani.
+const pseudoPlanche = Motion('pseudoPlanche', [
+  (
+    Pose(
+      hip: Offset(0.40, -0.17),
+      low: -16,
+      neck: -20,
+      arm: To(0.56, -0.01),
+      leg: _feet,
+    ),
+    1,
+  ),
+  (
+    Pose(
+      hip: Offset(0.43, -0.07),
+      low: -4,
+      neck: -8,
+      arm: To(0.56, -0.01),
+      leg: _feet,
+    ),
+    1,
+  ),
+]);
+
+/// Ponte su una gamba: l'altra gamba resta tesa in alto.
+const singleLegBridge = Motion(
+  'singleLegBridge',
+  [
+    (
+      Pose(
+        hip: Offset(0, -0.06),
+        low: 3,
+        neck: 0,
+        arm: To(0.02, -0.02),
+        leg: To(-0.28, -0.03),
+        leg2: Ang(-150, -150),
+      ),
+      1,
+    ),
+    (
+      Pose(
+        hip: Offset(0, -0.25),
+        low: 33.7,
+        neck: 10,
+        arm: To(0.02, -0.02),
+        leg: To(-0.28, -0.03),
+        leg2: Ang(-146, -146),
+      ),
+      1,
+    ),
+  ],
+  legBend: 1,
+  armBend: -1,
+);
+
+/// Affondo laterale, visto di fronte: il peso va da una parte.
+const lateralLunge = Motion(
+  'lateralLunge',
+  [
+    (
+      Pose(
+        hip: Offset(0, -0.44),
+        arm: Ang(82, 86),
+        arm2: Ang(98, 94),
+        leg: To(0.26, -0.03),
+        leg2: To(-0.26, -0.03),
+      ),
+      1,
+    ),
+    (
+      Pose(
+        hip: Offset(0.14, -0.27),
+        low: -84,
+        arm: Ang(78, 70),
+        arm2: Ang(102, 110),
+        leg: To(0.26, -0.03),
+        leg2: To(-0.26, -0.03),
+      ),
+      1,
+    ),
+  ],
+  front: true,
+  ms: 2400,
+);
+
+/// Ginocchia al petto alla sbarra.
+const hangingKneeRaise = Motion(
+  'hangingKneeRaise',
+  [
+    (Pose(hip: Offset(0, -0.42), arm: _hands, leg: To(-0.02, 0.02)), 1),
+    (
+      Pose(
+        hip: Offset(0.02, -0.45),
+        low: -96,
+        arm: _hands,
+        leg: To(0.20, -0.24),
+      ),
+      1,
+    ),
+  ],
+  floor: false,
+  props: [_bar],
+);
+
+/// Allungamento in piedi: busto giù verso i piedi.
+const standingFold = Motion(
+  'standingFold',
+  [
+    (Pose(hip: Offset(0, -0.47), arm: _armsDown, leg: _feet), 1),
+    (
+      Pose(
+        hip: Offset(-0.08, -0.46),
+        low: 25,
+        high: 50,
+        neck: 68,
+        arm: To(0.10, -0.14),
+        leg: _feet,
+      ),
+      1.4,
+    ),
+  ],
+  ms: 3600,
+  still: 1,
+);
+
+/// Polsi: in quadrupedia, il peso va avanti e indietro.
+const wristPrep = Motion('wristPrep', [
+  (
+    Pose(
+      hip: Offset(-0.03, -0.27),
+      low: -2,
+      neck: 10,
+      arm: To(0.30, -0.01),
+      leg: _knee,
+      toe: 180,
+    ),
+    1,
+  ),
+  (
+    Pose(
+      hip: Offset(0.07, -0.25),
+      low: 6,
+      neck: 16,
+      arm: To(0.30, -0.01),
+      leg: To(-0.16, -0.05),
+      toe: 180,
+    ),
+    1,
+  ),
+], ms: 2400);
+
+/// Corda immaginaria: piccoli salti sulle punte, polsi che girano.
+const jumpRope = Motion('jumpRope', [
+  (Pose(hip: Offset(0, -0.47), arm: Ang(100, 30), leg: _feet, toe: 30), 1),
+  (
+    Pose(hip: Offset(0, -0.53), arm: Ang(100, 10), leg: To(0, -0.09), toe: 60),
+    1,
+  ),
+], ms: 600);
+
 /// Tutti i movimenti (per l'anteprima e i test).
 const allMotions = [
   wallPushUp, inclinePushUp, kneePushUp, pushUp, hinduPushUp, pikePushUp, //
@@ -1851,7 +2125,9 @@ const allMotions = [
   sidePlank, shoulderTaps, hollow, lSit, tuckLSit, dragonFlag, deadBug,
   birdDog, superman, jumpingJack, highKnees, mountainClimber, skater,
   burpee, bearCrawl, armCircles, hipCircles, thoracic, catCow, childPose,
-  cobra, pikeStretch, couchStretch,
+  cobra, pikeStretch, couchStretch, crunch, reverseCrunch, russianTwist,
+  declinePushUp, pseudoPlanche, singleLegBridge, lateralLunge,
+  hangingKneeRaise, standingFold, wristPrep, jumpRope,
 ];
 
 const _byId = <String, Motion>{
@@ -1927,6 +2203,22 @@ const _byId = <String, Motion>{
   'mob_couch': couchStretch,
   'mob_cobra': cobra,
   'mob_child_pose': childPose,
+  'cardio_tuck_jump': squatJump,
+  'cardio_jump_rope': jumpRope,
+  'cardio_lateral_shuffle': skater,
+  'mob_worlds_greatest': lunge,
+  'mob_standing_fold': standingFold,
+  'mob_wrist': wristPrep,
+  'acc_decline_pushup': declinePushUp,
+  'acc_wide_pushup': pushUp,
+  'acc_pseudo_planche': pseudoPlanche,
+  'acc_single_leg_bridge': singleLegBridge,
+  'acc_sumo_squat': squat,
+  'acc_lateral_lunge': lateralLunge,
+  'acc_crunch': crunch,
+  'acc_reverse_crunch': reverseCrunch,
+  'acc_russian_twist': russianTwist,
+  'acc_hanging_knee_raise': hangingKneeRaise,
 };
 
 /// Il movimento da mostrare per un esercizio.
