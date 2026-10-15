@@ -75,6 +75,17 @@ class _CustomFoodSheetState extends State<CustomFoodSheet> {
     if (!_form.currentState!.validate()) return;
     final carbs = _read('carbs');
     final sugar = _read('sugar');
+    if (_read('protein') + carbs + _read('fat') > 101) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Proteine, carboidrati e grassi insieme non possono superare '
+            '100 g su 100 g.',
+          ),
+        ),
+      );
+      return;
+    }
     if (sugar > carbs) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

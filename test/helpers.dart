@@ -44,6 +44,11 @@ class FakeReminders implements ReminderService {
 
   @override
   Future<void> schedule(AthleteProfile profile) async => scheduled.add(profile);
+
+  var cancelled = 0;
+
+  @override
+  Future<void> cancelAll() async => cancelled++;
 }
 
 /// Nessuna rete nei test: di base non c'è una versione nuova.

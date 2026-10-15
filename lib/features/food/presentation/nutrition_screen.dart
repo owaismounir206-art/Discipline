@@ -14,6 +14,7 @@ import '../../workout/data/today_plan.dart';
 import '../data/food_repository.dart';
 import '../data/food_state.dart';
 import '../domain/foods.dart';
+import '../domain/nutrition.dart';
 import '../food_screen.dart';
 
 const disclaimer =
@@ -21,18 +22,39 @@ const disclaimer =
     'parere di un nutrizionista.';
 
 /// Consigli alimentari (design "Nutrizione").
-class NutritionScreen extends ConsumerWidget {
+class NutritionScreen extends ConsumerStatefulWidget {
   const NutritionScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NutritionScreen> createState() => _NutritionScreenState();
+}
+
+class _NutritionScreenState extends ConsumerState<NutritionScreen> {
+  /// Pasto e piatti di quando hai aperto la pagina: aggiungendone uno la
+  /// lista non si rimescola sotto il dito (e "Aggiunto" resta sul piatto
+  /// giusto, pronto per annullare).
+  (Meal, List<Recipe>)? _frozen;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final body = ref.watch(bodyProfileProvider).value;
     final targets = ref.watch(targetsProvider);
     final totals = ref.watch(todayTotalsProvider);
-    final meal = ref.watch(nextMealProvider);
-    final suggestions = ref.watch(recommendationsProvider);
+    final live = ref.watch(recommendationsProvider);
+    if (_frozen == null && live.isNotEmpty) {
+      _frozen = (ref.read(nextMealProvider), live);
+    }
+    final frozen = _frozen;
+    final Meal meal;
+    final List<Recipe> suggestions;
+    if (frozen != null) {
+      (meal, suggestions) = frozen;
+    } else {
+      meal = ref.watch(nextMealProvider);
+      suggestions = live;
+    }
     final days = ref.watch(athleteProfileProvider).value?.trainingDays.length;
 
     if (body == null || targets == null) {
@@ -250,7 +272,7 @@ class NutritionScreen extends ConsumerWidget {
                 style: theme.textTheme.bodyMedium,
               ),
             for (final r in suggestions) ...[
-              _RecipeCard(recipe: r),
+              _RecipeCard(key: ValueKey(r.name), recipe: r, meal: meal),
               const SizedBox(height: 10),
             ],
             const SizedBox(height: 8),
@@ -275,9 +297,10 @@ String _n(double v, [int digits = 1]) {
 }
 
 class _RecipeCard extends ConsumerStatefulWidget {
-  const _RecipeCard({required this.recipe});
+  const _RecipeCard({super.key, required this.recipe, required this.meal});
 
   final Recipe recipe;
+  final Meal meal;
 
   @override
   ConsumerState<_RecipeCard> createState() => _RecipeCardState();
@@ -285,6 +308,7 @@ class _RecipeCard extends ConsumerStatefulWidget {
 
 class _RecipeCardState extends ConsumerState<_RecipeCard> {
   int? _entryId;
+  var _saving = false;
 
   @override
   Widget build(BuildContext context) {
@@ -325,34 +349,44 @@ class _RecipeCardState extends ConsumerState<_RecipeCard> {
           added
               ? FilledButton(
                   style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
-                  onPressed: () async {
-                    await ref
-                        .read(foodRepositoryProvider)
-                        .deleteEntry(_entryId!);
-                    setState(() => _entryId = null);
-                  },
+                  onPressed: _saving
+                      ? null
+                      : () async {
+                          setState(() => _saving = true);
+                          await ref
+                              .read(foodRepositoryProvider)
+                              .deleteEntry(_entryId!);
+                          if (!mounted) return;
+                          setState(() {
+                            _entryId = null;
+                            _saving = false;
+                          });
+                        },
                   child: const Text('Aggiunto'),
                 )
               : OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 40),
                   ),
-                  onPressed: () async {
-                    final repo = ref.read(foodRepositoryProvider);
-                    final meal = ref.read(nextMealProvider);
-                    await repo.addEntry(
-                      date: ref.read(todayProvider),
-                      meal: meal,
-                      food: r.toFoodItem(),
-                      grams: r.grams,
-                      now: ref.read(clockProvider)(),
-                    );
-                    final entries = await repo.entriesOf(
-                      ref.read(todayProvider),
-                      meal,
-                    );
-                    setState(() => _entryId = entries.last.id);
-                  },
+                  onPressed: _saving
+                      ? null
+                      : () async {
+                          setState(() => _saving = true);
+                          final id = await ref
+                              .read(foodRepositoryProvider)
+                              .addEntry(
+                                date: ref.read(todayProvider),
+                                meal: widget.meal,
+                                food: r.toFoodItem(),
+                                grams: r.grams,
+                                now: ref.read(clockProvider)(),
+                              );
+                          if (!mounted) return;
+                          setState(() {
+                            _entryId = id;
+                            _saving = false;
+                          });
+                        },
                   child: const Text('Aggiungi'),
                 ),
         ],

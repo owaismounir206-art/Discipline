@@ -9,6 +9,7 @@ import 'package:discipline/core/widgets/motion_widgets.dart';
 import 'package:discipline/features/food/data/food_repository.dart';
 import 'package:discipline/features/food/domain/foods.dart';
 import 'package:discipline/features/food/domain/nutrition.dart';
+import 'package:discipline/features/food/presentation/week_and_water.dart';
 import 'package:discipline/features/rewards/data/rewards_repository.dart';
 import 'package:discipline/features/rewards/domain/rewards.dart';
 import 'package:material_ui/material_ui.dart';
@@ -56,6 +57,31 @@ void main() {
     );
     final saved = await repo.watchFavorites().first;
     expect(saved.single.barcode, '8001234567890');
+    await db.close();
+  });
+
+  test('litri d\'acqua leggibili', () {
+    expect(litersText(10000), '10');
+    expect(litersText(2000), '2');
+    expect(litersText(2500), '2,5');
+    expect(litersText(1250), '1,25');
+  });
+
+  test('due prodotti diversi con lo stesso nome restano entrambi', () async {
+    final repo = FoodRepository(db);
+    FoodItem yogurt(String code, double kcal) => FoodItem(
+      name: 'Yogurt',
+      source: FoodSource.custom,
+      barcode: code,
+      per100: Nutrients(kcal: kcal, protein: 4, carbs: 5, fat: 3),
+    );
+    await repo.addFavorite(yogurt('111', 60), 125);
+    await repo.addFavorite(yogurt('222', 90), 125);
+    // Lo stesso prodotto salvato di nuovo si aggiorna, non si duplica.
+    await repo.addFavorite(yogurt('222', 95), 125);
+    final saved = await repo.watchFavorites().first;
+    expect(saved.map((f) => f.barcode).toSet(), {'111', '222'});
+    expect(saved.firstWhere((f) => f.barcode == '222').per100.kcal, 95);
     await db.close();
   });
 

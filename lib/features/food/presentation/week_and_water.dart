@@ -102,8 +102,7 @@ class WaterCard extends ConsumerWidget {
       await repo.setWater(day, value);
     }
 
-    String liters(int v) =>
-        '${(v / 1000).toStringAsFixed(v % 1000 == 0 ? 0 : 2).replaceAll('.', ',').replaceFirst(RegExp(r',?0$'), '')} l';
+    String liters(int v) => '${litersText(v)} l';
 
     return DisciplineCard(
       radius: 24,
@@ -339,4 +338,13 @@ class WeekCard extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Millilitri in litri: 2000 → "2", 2500 → "2,5", 10000 → "10".
+String litersText(int ml) {
+  if (ml % 1000 == 0) return '${ml ~/ 1000}';
+  return (ml / 1000)
+      .toStringAsFixed(2)
+      .replaceFirst(RegExp(r'0+$'), '')
+      .replaceAll('.', ',');
 }

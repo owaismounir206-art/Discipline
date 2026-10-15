@@ -117,14 +117,15 @@ class FoodRepository {
     });
   }
 
-  Future<void> addEntry({
+  /// Aggiunge un alimento al diario e restituisce il suo id.
+  Future<int> addEntry({
     required LocalDate date,
     required Meal meal,
     required FoodItem food,
     required double grams,
     required DateTime now,
   }) async {
-    await _db
+    final id = await _db
         .into(_db.foodEntries)
         .insert(
           FoodEntriesCompanion.insert(
@@ -143,6 +144,7 @@ class FoodRepository {
           ),
         );
     await _rewardDiary(date, now);
+    return id;
   }
 
   /// 10 punti il giorno in cui registri almeno 3 pasti (solo per oggi:
@@ -279,14 +281,30 @@ class FoodRepository {
       );
 
   /// Aggiunge o aggiorna un preferito (il nome è unico).
+  /// Due prodotti diversi (codici a barre diversi) con lo stesso nome non si
+  /// sovrascrivono: il secondo prende il codice nel nome.
   Future<void> addFavorite(FoodItem food, double grams) =>
       _db.transaction(() async {
-        await removeFavorite(food.displayName);
+        var name = food.displayName;
+        final code = food.barcode;
+        if (code != null) {
+          // Lo stesso prodotto salvato con un altro nome: si aggiorna.
+          await (_db.delete(
+            _db.favoriteFoods,
+          )..where((t) => t.barcode.equals(code))).go();
+          final same = await (_db.select(
+            _db.favoriteFoods,
+          )..where((t) => t.name.equals(name))).getSingleOrNull();
+          if (same != null && same.barcode != null && same.barcode != code) {
+            name = '$name · $code';
+          }
+        }
+        await removeFavorite(name);
         await _db
             .into(_db.favoriteFoods)
             .insert(
               FavoriteFoodsCompanion.insert(
-                name: food.displayName,
+                name: name,
                 grams: grams,
                 kcal100: food.per100.kcal,
                 protein100: food.per100.protein,

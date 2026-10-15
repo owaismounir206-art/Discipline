@@ -58,7 +58,10 @@ class ThemeSettingsNotifier extends Notifier<ThemeSettings> {
   @override
   ThemeSettings build() {
     final sub = ref.watch(databaseProvider).watchJson(_key).listen((json) {
-      if (json is Map<String, Object?>) state = ThemeSettings.fromJson(json);
+      // Dopo "Elimina tutti i dati" o un backup senza tema: valori iniziali.
+      state = json is Map<String, Object?>
+          ? ThemeSettings.fromJson(json)
+          : const ThemeSettings();
     });
     ref.onDispose(sub.cancel);
     return const ThemeSettings();

@@ -14,6 +14,8 @@ import 'package:share_plus/share_plus.dart';
 import '../../core/data/providers.dart';
 import '../../core/utils/local_date.dart';
 import 'settings_screen.dart';
+import '../profile/data/profile_repository.dart';
+import '../streak/data/reminders.dart';
 
 /// Salva e apre i file di backup (nessun server: il file è tuo).
 abstract interface class BackupFiles {
@@ -88,7 +90,15 @@ class BackupSection extends ConsumerWidget {
           title: const Text('Importa da un file'),
           subtitle: const Text('Sostituisce i dati di questo telefono'),
           onTap: () async {
-            final text = await files.pick();
+            final String? text;
+            try {
+              text = await files.pick();
+            } on Object {
+              if (context.mounted) {
+                _snack(context, 'Non riesco a leggere questo file.');
+              }
+              return;
+            }
             if (text == null || !context.mounted) return;
             final ok = await showDialog<bool>(
               context: context,
@@ -115,10 +125,25 @@ class BackupSection extends ConsumerWidget {
               final data = jsonDecode(text);
               if (data is! Map) throw const FormatException();
               await db.importAll(data.cast<String, Object?>());
+              // Promemoria del profilo importato (o nessuno).
+              final profile = await ProfileRepository(db).loadProfile();
+              final reminders = ref.read(remindersProvider);
+              await (profile == null
+                  ? reminders.cancelAll()
+                  : reminders.schedule(profile));
               if (context.mounted) _snack(context, 'Dati importati');
             } on FormatException {
               if (context.mounted) {
                 _snack(context, 'Questo file non è un backup di Discipline.');
+              }
+            } on Object {
+              // Righe mancanti o di tipo sbagliato: l'importazione è
+              // annullata e i dati di prima restano.
+              if (context.mounted) {
+                _snack(
+                  context,
+                  'Il file è danneggiato: i tuoi dati non sono stati toccati.',
+                );
               }
             }
           },

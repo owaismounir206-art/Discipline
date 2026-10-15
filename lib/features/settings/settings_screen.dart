@@ -233,6 +233,8 @@ class SettingsScreen extends ConsumerWidget {
     );
     if (ok ?? false) {
       await ref.read(databaseProvider).wipe();
+      // Senza profilo non devono più arrivare promemoria.
+      await ref.read(remindersProvider).cancelAll();
       if (context.mounted) context.go(Routes.welcome);
     }
   }

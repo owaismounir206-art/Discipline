@@ -22,6 +22,9 @@ abstract interface class ReminderService {
 
   /// Riprogramma i promemoria in base al profilo (o li toglie).
   Future<void> schedule(AthleteProfile profile);
+
+  /// Toglie tutti i promemoria (dati cancellati o profilo assente).
+  Future<void> cancelAll();
 }
 
 /// Prossimo momento (da [now]) con quel giorno della settimana e quell'ora.
@@ -96,6 +99,13 @@ class LocalReminderService implements ReminderService {
             >()
             ?.requestPermissions(alert: true, sound: true) ??
         false;
+  }
+
+  @override
+  Future<void> cancelAll() async {
+    if (!_supported) return;
+    await _init();
+    await _plugin.cancelAll();
   }
 
   @override

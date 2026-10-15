@@ -36,6 +36,7 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
   bool _loading = false;
   String? _error;
   int _request = 0;
+  bool _repeating = false;
 
   @override
   void dispose() {
@@ -160,30 +161,34 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
                 child: OutlinedButton.icon(
                   icon: const Icon(Icons.replay),
                   label: Text('Ripeti ${widget.meal.withArticle} $before'),
-                  onPressed: () async {
-                    final count = await ref
-                        .read(foodRepositoryProvider)
-                        .repeatYesterday(
-                          widget.meal,
-                          ref.read(foodDayProvider),
-                          ref.read(clockProvider)(),
-                        );
-                    if (!context.mounted) return;
-                    if (count == 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            isToday
-                                ? 'Ieri non hai registrato ${widget.meal.withArticle}'
-                                : 'Il giorno prima non hai registrato '
-                                      '${widget.meal.withArticle}',
-                          ),
-                        ),
-                      );
-                    } else {
-                      context.pop();
-                    }
-                  },
+                  onPressed: _repeating
+                      ? null
+                      : () async {
+                          setState(() => _repeating = true);
+                          final count = await ref
+                              .read(foodRepositoryProvider)
+                              .repeatYesterday(
+                                widget.meal,
+                                ref.read(foodDayProvider),
+                                ref.read(clockProvider)(),
+                              );
+                          if (!context.mounted) return;
+                          setState(() => _repeating = false);
+                          if (count == 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  isToday
+                                      ? 'Ieri non hai registrato ${widget.meal.withArticle}'
+                                      : 'Il giorno prima non hai registrato '
+                                            '${widget.meal.withArticle}',
+                                ),
+                              ),
+                            );
+                          } else {
+                            context.pop();
+                          }
+                        },
                 ),
               ),
             if (favorites.isNotEmpty) ...[

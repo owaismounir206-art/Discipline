@@ -48,6 +48,9 @@ class FoodAmountSheet extends ConsumerStatefulWidget {
 }
 
 class _FoodAmountSheetState extends ConsumerState<FoodAmountSheet> {
+  /// Salvataggio in corso: un doppio tocco non aggiunge due volte.
+  var _saving = false;
+
   late int _grams = (widget.entry?.grams ?? widget.food.defaultGrams)
       .round()
       .clamp(1, 2000);
@@ -174,26 +177,29 @@ class _FoodAmountSheetState extends ConsumerState<FoodAmountSheet> {
                   ),
                 Expanded(
                   child: FilledButton(
-                    onPressed: () async {
-                      final repo = ref.read(foodRepositoryProvider);
-                      final entry = widget.entry;
-                      if (entry != null) {
-                        await repo.updateEntry(
-                          entry.id,
-                          grams: _grams.toDouble(),
-                          meal: _meal,
-                        );
-                      } else {
-                        await repo.addEntry(
-                          date: ref.read(foodDayProvider),
-                          meal: _meal,
-                          food: food,
-                          grams: _grams.toDouble(),
-                          now: ref.read(clockProvider)(),
-                        );
-                      }
-                      if (context.mounted) Navigator.pop(context, true);
-                    },
+                    onPressed: _saving
+                        ? null
+                        : () async {
+                            setState(() => _saving = true);
+                            final repo = ref.read(foodRepositoryProvider);
+                            final entry = widget.entry;
+                            if (entry != null) {
+                              await repo.updateEntry(
+                                entry.id,
+                                grams: _grams.toDouble(),
+                                meal: _meal,
+                              );
+                            } else {
+                              await repo.addEntry(
+                                date: ref.read(foodDayProvider),
+                                meal: _meal,
+                                food: food,
+                                grams: _grams.toDouble(),
+                                now: ref.read(clockProvider)(),
+                              );
+                            }
+                            if (context.mounted) Navigator.pop(context, true);
+                          },
                     child: Text(
                       widget.entry != null
                           ? 'Salva'

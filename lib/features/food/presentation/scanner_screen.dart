@@ -47,25 +47,49 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     super.dispose();
   }
 
+  /// Ultimo codice che ha dato errore e quando: lo scanner legge lo stesso
+  /// codice 4 volte al secondo, non si deve richiedere a ogni lettura.
+  String? _failed;
+  DateTime? _failedAt;
+
+  /// Già chiuso con un risultato: le letture successive si ignorano.
+  bool _done = false;
+
+  void _close(FoodItem item) {
+    if (_done) return;
+    _done = true;
+    _controller.stop();
+    Navigator.of(context).pop(ScannedFood(item));
+  }
+
   Future<void> _onDetect(BarcodeCapture capture) async {
-    if (_busy) return;
+    if (_busy || _done) return;
     final code = capture.barcodes
         .map((b) => b.rawValue)
         .whereType<String>()
         .firstOrNull;
     if (code == null || code == _missing) return;
-    // Prima i prodotti già salvati sul telefono (funziona anche offline).
+    final failedAt = _failedAt;
+    if (code == _failed &&
+        failedAt != null &&
+        DateTime.now().difference(failedAt) < const Duration(seconds: 8)) {
+      return;
+    }
+    // Subito, prima di ogni attesa: blocca le letture che arrivano intanto.
+    _busy = true;
     final saved =
         (await ref.read(foodRepositoryProvider).watchFavorites().first)
             .where((f) => f.barcode == code)
             .firstOrNull;
     if (!mounted) return;
-    if (saved != null) {
-      Navigator.of(context).pop(ScannedFood(saved));
+    // I prodotti creati a mano si usano subito (anche offline). Per quelli di
+    // Open Food Facts si chiedono i dati aggiornati, allergeni compresi, e
+    // la copia salvata serve solo se la rete non va.
+    if (saved != null && saved.source == FoodSource.custom) {
+      _close(saved);
       return;
     }
     setState(() {
-      _busy = true;
       _missing = null;
       _message = 'Cerco il codice $code…';
     });
@@ -82,14 +106,19 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         });
         return;
       }
-      Navigator.of(context).pop(ScannedFood(item));
+      _close(item);
     } on FoodCatalogException catch (e) {
-      if (mounted) {
-        setState(() {
-          _busy = false;
-          _message = e.message;
-        });
+      if (!mounted) return;
+      if (saved != null) {
+        _close(saved);
+        return;
       }
+      setState(() {
+        _busy = false;
+        _failed = code;
+        _failedAt = DateTime.now();
+        _message = '${e.message} Riprovo tra qualche secondo.';
+      });
     }
   }
 
@@ -99,7 +128,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     final food = await showCustomFoodSheet(context, barcode: code);
     if (food == null || !mounted) return;
     await ref.read(foodRepositoryProvider).addFavorite(food, 100);
-    if (mounted) Navigator.of(context).pop(ScannedFood(food));
+    if (mounted) _close(food);
   }
 
   @override
