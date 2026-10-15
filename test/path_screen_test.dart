@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:discipline/core/data/database.dart';
 import 'package:discipline/core/widgets/motion_widgets.dart';
 import 'package:discipline/features/exercises/presentation/exercise_figure.dart';
+import 'package:discipline/features/exercises/presentation/figure/motions.dart'
+    show squat;
 import 'package:material_ui/material_ui.dart';
 
 import 'helpers.dart';
@@ -82,7 +84,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       const MaterialApp(
-        home: Center(child: ExerciseFigure(motion: FigureMotion.squat)),
+        home: Center(child: ExerciseFigure(motion: squat)),
       ),
     );
     await step(tester);
