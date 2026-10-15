@@ -26,6 +26,8 @@ abstract final class Routes {
   static const homemade = '/cibo/ricetta';
   static const aiFood = '/cibo/ai';
   static const aiSettings = '/impostazioni/ai';
+  static const kitchen = '/cibo/cosa-cucino';
+  static const coach = '/coach';
   static const nutrition = '/cibo/consigli';
   static const bodyData = '/cibo/dati';
   static const timedChallenge = '/sfide/a-tempo';

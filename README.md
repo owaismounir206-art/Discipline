@@ -78,8 +78,13 @@ fotocamera su un push-up vero e regolare le soglie se serve
   porzione e la salva tra i preferiti.
 - **AI per il diario (facoltativa)**: scrivi "a pranzo pasta al pomodoro e
   un'insalata" e l'AI propone gli alimenti con i valori, da controllare
-  prima di salvarli. Usa una tua chiave gratuita di Groq o Google AI
-  Studio, conservata nel portachiavi del telefono.
+  prima di salvarli. Funziona anche con la **foto del piatto**. Usa una
+  tua chiave gratuita di Groq o Google AI Studio, conservata nel
+  portachiavi del telefono.
+- **Coach AI**: domande su tecnica, dolori, recupero e alimentazione, con
+  risposte che tengono conto del tuo livello e di cosa hai mangiato oggi.
+- **Cosa cucino?**: l'AI propone una ricetta per i valori che ti mancano,
+  rispettando dieta e allergie; la salvi tra le ricette di casa.
 - **Dove ti alleni**: casa, casa con sbarra, parco o palestra. Gli esercizi
   che chiedono attrezzi che non hai diventano alternative (rematore sotto
   il tavolo, dip tra due sedie...).

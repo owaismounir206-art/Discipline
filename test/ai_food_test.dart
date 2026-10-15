@@ -184,6 +184,12 @@ void main() {
     await settle(tester);
     expect(find.text('Uova strapazzate'), findsOneWidget);
     // Il pasto scritto nel testo vince su quello proposto.
+    await tester.scrollUntilVisible(
+      find.textContaining('alla colazione'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await settle(tester);
     expect(find.textContaining('alla colazione'), findsOneWidget);
 
     // Tolgo il pane.

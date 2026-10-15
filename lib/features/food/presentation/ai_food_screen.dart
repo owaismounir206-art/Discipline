@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -15,7 +16,22 @@ import '../data/food_repository.dart';
 import '../data/food_state.dart';
 import '../domain/nutrition.dart';
 
-/// "Cosa hai mangiato?": l'AI propone gli alimenti, tu controlli e salvi.
+/// Scatta o sceglie una foto, già rimpicciolita (meno dati da inviare).
+/// Nei test si sostituisce.
+final photoPickerProvider = Provider<Future<Uint8List?> Function(ImageSource)>(
+  (ref) => (source) async {
+    final file = await ImagePicker().pickImage(
+      source: source,
+      maxWidth: 1024,
+      maxHeight: 1024,
+      imageQuality: 70,
+    );
+    return file?.readAsBytes();
+  },
+);
+
+/// "Cosa hai mangiato?": l'AI propone gli alimenti (da un testo o da una
+/// foto del piatto), tu controlli e salvi.
 class AiFoodScreen extends ConsumerStatefulWidget {
   const AiFoodScreen({super.key, required this.meal});
 
@@ -29,6 +45,7 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
   final _text = TextEditingController();
   late Meal _meal = widget.meal;
   List<AiFood>? _items;
+  Uint8List? _photo;
   Set<int> _selected = {};
   bool _busy = false;
   String? _error;
@@ -39,16 +56,38 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
     super.dispose();
   }
 
+  Future<void> _pickPhoto(ImageSource source) async {
+    final Uint8List? photo;
+    try {
+      photo = await ref.read(photoPickerProvider)(source);
+    } on PlatformException {
+      if (mounted) {
+        setState(
+          () => _error =
+              'Non riesco ad aprire la fotocamera o la '
+              'galleria: controlla i permessi dell\'app.',
+        );
+      }
+      return;
+    }
+    if (photo == null || !mounted) return;
+    setState(() => _photo = photo);
+    await _analyze();
+  }
+
   Future<void> _analyze() async {
     final text = _text.text.trim();
-    if (text.isEmpty) return;
+    final photo = _photo;
+    if (text.isEmpty && photo == null) return;
     FocusScope.of(context).unfocus();
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      final items = await ref.read(aiFoodServiceProvider).analyze(text);
+      final items = await ref
+          .read(aiFoodServiceProvider)
+          .analyze(text, image: photo);
       if (!mounted) return;
       final meals = {for (final i in items) ?i.meal};
       setState(() {
@@ -58,9 +97,11 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
         // Se hai scritto il pasto ("a pranzo..."), si usa quello.
         if (meals.length == 1) _meal = meals.single;
         if (items.isEmpty) {
-          _error =
-              'Non ho trovato alimenti nel testo. Prova a scrivere '
-              'cosa e quanto, es. "pasta al pomodoro, un piatto".';
+          _error = photo != null
+              ? 'Non ho riconosciuto cibo nella foto. Prova con una foto '
+                    'più vicina e luminosa, o descrivi il piatto a parole.'
+              : 'Non ho trovato alimenti nel testo. Prova a scrivere '
+                    'cosa e quanto, es. "pasta al pomodoro, un piatto".';
         }
       });
     } on AiException catch (e) {
@@ -153,18 +194,50 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
           children: [
+            if (_photo != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.memory(
+                        _photo!,
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        semanticLabel: 'Foto del piatto',
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: IconButton.filledTonal(
+                        tooltip: 'Togli la foto',
+                        icon: const Icon(Icons.close),
+                        onPressed: _busy
+                            ? null
+                            : () => setState(() => _photo = null),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             TextField(
               controller: _text,
-              autofocus: items == null,
-              minLines: 3,
+              autofocus: items == null && _photo == null,
+              minLines: _photo == null ? 3 : 1,
               maxLines: 6,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                hintText:
-                    'Es. "a colazione due uova strapazzate, una fetta di pane '
-                    'integrale e un caffè con un cucchiaino di zucchero"',
-                helperText:
-                    'Puoi anche dettare con il microfono della tastiera.',
+              decoration: InputDecoration(
+                hintText: _photo == null
+                    ? 'Es. "a colazione due uova strapazzate, una fetta di '
+                          'pane integrale e un caffè con un cucchiaino di '
+                          'zucchero"'
+                    : 'Note facoltative, es. "c\'era anche un filo d\'olio"',
+                helperText: _photo == null
+                    ? 'Puoi anche dettare con il microfono della tastiera.'
+                    : null,
               ),
             ),
             const SizedBox(height: 12),
@@ -177,6 +250,30 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
                   : const Icon(Icons.auto_awesome),
               label: Text(items == null ? 'Analizza' : 'Analizza di nuovo'),
               onPressed: _busy ? null : _analyze,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              spacing: 8,
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.photo_camera_outlined),
+                    label: const Text('Scatta foto'),
+                    onPressed: _busy
+                        ? null
+                        : () => _pickPhoto(ImageSource.camera),
+                  ),
+                ),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: const Text('Dalla galleria'),
+                    onPressed: _busy
+                        ? null
+                        : () => _pickPhoto(ImageSource.gallery),
+                  ),
+                ),
+              ],
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
@@ -240,7 +337,9 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
   }
 }
 
-/// Sotto "Aggiungi" in Cibo: scrivi con l'AI o crea una ricetta di casa.
+/// Sotto i pasti in Cibo: AI (testo o foto), ricetta di casa e
+/// "Cosa cucino?". Senza chiave l'AI porta alle impostazioni, che spiegano
+/// come averla.
 class MoreWaysRow extends ConsumerWidget {
   const MoreWaysRow({super.key, required this.meal});
 
@@ -249,26 +348,37 @@ class MoreWaysRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ready = ref.watch(aiSettingsProvider).value?.provider != null;
-    return Row(
-      spacing: 10,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: 8,
       children: [
-        Expanded(
-          child: FilledButton.tonalIcon(
-            icon: const Icon(Icons.auto_awesome, size: 18),
-            label: const Text('Scrivi con l\'AI'),
-            // Senza chiave porta alle impostazioni, che spiegano come averla.
-            onPressed: () => context.push(
-              ready ? Routes.aiFood : Routes.aiSettings,
-              extra: meal,
+        Row(
+          spacing: 10,
+          children: [
+            Expanded(
+              child: FilledButton.tonalIcon(
+                icon: const Icon(Icons.auto_awesome, size: 18),
+                label: const Text('Scrivi o foto'),
+                onPressed: () => context.push(
+                  ready ? Routes.aiFood : Routes.aiSettings,
+                  extra: meal,
+                ),
+              ),
             ),
-          ),
+            Expanded(
+              child: FilledButton.tonalIcon(
+                icon: const Icon(Icons.soup_kitchen_outlined, size: 18),
+                label: const Text('Ricetta di casa'),
+                onPressed: () => context.push(Routes.homemade),
+              ),
+            ),
+          ],
         ),
-        Expanded(
-          child: FilledButton.tonalIcon(
-            icon: const Icon(Icons.soup_kitchen_outlined, size: 18),
-            label: const Text('Ricetta di casa'),
-            onPressed: () => context.push(Routes.homemade),
-          ),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.restaurant_menu, size: 18),
+          label: const Text('Cosa cucino? Chiedi una ricetta all\'AI'),
+          onPressed: () =>
+              context.push(ready ? Routes.kitchen : Routes.aiSettings),
         ),
       ],
     );

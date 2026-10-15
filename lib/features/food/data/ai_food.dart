@@ -4,6 +4,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -251,15 +252,45 @@ class AiFoodService {
     return available.isEmpty ? p.defaultModel : available.first;
   }
 
-  /// Dal testo ("due uova e una fetta di pane") agli alimenti.
-  Future<List<AiFood>> analyze(String text) async {
+  /// Il modello che sa guardare le foto. Con Gemini va bene quello scelto;
+  /// con Groq serve un modello "vision" (es. Llama 4), cercato nell'elenco.
+  Future<String> _visionModel(AiProvider p, String key, String model) async {
+    if (p == AiProvider.gemini) return model;
+    if (isGroqVision(model)) return model;
+    final found = (await models(p, key)).where(isGroqVision).toList();
+    if (found.isEmpty) {
+      throw const AiException(
+        'Con questa chiave Groq non c\'è un modello che legge le foto: '
+        'descrivi il piatto a parole oppure usa Google AI Studio.',
+      );
+    }
+    return found.firstWhere(
+      (m) => m.contains('scout'),
+      orElse: () => found.first,
+    );
+  }
+
+  static bool isGroqVision(String m) =>
+      m.contains('llama-4') || m.contains('vision');
+
+  /// Una domanda all'AI scelta dall'utente. [history] alterna utente e
+  /// assistente e finisce con l'utente; la foto va con l'ultimo messaggio.
+  Future<String> complete({
+    required String system,
+    required List<ChatMessage> history,
+    Uint8List? image,
+    bool json = false,
+    double temperature = 0.2,
+  }) async {
     final s = await settings();
     final p = s.provider;
     if (p == null) throw const AiException('Scegli un servizio AI.');
     final k = await key(p);
     if (k == null) throw const AiException('Manca la chiave API.');
-    final model = s.modelOrDefault!;
-    final String reply;
+    var model = s.modelOrDefault!;
+    if (image != null) model = await _visionModel(p, k, model);
+    final photo = image == null ? null : base64Encode(image);
+    final last = history.length - 1;
     switch (p) {
       case AiProvider.groq:
         final res = await _send(
@@ -268,19 +299,32 @@ class AiFoodService {
             headers: _groqHeaders(k),
             body: jsonEncode({
               'model': model,
-              'temperature': 0.2,
-              'response_format': {'type': 'json_object'},
+              'temperature': temperature,
+              if (json) 'response_format': {'type': 'json_object'},
               'messages': [
-                {'role': 'system', 'content': _prompt},
-                {'role': 'user', 'content': text},
+                {'role': 'system', 'content': system},
+                for (final (i, m) in history.indexed)
+                  {
+                    'role': m.fromUser ? 'user' : 'assistant',
+                    'content': i == last && photo != null
+                        ? [
+                            {'type': 'text', 'text': m.text},
+                            {
+                              'type': 'image_url',
+                              'image_url': {
+                                'url': 'data:image/jpeg;base64,$photo',
+                              },
+                            },
+                          ]
+                        : m.text,
+                  },
               ],
             }),
           ),
         );
         final choices =
             (jsonDecode(utf8.decode(res.bodyBytes)) as Map)['choices'];
-        reply =
-            '${(((choices as List).first as Map)['message'] as Map)['content']}';
+        return '${(((choices as List).first as Map)['message'] as Map)['content']}';
       case AiProvider.gemini:
         final res = await _send(
           _client.post(
@@ -292,33 +336,71 @@ class AiFoodService {
             body: jsonEncode({
               'systemInstruction': {
                 'parts': [
-                  {'text': _prompt},
+                  {'text': system},
                 ],
               },
               'contents': [
-                {
-                  'role': 'user',
-                  'parts': [
-                    {'text': text},
-                  ],
-                },
+                for (final (i, m) in history.indexed)
+                  {
+                    'role': m.fromUser ? 'user' : 'model',
+                    'parts': [
+                      {'text': m.text},
+                      if (i == last && photo != null)
+                        {
+                          'inline_data': {
+                            'mime_type': 'image/jpeg',
+                            'data': photo,
+                          },
+                        },
+                    ],
+                  },
               ],
               'generationConfig': {
-                'temperature': 0.2,
-                'responseMimeType': 'application/json',
+                'temperature': temperature,
+                if (json) 'responseMimeType': 'application/json',
               },
             }),
           ),
         );
         final candidates =
             (jsonDecode(utf8.decode(res.bodyBytes)) as Map)['candidates'];
-        final parts =
-            ((((candidates as List).first as Map)['content'] as Map)['parts']
-                as List);
-        reply = parts.map((e) => (e as Map)['text'] ?? '').join();
+        if (candidates is! List || candidates.isEmpty) {
+          throw const AiException('L\'AI non ha risposto: riprova.');
+        }
+        final content = (candidates.first as Map)['content'];
+        final parts = content is Map ? content['parts'] as List? : null;
+        return (parts ?? const []).map((e) => (e as Map)['text'] ?? '').join();
     }
+  }
+
+  /// Dal testo ("due uova e una fetta di pane") o da una foto agli alimenti.
+  Future<List<AiFood>> analyze(String text, {Uint8List? image}) async {
+    final reply = await complete(
+      system: _prompt,
+      json: true,
+      image: image,
+      history: [
+        ChatMessage.user(
+          image == null
+              ? text
+              : 'Questa è la foto di quello che ho mangiato. Riconosci gli '
+                    'alimenti e stima le quantità dalla porzione nel piatto.'
+                    '${text.isEmpty ? '' : ' Nota: $text'}',
+        ),
+      ],
+    );
     return parseAiFoods(reply);
   }
+}
+
+/// Un messaggio della conversazione con l'AI.
+@immutable
+class ChatMessage {
+  const ChatMessage.user(this.text) : fromUser = true;
+  const ChatMessage.ai(this.text) : fromUser = false;
+
+  final String text;
+  final bool fromUser;
 }
 
 double? _num(Object? v) => switch (v) {

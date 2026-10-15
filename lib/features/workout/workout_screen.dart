@@ -16,12 +16,13 @@ import '../exercises/domain/catalog.dart';
 import '../exercises/domain/exercise.dart';
 import '../exercises/domain/progression.dart';
 import '../exercises/presentation/exercise_figure.dart';
+import '../food/data/ai_food.dart';
 import '../profile/data/profile_repository.dart';
 import '../profile/domain/athlete_profile.dart';
 import 'data/today_plan.dart';
 import 'domain/workout_plan.dart';
 
-/// Scheda "Allenati": la settimana, le tue varianti e il catalogo.
+/// Scheda "Allenati": la settimana, timer, coach e percorsi.
 class WorkoutScreen extends ConsumerWidget {
   const WorkoutScreen({super.key});
 
@@ -46,6 +47,7 @@ class WorkoutScreen extends ConsumerWidget {
           ),
         ],
         const _TimerCard(),
+        const _CoachCard(),
         // Una sola sezione per le varianti: ogni percorso mostra quella
         // attuale (prima c'era anche un elenco che ripeteva le stesse cose).
         const SectionTitle('I tuoi percorsi'),
@@ -220,6 +222,57 @@ class _TimerCard extends StatelessWidget {
               ),
             ),
             Icon(Icons.chevron_right, color: scheme.onTertiaryContainer),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Il coach AI; senza chiave porta alle impostazioni che spiegano come averla.
+class _CoachCard extends ConsumerWidget {
+  const _CoachCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final ready = ref.watch(aiSettingsProvider).value?.provider != null;
+    return PressScale(
+      child: DisciplineCard(
+        color: scheme.secondaryContainer,
+        onTap: () => context.push(ready ? Routes.coach : Routes.aiSettings),
+        child: Row(
+          spacing: 14,
+          children: [
+            Icon(
+              Icons.forum_outlined,
+              size: 36,
+              color: scheme.onSecondaryContainer,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Chiedi al coach AI',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: scheme.onSecondaryContainer,
+                    ),
+                  ),
+                  Text(
+                    ready
+                        ? 'Tecnica, dolori, recupero, cosa mangiare: conosce '
+                              'il tuo livello'
+                        : 'Serve una chiave gratuita Groq o Google AI Studio',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSecondaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: scheme.onSecondaryContainer),
           ],
         ),
       ),

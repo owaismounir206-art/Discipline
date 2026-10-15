@@ -5,6 +5,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../features/ai/presentation/coach_screen.dart';
+import '../../features/ai/presentation/kitchen_screen.dart';
 import '../../features/camera/presentation/camera_counter_screen.dart';
 import '../../features/challenge/domain/timed.dart';
 import '../../features/challenge/presentation/friend_challenge_screen.dart';
@@ -58,6 +60,8 @@ List<RouteBase> extraRoutes(GlobalKey<NavigatorState> root) => [
     ),
   ),
   _page(root, Routes.aiSettings, (_) => const AiSettingsScreen()),
+  _page(root, Routes.kitchen, (_) => const KitchenScreen()),
+  _page(root, Routes.coach, (_) => const CoachScreen()),
   _page(
     root,
     Routes.homemade,

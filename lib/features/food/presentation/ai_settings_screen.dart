@@ -239,10 +239,12 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
             ],
             const SizedBox(height: 20),
             Text(
-              'Privacy: quando usi questa funzione il testo che scrivi viene '
-              'inviato a ${_provider.label} con la tua chiave, secondo le loro '
-              'condizioni (i piani gratuiti possono usare i dati per '
-              'migliorare i modelli). Niente nome, peso o altri dati tuoi. '
+              'Privacy: quando usi l\'AI il testo che scrivi (o la foto del '
+              'piatto) viene inviato a ${_provider.label} con la tua chiave, '
+              'secondo le loro condizioni (i piani gratuiti possono usare i '
+              'dati per migliorare i modelli). Il coach e "Cosa cucino?" '
+              'ricevono anche livello, età, peso, altezza, obiettivo, dieta, '
+              'allergie e i valori di oggi, mai il tuo nome. '
               'La chiave resta nel portachiavi protetto del telefono e non '
               'finisce nei backup.',
               style: theme.textTheme.bodySmall?.copyWith(

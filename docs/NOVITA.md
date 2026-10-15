@@ -1,9 +1,10 @@
-## Discipline 1.1
+## Discipline 1.2
 
-- Ricette fatte in casa: ingredienti, peso a fine cottura e porzioni, con calorie e macro calcolate
-- Scrivi cosa hai mangiato e l'AI lo mette nel diario (facoltativa, con la tua chiave gratuita Groq o Google AI Studio)
-- Allenati a casa, al parco o in palestra: gli esercizi si adattano agli attrezzi che hai
-- Due esercizi nuovi per casa: rematore sotto il tavolo e dip tra due sedie
+- Grafica più ordinata: pulsanti al posto giusto, schede Allenati e Cibo più chiare
+- 16 esercizi nuovi con figura animata (crunch, torsioni russe, pseudo-planche, squat sumo, corda e altri)
+- Foto del piatto: l'AI riconosce il cibo e lo mette nel diario
+- Coach AI: chiedi consigli su allenamento e alimentazione
+- Cosa cucino?: una ricetta per i valori che ti mancano oggi
 
 Su Android si installa sopra la versione precedente senza perdere i dati.
 
