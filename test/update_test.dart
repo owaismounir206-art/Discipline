@@ -4,6 +4,7 @@
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show TargetPlatform;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:discipline/core/data/database.dart';
 import 'package:discipline/core/update/update_card.dart';
@@ -49,6 +50,9 @@ void main() {
     expect(r.apk.toString(), 'https://x/d.apk');
     expect(r.highlights, ['uno', 'due']);
     expect(_next.highlights, ['Nuovo percorso', 'Timer EMOM']);
+    // Su iPhone si apre la pagina della release, non l'APK.
+    expect(_next.downloadFor(TargetPlatform.android), _next.apk);
+    expect(_next.downloadFor(TargetPlatform.iOS), _next.page);
   });
 
   group('controllo', () {

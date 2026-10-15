@@ -89,6 +89,9 @@ Senza installare nulla sul computer:
 3. Dalla 1.0 in poi gli aggiornamenti si installano sopra la versione
    vecchia senza perdere i dati: l'app ti avvisa da sola.
 
+**iPhone**: nelle Releases c'è anche il file `.ipa`, da installare
+gratis con AltStore o SideStore: [docs/IPHONE.md](docs/IPHONE.md).
+
 Se avevi una versione di prova (0.x), disinstallala prima: era firmata con
 una chiave diversa. Come pubblicare una versione:
 [docs/PUBBLICAZIONE.md](docs/PUBBLICAZIONE.md).

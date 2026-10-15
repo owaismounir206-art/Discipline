@@ -1,12 +1,8 @@
-## Discipline 1.0: la versione ufficiale
+## Discipline 1.0.1
 
-- 71 esercizi: nuovi percorsi fino a verticale e front lever, più cardio, mobilità e complementari
-- Percorsi a tappe con una figurina animata che mostra ogni movimento
-- Timer Tabata, EMOM, AMRAP e libero, con routine di riscaldamento, defaticamento e allenamento rapido
-- Festa con i coriandoli per record, sfide vinte e nuovi gradi
-- Calendario degli allenamenti e diario del peso con grafico
-- Aggiornamenti automatici: l'app ti avvisa quando esce una versione nuova
+- Arriva anche su iPhone: file .ipa da installare con AltStore o SideStore (vedi docs/IPHONE.md)
+- Scanner del cibo: se un prodotto non c'è, crealo dall'etichetta; la volta dopo lo riconosce anche senza internet
 
-Se avevi una versione di prova (0.x), disinstallala prima di installare questa: da qui in poi gli aggiornamenti si installano sopra senza perdere i dati.
+Su Android si installa sopra la 1.0 senza perdere i dati.
 
-Controlla l'impronta SHA-256 del file con `SHA256SUMS.txt`.
+Controlla l'impronta SHA-256 dei file con `SHA256SUMS.txt` e `SHA256SUMS-iphone.txt`.

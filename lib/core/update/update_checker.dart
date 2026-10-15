@@ -5,6 +5,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show TargetPlatform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
@@ -14,7 +15,7 @@ import '../data/providers.dart';
 
 /// Versione dell'app: deve essere uguale a quella di pubspec.yaml (c'è un
 /// test che lo controlla).
-const appVersion = '1.0.0';
+const appVersion = '1.0.1';
 
 const repoUrl = 'https://github.com/owaismounir206-art/Discipline';
 const _latestApi =
@@ -36,6 +37,11 @@ class Release {
 
   /// Link diretto all'APK, se c'è.
   final Uri? apk;
+
+  /// Dove scaricarla: l'APK su Android, la pagina della release altrove
+  /// (su iPhone il file .ipa va installato con AltStore o SideStore).
+  Uri downloadFor(TargetPlatform platform) =>
+      platform == TargetPlatform.android ? apk ?? page : page;
 
   /// Le prime righe delle note, senza simboli Markdown.
   List<String> get highlights => [

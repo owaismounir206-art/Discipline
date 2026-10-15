@@ -109,3 +109,49 @@ jobs:
           body_path: docs/NOVITA.md
           # Senza keystore nei segreti l'APK è firmato con la chiave di prova.
           prerelease: ${{ env.KEYSTORE_B64 == '' }}
+
+  ios:
+    # File .ipa senza firma: su iPhone si installa con AltStore o SideStore,
+    # che lo firmano con l'ID Apple di chi lo installa (vedi docs/IPHONE.md).
+    name: iPhone (.ipa senza firma)
+    needs: release
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Versione
+        id: version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            NAME="${GITHUB_REF_NAME#v}"
+          else
+            NAME="$(sed -n 's/^version: *\([0-9.]*\).*/\1/p' pubspec.yaml)"
+          fi
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "tag=v$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Compila
+        run: |
+          NAME="${{ steps.version.outputs.name }}"
+          flutter build ios --release --no-codesign --build-name="${NAME%%-*}" \
+            --build-number="$GITHUB_RUN_NUMBER"
+
+      - name: Crea il file .ipa
+        run: |
+          mkdir -p dist/Payload
+          cp -R build/ios/iphoneos/Runner.app dist/Payload/
+          (cd dist && zip -qr "discipline-${{ steps.version.outputs.tag }}.ipa" Payload)
+          rm -rf dist/Payload
+          (cd dist && shasum -a 256 *.ipa > SHA256SUMS-iphone.txt && cat SHA256SUMS-iphone.txt)
+
+      - name: Aggiungi alla release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          files: dist/*

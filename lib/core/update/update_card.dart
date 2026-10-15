@@ -128,8 +128,9 @@ class _Card extends ConsumerWidget {
                   child: FilledButton.icon(
                     icon: const Icon(Icons.download),
                     label: const Text('Scarica'),
-                    onPressed: () =>
-                        ref.read(openLinkProvider)(release.apk ?? release.page),
+                    onPressed: () => ref.read(openLinkProvider)(
+                      release.downloadFor(Theme.of(context).platform),
+                    ),
                   ),
                 ),
               ],
@@ -171,8 +172,9 @@ class _UpdateSettingsTilesState extends ConsumerState<UpdateSettingsTiles> {
         content: Text('È uscita la versione ${release.version}.'),
         action: SnackBarAction(
           label: 'Scarica',
-          onPressed: () =>
-              ref.read(openLinkProvider)(release.apk ?? release.page),
+          onPressed: () => ref.read(openLinkProvider)(
+            release.downloadFor(Theme.of(context).platform),
+          ),
         ),
       ),
     );
