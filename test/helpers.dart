@@ -43,7 +43,10 @@ class FakeReminders implements ReminderService {
   Future<bool> requestPermission() async => true;
 
   @override
-  Future<void> schedule(AthleteProfile profile) async => scheduled.add(profile);
+  Future<bool> schedule(AthleteProfile profile) async {
+    scheduled.add(profile);
+    return true;
+  }
 
   var cancelled = 0;
 

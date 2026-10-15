@@ -22,7 +22,11 @@ import 'backup.dart';
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
-  Future<void> _updateReminder(WidgetRef ref, ReminderTime? time) async {
+  Future<void> _updateReminder(
+    BuildContext context,
+    WidgetRef ref,
+    ReminderTime? time,
+  ) async {
     final repo = ref.read(profileRepositoryProvider);
     final profile = await repo.loadProfile();
     if (profile == null) return;
@@ -33,7 +37,17 @@ class SettingsScreen extends ConsumerWidget {
       next,
       LocalDate.fromDateTime(ref.read(clockProvider)()),
     );
-    await ref.read(remindersProvider).schedule(next);
+    final allowed = await ref.read(remindersProvider).schedule(next);
+    if (!allowed && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Le notifiche di Discipline sono bloccate: attivale nelle '
+            'impostazioni del telefono per ricevere i promemoria.',
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -83,6 +97,7 @@ class SettingsScreen extends ConsumerWidget {
                 onChanged: profile == null
                     ? null
                     : (on) => _updateReminder(
+                        context,
                         ref,
                         on ? const ReminderTime(18, 0) : null,
                       ),
@@ -105,7 +120,9 @@ class SettingsScreen extends ConsumerWidget {
                       helpText: 'Orario del promemoria',
                     );
                     if (picked != null) {
+                      if (!context.mounted) return;
                       await _updateReminder(
+                        context,
                         ref,
                         ReminderTime(picked.hour, picked.minute),
                       );

@@ -20,8 +20,9 @@ abstract interface class ReminderService {
   /// Chiede il permesso per le notifiche (Android 13+, iOS).
   Future<bool> requestPermission();
 
-  /// Riprogramma i promemoria in base al profilo (o li toglie).
-  Future<void> schedule(AthleteProfile profile);
+  /// Riprogramma i promemoria in base al profilo (o li toglie). Restituisce
+  /// false se servono le notifiche ma il permesso è stato negato.
+  Future<bool> schedule(AthleteProfile profile);
 
   /// Toglie tutti i promemoria (dati cancellati o profilo assente).
   Future<void> cancelAll();
@@ -81,7 +82,7 @@ class LocalReminderService implements ReminderService {
     }
     await _plugin.initialize(
       settings: const InitializationSettings(
-        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        android: AndroidInitializationSettings('ic_stat_discipline'),
         iOS: DarwinInitializationSettings(
           requestAlertPermission: false,
           requestBadgePermission: false,
@@ -119,13 +120,13 @@ class LocalReminderService implements ReminderService {
   }
 
   @override
-  Future<void> schedule(AthleteProfile profile) async {
-    if (!_supported) return;
+  Future<bool> schedule(AthleteProfile profile) async {
+    if (!_supported) return true;
     await _init();
     await _plugin.cancelAll();
     final reminder = profile.reminder;
-    if (reminder == null) return;
-    await requestPermission();
+    if (reminder == null) return true;
+    final allowed = await requestPermission();
 
     const details = NotificationDetails(
       android: AndroidNotificationDetails(
@@ -163,6 +164,7 @@ class LocalReminderService implements ReminderService {
         matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
       );
     }
+    return allowed;
   }
 }
 

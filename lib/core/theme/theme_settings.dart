@@ -5,6 +5,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../data/database.dart';
 import '../data/providers.dart';
 
 /// Preferenze di aspetto scelte dall'utente.
@@ -51,6 +52,20 @@ class ThemeSettings {
   );
 }
 
+/// Tema letto prima di avviare l'app (main.dart): così non si vede per un
+/// attimo il tema predefinito a ogni apertura.
+final initialThemeProvider = Provider<ThemeSettings>(
+  (ref) => const ThemeSettings(),
+);
+
+/// Legge il tema salvato (per l'avvio).
+Future<ThemeSettings> loadThemeSettings(AppDatabase db) async {
+  final json = await db.readJson(ThemeSettingsNotifier._key);
+  return json is Map<String, Object?>
+      ? ThemeSettings.fromJson(json)
+      : const ThemeSettings();
+}
+
 /// Preferenze salvate nel database locale.
 class ThemeSettingsNotifier extends Notifier<ThemeSettings> {
   static const _key = 'theme';
@@ -64,7 +79,7 @@ class ThemeSettingsNotifier extends Notifier<ThemeSettings> {
           : const ThemeSettings();
     });
     ref.onDispose(sub.cancel);
-    return const ThemeSettings();
+    return ref.read(initialThemeProvider);
   }
 
   Future<void> _save(ThemeSettings next) async {

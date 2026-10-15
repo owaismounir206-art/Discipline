@@ -22,6 +22,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
+import 'core/data/database.dart';
+import 'core/data/providers.dart';
+import 'core/theme/theme_settings.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,5 +35,18 @@ Future<void> main() async {
     yield LicenseEntryWithLineBreaks(['Figtree'], license);
   });
 
-  runApp(const ProviderScope(child: DisciplineApp()));
+  // Database aperto qui per leggere subito il tema scelto (niente lampo del
+  // tema predefinito all'avvio).
+  final db = AppDatabase();
+  final theme = await loadThemeSettings(db)
+      .catchError((Object _) => const ThemeSettings());
+  runApp(
+    ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        initialThemeProvider.overrideWithValue(theme),
+      ],
+      child: const DisciplineApp(),
+    ),
+  );
 }

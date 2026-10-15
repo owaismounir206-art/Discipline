@@ -50,10 +50,9 @@ class TodayScreen extends ConsumerWidget {
             onPressed: () => context.push(Routes.settings),
           ),
           const SizedBox(width: 4),
+          // Il tooltip dà già il nome al pulsante (e TalkBack può toccarlo).
           Semantics(
-            button: true,
-            label: 'Profilo e impostazioni',
-            excludeSemantics: true,
+            container: true,
             child: IconButton.filled(
               tooltip: 'Profilo e impostazioni',
               style: IconButton.styleFrom(
@@ -174,14 +173,16 @@ class _StreakCard extends ConsumerWidget {
             ],
           ),
           if (streak.best > streak.current || !streak.recoveryAvailable)
-            Row(
+            // Wrap: con il testo grande va a capo invece di uscire.
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: 12,
+              runSpacing: 2,
               children: [
                 if (streak.best > 0)
-                  Expanded(
-                    child: Text(
-                      'Record: ${streak.best}',
-                      style: theme.textTheme.bodySmall?.copyWith(color: soft),
-                    ),
+                  Text(
+                    'Record: ${streak.best}',
+                    style: theme.textTheme.bodySmall?.copyWith(color: soft),
                   ),
                 Text(
                   streak.recoveryAvailable

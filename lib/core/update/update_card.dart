@@ -167,15 +167,15 @@ class _UpdateSettingsTilesState extends ConsumerState<UpdateSettingsTiles> {
       );
       return;
     }
+    // Letti ora: l'avviso può restare visibile dopo aver chiuso le
+    // impostazioni, quando questa schermata non esiste più.
+    final open = ref.read(openLinkProvider);
+    final link = release.downloadFor(Theme.of(context).platform);
     messenger.showSnackBar(
       SnackBar(
         content: Text('È uscita la versione ${release.version}.'),
-        action: SnackBarAction(
-          label: 'Scarica',
-          onPressed: () => ref.read(openLinkProvider)(
-            release.downloadFor(Theme.of(context).platform),
-          ),
-        ),
+        persist: false,
+        action: SnackBarAction(label: 'Scarica', onPressed: () => open(link)),
       ),
     );
   }

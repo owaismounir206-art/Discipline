@@ -176,6 +176,9 @@ class DisciplineNavigationBar extends StatelessWidget {
                             selected: i == selectedIndex,
                             label: item.label,
                             excludeSemantics: true,
+                            // Senza questo TalkBack legge la scheda ma non
+                            // può aprirla (excludeSemantics toglie il tocco).
+                            onTap: () => onSelected(i),
                             child: InkResponse(
                               onTap: () {
                                 HapticFeedback.selectionClick();
@@ -231,6 +234,11 @@ class DisciplineNavigationBar extends StatelessWidget {
                                       item.label,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
+                                      // La barra è alta 80: oltre 1,5× la
+                                      // scritta non ci starebbe.
+                                      textScaler: MediaQuery.textScalerOf(
+                                        context,
+                                      ).clamp(maxScaleFactor: 1.5),
                                     ),
                                   ),
                                 ],

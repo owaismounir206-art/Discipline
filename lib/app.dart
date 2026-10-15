@@ -12,6 +12,7 @@ import 'core/data/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/discipline_theme.dart';
 import 'core/theme/theme_settings.dart';
+import 'core/update/update_checker.dart';
 import 'features/rewards/domain/rewards.dart';
 import 'features/workout/data/today_plan.dart';
 
@@ -36,6 +37,9 @@ class _DisciplineAppState extends ConsumerState<DisciplineApp> {
 
   void _refreshDay() {
     ref.invalidate(todayProvider);
+    // Se l'app resta aperta per giorni, controlla ancora gli aggiornamenti
+    // (al massimo una volta al giorno, lo garantisce il repository).
+    ref.invalidate(availableUpdateProvider);
     _scheduleMidnight();
   }
 

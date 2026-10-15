@@ -15,7 +15,7 @@ import '../data/providers.dart';
 
 /// Versione dell'app: deve essere uguale a quella di pubspec.yaml (c'è un
 /// test che lo controlla).
-const appVersion = '1.0.1';
+const appVersion = '1.0.2';
 
 const repoUrl = 'https://github.com/owaismounir206-art/Discipline';
 const _latestApi =
@@ -260,7 +260,9 @@ final updateSettingsProvider = StreamProvider<UpdateSettings>(
 /// La versione nuova da proporre in "Oggi" (null se non c'è).
 final availableUpdateProvider = FutureProvider<Release?>((ref) {
   // Si ricalcola quando cambiano le impostazioni (es. "Più tardi").
-  ref.watch(updateSettingsProvider.select((s) => s.value?.dismissed));
-  ref.watch(updateSettingsProvider.select((s) => s.value?.enabled));
+  // (Valori predefiniti uguali a quelli salvati: all'avvio il passaggio da
+  // "caricamento" a "pronto" non rifà il controllo, cioè 2 richieste.)
+  ref.watch(updateSettingsProvider.select((s) => s.value?.dismissed ?? ''));
+  ref.watch(updateSettingsProvider.select((s) => s.value?.enabled ?? true));
   return ref.watch(updateRepositoryProvider).check();
 });
