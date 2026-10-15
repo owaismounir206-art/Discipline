@@ -67,7 +67,10 @@ class _TrainingCalendarState extends ConsumerState<TrainingCalendar>
     Color colorOf(DayStatus? s) => switch (s) {
       DayStatus.done => scheme.primary,
       DayStatus.bonus => scheme.tertiary,
-      DayStatus.protected || DayStatus.recovered => scheme.secondary,
+      // Salvato: stesso colore di "fatto" ma più chiaro (prima era quasi
+      // uguale).
+      DayStatus.protected ||
+      DayStatus.recovered => scheme.primary.withValues(alpha: 0.4),
       DayStatus.missed => scheme.error.withValues(alpha: 0.35),
       DayStatus.today || DayStatus.scheduled => scheme.primaryContainer,
       _ => scheme.surfaceContainerHighest,
@@ -155,7 +158,10 @@ class _TrainingCalendarState extends ConsumerState<TrainingCalendar>
             children: [
               _Legend(color: scheme.primary, label: 'Fatto'),
               _Legend(color: scheme.tertiary, label: 'Extra'),
-              _Legend(color: scheme.secondary, label: 'Salvato'),
+              _Legend(
+                color: scheme.primary.withValues(alpha: 0.4),
+                label: 'Salvato',
+              ),
               _Legend(
                 color: scheme.error.withValues(alpha: 0.35),
                 label: 'Saltato',

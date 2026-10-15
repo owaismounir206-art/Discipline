@@ -55,7 +55,7 @@ void main() {
     expect(first.exercise.id, 'acc_table_row');
     // Il sostituto non fa avanzare la catena delle trazioni.
     expect(first.isVolume, isTrue);
-    expect(plan.summary, endsWith('a casa'));
+    expect(plan.place, TrainingPlace.home);
   });
 
   test('con la sbarra ma senza elastici: trazioni negative', () {

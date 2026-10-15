@@ -207,21 +207,26 @@ class SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.baseline,
-      textBaseline: TextBaseline.alphabetic,
-      children: [
-        Expanded(
-          child: Semantics(
-            header: true,
-            child: Text(
-              text,
-              style: theme.textTheme.titleMedium?.copyWith(fontSize: 16),
+    // Un po' di aria sopra: separa la sezione da quella prima, anche nelle
+    // pagine senza spaziatura tra gli elementi.
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(
+                text,
+                style: theme.textTheme.titleMedium?.copyWith(fontSize: 16),
+              ),
             ),
           ),
-        ),
-        ?trailing,
-      ],
+          ?trailing,
+        ],
+      ),
     );
   }
 }

@@ -123,7 +123,6 @@ class _FoodAmountSheetState extends ConsumerState<FoodAmountSheet> {
                   ChoiceChip(
                     label: Text(m.label),
                     selected: m == _meal,
-                    showCheckmark: false,
                     onSelected: (_) => setState(() => _meal = m),
                   ),
               ],

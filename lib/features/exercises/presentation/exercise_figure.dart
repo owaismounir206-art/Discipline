@@ -20,11 +20,16 @@ class ExerciseFigure extends StatefulWidget {
     required this.motion,
     this.size = const Size(120, 90),
     this.color,
+    this.animate = true,
   });
 
   final Motion motion;
   final Size size;
   final Color? color;
+
+  /// false = ferma sulla posa più significativa (es. nelle griglie, dove
+  /// tante figurine in movimento insieme distraggono e consumano batteria).
+  final bool animate;
 
   @override
   State<ExerciseFigure> createState() => _ExerciseFigureState();
@@ -37,7 +42,9 @@ class _ExerciseFigureState extends State<ExerciseFigure>
     duration: Duration(milliseconds: widget.motion.ms),
   );
 
-  bool get _reduce => MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+  bool get _reduce =>
+      !widget.animate ||
+      (MediaQuery.maybeDisableAnimationsOf(context) ?? false);
 
   @override
   void didChangeDependencies() {
@@ -48,7 +55,7 @@ class _ExerciseFigureState extends State<ExerciseFigure>
   @override
   void didUpdateWidget(ExerciseFigure old) {
     super.didUpdateWidget(old);
-    if (old.motion != widget.motion) {
+    if (old.motion != widget.motion || old.animate != widget.animate) {
       _controller.duration = Duration(milliseconds: widget.motion.ms);
       _controller.reset();
       _sync();

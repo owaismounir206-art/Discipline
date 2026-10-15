@@ -85,7 +85,6 @@ class FoodScreen extends ConsumerWidget {
       ),
       children: [
         const DayBar(),
-        AiWriteCard(meal: next),
         if (targets == null)
           _SetupCard(totals: totals)
         else
@@ -95,6 +94,8 @@ class FoodScreen extends ConsumerWidget {
             goal: ref.watch(bodyProfileProvider).value?.goal ?? Goal.maintain,
           ),
         _MealsSection(entries: entries, next: next, isToday: isToday),
+        // Gli altri modi di aggiungere, subito sotto "Aggiungi".
+        MoreWaysRow(meal: next),
         if (targets != null && isToday)
           _AdviceLink(targets: targets, totals: totals, meal: next),
         const WaterCard(),

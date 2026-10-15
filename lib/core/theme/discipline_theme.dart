@@ -100,11 +100,45 @@ abstract final class DisciplineTheme {
           textStyle: text.labelLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
       ),
+      // Scelte (ChoiceChip): stesso aspetto ovunque, la selezionata piena.
       chipTheme: base.chipTheme.copyWith(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(DisciplineRadii.chip),
         ),
         labelStyle: text.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+        selectedColor: scheme.secondaryContainer,
+        showCheckmark: false,
+        side: WidgetStateBorderSide.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? BorderSide(color: scheme.secondaryContainer)
+              : BorderSide(color: scheme.outlineVariant),
+        ),
+      ),
+      // Campi di testo: tutti pieni e arrotondati (prima alcuni erano solo
+      // sottolineati).
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: scheme.surfaceContainerHigh,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: scheme.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: scheme.error, width: 1.5),
+        ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: 80,

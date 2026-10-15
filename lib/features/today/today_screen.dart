@@ -483,12 +483,29 @@ class _TodayWorkoutCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 4,
             children: [
-              Text(
-                overline,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: muted,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      overline,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: muted,
+                      ),
+                    ),
+                  ),
+                  // Dove ti alleni: in alto a destra, si cambia con un tocco.
+                  TextButton.icon(
+                    style: TextButton.styleFrom(
+                      foregroundColor: scheme.onTertiaryContainer,
+                      minimumSize: const Size(48, 48),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    onPressed: () => showPlaceSheet(context, ref),
+                    icon: Icon(placeIcon(today.plan.place), size: 18),
+                    label: Text(today.plan.place.label),
+                  ),
+                ],
               ),
               Text(
                 done ? 'Fatto! Ottimo lavoro' : today.plan.title,
@@ -505,22 +522,6 @@ class _TodayWorkoutCard extends ConsumerWidget {
                 style: theme.textTheme.bodyMedium?.copyWith(color: muted),
               ),
             ],
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ActionChip(
-              avatar: Icon(
-                placeIcon(today.plan.place),
-                size: 18,
-                color: scheme.onTertiaryContainer,
-              ),
-              label: Text('Ti alleni ${today.plan.place.where}'),
-              tooltip: 'Cambia dove ti alleni',
-              side: BorderSide(color: muted),
-              backgroundColor: Colors.transparent,
-              labelStyle: TextStyle(color: scheme.onTertiaryContainer),
-              onPressed: () => showPlaceSheet(context, ref),
-            ),
           ),
           PressScale(
             child: FilledButton.icon(

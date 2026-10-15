@@ -123,7 +123,7 @@ class _AthleteProfileScreenState extends ConsumerState<AthleteProfileScreen> {
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
           children: [
             TextField(
               controller: _name,
@@ -158,12 +158,7 @@ class _AthleteProfileScreenState extends ConsumerState<AthleteProfileScreen> {
                   ChoiceChip(
                     label: Text(e.label),
                     selected: e == _experience,
-                    showCheckmark: false,
                     onSelected: (_) => setState(() => _experience = e),
-                    selectedColor: scheme.secondaryContainer,
-                    side: e == _experience
-                        ? BorderSide.none
-                        : BorderSide(color: scheme.outline),
                   ),
               ],
             ),
@@ -178,12 +173,7 @@ class _AthleteProfileScreenState extends ConsumerState<AthleteProfileScreen> {
                   ChoiceChip(
                     label: Text(p.label),
                     selected: p == _place,
-                    showCheckmark: false,
                     onSelected: (_) => setState(() => _place = p),
-                    selectedColor: scheme.secondaryContainer,
-                    side: p == _place
-                        ? BorderSide.none
-                        : BorderSide(color: scheme.outline),
                   ),
               ],
             ),

@@ -134,7 +134,7 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
           children: [
             Text(
               'Scrivi "due uova e una fetta di pane" e l\'AI mette gli '

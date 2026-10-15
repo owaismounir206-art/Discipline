@@ -151,7 +151,7 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
           children: [
             TextField(
               controller: _text,
@@ -219,7 +219,6 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
                     ChoiceChip(
                       label: Text(m.label),
                       selected: m == _meal,
-                      showCheckmark: false,
                       onSelected: (_) => setState(() => _meal = m),
                     ),
                 ],
@@ -241,50 +240,37 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
   }
 }
 
-/// Riquadro in "Cibo": scrivi cosa hai mangiato.
-class AiWriteCard extends ConsumerWidget {
-  const AiWriteCard({super.key, required this.meal});
+/// Sotto "Aggiungi" in Cibo: scrivi con l'AI o crea una ricetta di casa.
+class MoreWaysRow extends ConsumerWidget {
+  const MoreWaysRow({super.key, required this.meal});
 
   final Meal meal;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
     final ready = ref.watch(aiSettingsProvider).value?.provider != null;
-    return DisciplineCard(
-      radius: 24,
-      padding: const EdgeInsets.all(16),
-      color: scheme.surfaceContainerHigh,
-      onTap: () =>
-          context.push(ready ? Routes.aiFood : Routes.aiSettings, extra: meal),
-      child: Row(
-        spacing: 14,
-        children: [
-          Icon(Icons.auto_awesome, color: scheme.primary),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Scrivi cosa hai mangiato',
-                  style: theme.textTheme.titleMedium,
-                ),
-                Text(
-                  ready
-                      ? 'L\'AI lo trasforma in alimenti con le calorie'
-                      : 'Con l\'AI (Groq o Google): serve una tua chiave '
-                            'gratuita',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
+    return Row(
+      spacing: 10,
+      children: [
+        Expanded(
+          child: FilledButton.tonalIcon(
+            icon: const Icon(Icons.auto_awesome, size: 18),
+            label: const Text('Scrivi con l\'AI'),
+            // Senza chiave porta alle impostazioni, che spiegano come averla.
+            onPressed: () => context.push(
+              ready ? Routes.aiFood : Routes.aiSettings,
+              extra: meal,
             ),
           ),
-          Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
-        ],
-      ),
+        ),
+        Expanded(
+          child: FilledButton.tonalIcon(
+            icon: const Icon(Icons.soup_kitchen_outlined, size: 18),
+            label: const Text('Ricetta di casa'),
+            onPressed: () => context.push(Routes.homemade),
+          ),
+        ),
+      ],
     );
   }
 }

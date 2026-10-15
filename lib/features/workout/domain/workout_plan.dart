@@ -157,10 +157,10 @@ class WorkoutPlan {
     return text[0].toUpperCase() + text.substring(1);
   }
 
-  /// "35 min · 5 esercizi · corpo libero".
+  /// "35 min · 5 esercizi" (il luogo si vede accanto, nella scheda).
   String get summary =>
       '$minutes min · ${exercises.length} '
-      '${exercises.length == 1 ? 'esercizio' : 'esercizi'} · ${place.where}';
+      '${exercises.length == 1 ? 'esercizio' : 'esercizi'}';
 }
 
 int restSecondsFor(Difficulty d) => switch (d) {

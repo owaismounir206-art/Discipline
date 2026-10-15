@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/router/routes.dart';
-import '../../core/theme/discipline_theme.dart';
 import '../../core/theme/motion.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/motion_widgets.dart';
@@ -45,15 +44,11 @@ class WorkoutScreen extends ConsumerWidget {
             positions: positions,
             weekday: today.weekday,
           ),
-          const SectionTitle('Le tue varianti'),
-          for (final chain in ChainId.values)
-            if (chains[chain] != null)
-              _ChainTile(chain: chain, position: chains[chain]!.position),
-          if (chains[ChainId.skills] == null) const _LockedSkills(),
         ],
-        const SectionTitle('Timer e routine'),
         const _TimerCard(),
-        const SectionTitle('Percorsi'),
+        // Una sola sezione per le varianti: ogni percorso mostra quella
+        // attuale (prima c'era anche un elenco che ripeteva le stesse cose).
+        const SectionTitle('I tuoi percorsi'),
         _PathGrid(chains: chains),
       ],
     );
@@ -184,89 +179,6 @@ class _TemplateRow extends StatelessWidget {
   }
 }
 
-class _ChainTile extends StatelessWidget {
-  const _ChainTile({required this.chain, required this.position});
-
-  final ChainId chain;
-  final int position;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final exercise = Catalog.at(chain, position);
-    return DisciplineCard(
-      radius: DisciplineRadii.card,
-      padding: const EdgeInsets.fromLTRB(18, 14, 14, 14),
-      onTap: () => context.push(Routes.exercise(exercise.id)),
-      child: Row(
-        spacing: 12,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2,
-              children: [
-                Text(
-                  chain.label,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(exercise.name, style: theme.textTheme.titleMedium),
-                Text(
-                  exercise.targetLabel,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ChainDots(length: Catalog.chain(chain).length, position: position),
-          Icon(Icons.chevron_right, color: scheme.onSurfaceVariant),
-        ],
-      ),
-    );
-  }
-}
-
-class _LockedSkills extends StatelessWidget {
-  const _LockedSkills();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    return DisciplineCard(
-      radius: DisciplineRadii.card,
-      color: scheme.surfaceContainerLow,
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        spacing: 12,
-        children: [
-          IconBadge(
-            icon: Icons.lock_outline,
-            background: scheme.surfaceContainerHigh,
-            foreground: scheme.onSurfaceVariant,
-          ),
-          Expanded(
-            child: Text(
-              'Skill (handstand, planche, front lever, muscle-up): si '
-              'sbloccano con i push-up diamante e le trazioni, nei livelli '
-              'Avanzato ed Élite.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// Accesso al timer a intervalli e alle routine guidate.
 class _TimerCard extends StatelessWidget {
   const _TimerCard();
@@ -331,7 +243,7 @@ class _PathGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.05,
+      childAspectRatio: 0.9,
       children: [
         for (final chain in ChainId.values)
           Builder(
@@ -339,11 +251,17 @@ class _PathGrid extends StatelessWidget {
               final list = Catalog.chain(chain);
               final position = chains[chain]?.position;
               final shown = list[(position ?? 0).clamp(0, list.length - 1)];
-              final label = !chain.isProgression
-                  ? '${list.length} esercizi'
+              // Riga 1: la variante attuale; riga 2: a che punto sei.
+              final (current, step) = !chain.isProgression
+                  ? ('${list.length} esercizi', 'Per variare')
                   : position == null
-                  ? 'Da iniziare · ${list.length} tappe'
-                  : 'Tappa ${position + 1} di ${list.length}';
+                  ? (
+                      chain == ChainId.skills
+                          ? 'Da Avanzato in su'
+                          : 'Da iniziare',
+                      '${list.length} tappe',
+                    )
+                  : (shown.name, 'Tappa ${position + 1} di ${list.length}');
               return PressScale(
                 child: Card(
                   margin: EdgeInsets.zero,
@@ -363,12 +281,26 @@ class _PathGrid extends StatelessWidget {
                               child: ExerciseFigure(
                                 motion: motionFor(shown),
                                 size: const Size(96, 64),
+                                animate: false,
                               ),
                             ),
                           ),
-                          Text(chain.label, style: theme.textTheme.titleMedium),
                           Text(
-                            label,
+                            chain.label,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                          Text(
+                            current,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            step,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: scheme.onSurfaceVariant,
                             ),
