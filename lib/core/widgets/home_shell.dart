@@ -2,9 +2,13 @@
 // Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
+import '../../features/rewards/data/rewards_state.dart';
+import '../../features/rewards/domain/rewards.dart';
+import 'celebration.dart';
 import 'motion_widgets.dart';
 
 /// Contenitore delle 5 schede con la navigation bar Material 3 in basso.
@@ -36,7 +40,7 @@ class HomeShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
+      body: _RankWatcher(child: navigationShell),
       bottomNavigationBar: DisciplineNavigationBar(
         selectedIndex: navigationShell.currentIndex,
         items: items,
@@ -47,5 +51,35 @@ class HomeShell extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Festeggia quando si sale di grado.
+class _RankWatcher extends ConsumerWidget {
+  const _RankWatcher({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen(pointsProvider, (previous, next) {
+      // Solo tra due valori caricati: all'avvio non è una promozione.
+      final before = previous?.value;
+      final after = next.value;
+      if (before == null || after == null) return;
+      final old = rankFor(lifetimeOf(before));
+      final now = rankFor(lifetimeOf(after));
+      if (now.rank.index <= old.rank.index) return;
+      celebrate(
+        context,
+        kicker: 'Nuovo grado',
+        title: now.rank.label,
+        subtitle: now.next == null
+            ? 'Il grado più alto: complimenti!'
+            : 'Prossimo: ${now.next!.label}, mancano ${now.missing} punti',
+        icon: Icons.military_tech,
+      );
+    });
+    return child;
   }
 }

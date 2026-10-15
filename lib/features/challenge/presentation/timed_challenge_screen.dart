@@ -15,6 +15,7 @@ import '../../../core/services/share.dart';
 import '../../../core/theme/motion.dart';
 import '../../../core/theme/discipline_theme.dart';
 import '../../../core/utils/local_date.dart';
+import '../../../core/widgets/celebration.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/motion_widgets.dart';
 import '../../camera/presentation/rep_camera.dart';
@@ -140,6 +141,22 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
       _result = result;
       _points = awarded ? points : 0;
     });
+    // Festa per un nuovo record o per aver battuto l'amico.
+    final best = _previousBest;
+    final record =
+        _friend == null &&
+        score != null &&
+        best != null &&
+        isBetterScore(_mode, score, best);
+    if (beat || record) {
+      await celebrate(
+        context,
+        kicker: record ? 'Nuovo record' : 'Sfida vinta',
+        title: result.scoreLabel,
+        subtitle: record ? 'Il precedente era ${scoreText(_mode, best)}' : null,
+        points: awarded ? points : 0,
+      );
+    }
   }
 
   Future<void> _close() async {

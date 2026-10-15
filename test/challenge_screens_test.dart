@@ -102,7 +102,11 @@ void main() {
     expect(claim, findsOneWidget);
     await tester.tap(claim);
     await settle(tester);
-    expect(find.text('+40 punti!'), findsOneWidget);
+    // Festa con i coriandoli.
+    expect(find.text('SFIDA COMPLETATA'), findsOneWidget);
+    expect(find.text('+40 punti'), findsOneWidget);
+    await tester.tap(find.text('Continua'));
+    await settle(tester);
     expect(find.text('Completata'), findsOneWidget);
     expect(find.text('40'), findsOneWidget);
     final points = await tester.runAsync(() => RewardsRepository(db).points());
@@ -190,6 +194,13 @@ void main() {
     await elapse(tester, clock, const Duration(seconds: 61));
 
     expect(find.text('Hai battuto Luca!'), findsOneWidget);
+    // Prima la festa, poi il risultato.
+    expect(find.text('SFIDA VINTA'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 2));
+    await tester.tap(find.text('Continua'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('SFIDA VINTA'), findsNothing);
     expect(find.text('+23 punti'), findsOneWidget);
     await tester.tap(find.text('Rispondi a Luca'));
     await tester.pump();

@@ -18,6 +18,7 @@ import '../profile/domain/athlete_profile.dart';
 import '../workout/data/today_plan.dart';
 import '../workout/data/workout_repository.dart';
 import 'domain/progress_stats.dart';
+import 'presentation/calendar_and_weight.dart';
 
 /// Serie salvate, nel formato delle statistiche.
 final setRecordsProvider = Provider<List<SetRecord>>((ref) {
@@ -221,6 +222,8 @@ class ProgressScreen extends ConsumerWidget {
             ),
           ],
         ),
+        const TrainingCalendar(),
+        const WeightCard(),
         SectionTitle(
           'Abilità sbloccate',
           trailing: Text(

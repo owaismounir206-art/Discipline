@@ -12,6 +12,7 @@ import '../../core/theme/motion.dart';
 import '../../core/theme/discipline_theme.dart';
 import '../../core/theme/theme_settings.dart';
 import '../../core/utils/italian_date.dart';
+import '../../core/widgets/celebration.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/screen_header.dart';
 import '../../core/widgets/tab_scaffold.dart';
@@ -227,7 +228,14 @@ class _GeneratedCard extends ConsumerWidget {
           ref: 'sfida-${status.challenge.id}',
           note: status.challenge.goalText,
         );
-    if (ok && context.mounted) _snack(context, '+$points punti!');
+    if (ok && context.mounted) {
+      await celebrate(
+        context,
+        kicker: 'Sfida completata',
+        title: status.challenge.goalText,
+        points: points,
+      );
+    }
   }
 
   @override

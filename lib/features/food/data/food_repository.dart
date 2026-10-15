@@ -78,6 +78,45 @@ class FoodRepository {
   Future<void> saveBody(BodyProfile body) =>
       _db.writeJson(bodyKey, body.toJson());
 
+  static const weightsKey = 'weights';
+
+  /// Diario del peso: data → kg, in ordine di data.
+  Stream<Map<LocalDate, double>> watchWeights() =>
+      _db.watchJson(weightsKey).map(_weights);
+
+  static Map<LocalDate, double> _weights(Object? json) {
+    final list = [
+      for (final e in ((json as Map?) ?? const {}).entries)
+        (LocalDate.parse('${e.key}'), (e.value as num).toDouble()),
+    ]..sort((a, b) => a.$1.compareTo(b.$1));
+    return {for (final (d, kg) in list) d: kg};
+  }
+
+  /// Salva il peso del giorno. Se è il più recente aggiorna anche i dati
+  /// del corpo, così calorie e proteine seguono il peso attuale.
+  Future<void> setWeight(LocalDate date, double kg) =>
+      _db.transaction(() async {
+        final rounded = (kg * 10).round() / 10;
+        final current = _weights(await _db.readJson(weightsKey));
+        current[date] = rounded.clamp(20.0, 400.0);
+        await _db.writeJson(weightsKey, {
+          for (final e in current.entries) e.key.key: e.value,
+        });
+        final latest = current.keys.reduce((a, b) => a.isAfter(b) ? a : b);
+        final body = await _db.readJson(bodyKey);
+        if (latest == date && body != null) {
+          final profile = BodyProfile.fromJson(body as Map<String, Object?>);
+          await saveBody(profile.copyWith(weightKg: current[date]));
+        }
+      });
+
+  Future<void> removeWeight(LocalDate date) async {
+    final current = _weights(await _db.readJson(weightsKey))..remove(date);
+    await _db.writeJson(weightsKey, {
+      for (final e in current.entries) e.key.key: e.value,
+    });
+  }
+
   Future<void> addEntry({
     required LocalDate date,
     required Meal meal,
@@ -270,6 +309,10 @@ final foodRepositoryProvider = Provider<FoodRepository>(
 
 final bodyProfileProvider = StreamProvider<BodyProfile?>(
   (ref) => ref.watch(foodRepositoryProvider).watchBody(),
+);
+
+final weightsProvider = StreamProvider<Map<LocalDate, double>>(
+  (ref) => ref.watch(foodRepositoryProvider).watchWeights(),
 );
 
 final favoritesProvider = StreamProvider<List<FoodItem>>(
