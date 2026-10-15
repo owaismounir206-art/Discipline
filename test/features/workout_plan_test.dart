@@ -50,7 +50,7 @@ void main() {
       expect(plan.minutes, 35);
       expect(plan.exercises.first.exercise.name, 'Push-up classici');
       expect(plan.summary, startsWith('35 min · '));
-      expect(plan.summary, endsWith(' · corpo libero'));
+      expect(plan.summary, endsWith(' · al parco'));
     });
 
     test('la durata sceglie quanti esercizi e serie', () {

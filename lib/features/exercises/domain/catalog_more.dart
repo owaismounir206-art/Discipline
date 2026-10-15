@@ -600,4 +600,43 @@ const accessory = [
     ],
     mistakes: ['Movimento troppo veloce.', 'Gomiti larghi.'],
   ),
+  // Sostituti per allenarsi a casa senza sbarra né parallele.
+  Exercise(
+    id: 'acc_table_row',
+    name: 'Rematore sotto il tavolo',
+    muscleGroup: MuscleGroup.back,
+    chain: ChainId.accessory,
+    position: 15,
+    measure: Measure.reps,
+    range: TargetRange(6, 12),
+    instructions: [
+      'Sdraiati sotto un tavolo robusto e afferra il bordo con le mani alla '
+          'larghezza delle spalle.',
+      'Corpo dritto dai talloni alle spalle: tira il petto verso il bordo.',
+      'Scendi piano fino a braccia distese. Piega le ginocchia per renderlo '
+          'più facile.',
+    ],
+    mistakes: [
+      'Tavolo leggero o traballante: prova prima che regga il tuo peso.',
+      'Bacino che cede verso il pavimento.',
+    ],
+  ),
+  Exercise(
+    id: 'acc_chair_dip',
+    name: 'Dip tra due sedie',
+    muscleGroup: MuscleGroup.chest,
+    chain: ChainId.accessory,
+    position: 16,
+    measure: Measure.reps,
+    range: TargetRange(5, 10),
+    instructions: [
+      'Due sedie stabili, schienali verso l\'esterno, appoggiate al muro.',
+      'Mani sugli schienali o sui sedili, braccia tese, piedi sollevati.',
+      'Scendi finché le spalle sono all\'altezza dei gomiti e risali.',
+    ],
+    mistakes: [
+      'Sedie che scivolano: mettile contro il muro o su un tappeto.',
+      'Scendere troppo con le spalle che salgono verso le orecchie.',
+    ],
+  ),
 ];

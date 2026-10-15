@@ -5,6 +5,7 @@
 import 'package:meta/meta.dart';
 
 import '../../exercises/domain/catalog.dart';
+import '../../exercises/domain/equipment.dart';
 import '../../exercises/domain/exercise.dart';
 import '../../profile/domain/athlete_profile.dart';
 
@@ -125,9 +126,11 @@ class WorkoutPlan {
     required this.template,
     required this.exercises,
     required this.minutes,
+    this.place = TrainingPlace.park,
   });
 
   final WorkoutTemplate template;
+  final TrainingPlace place;
   final List<PlannedExercise> exercises;
 
   /// Durata prevista della sessione.
@@ -139,7 +142,12 @@ class WorkoutPlan {
   String get title {
     final names = <String>[];
     for (final e in exercises) {
-      final name = _chainShortNames[e.exercise.chain]!;
+      final name = switch (e.exercise.id) {
+        'acc_table_row' => 'rematore',
+        'acc_chair_dip' => 'dip',
+        _ =>
+          _chainShortNames[e.exercise.chain] ?? e.exercise.name.toLowerCase(),
+      };
       if (!names.contains(name)) names.add(name);
     }
     final shown = names.take(3).toList();
@@ -152,7 +160,7 @@ class WorkoutPlan {
   /// "35 min · 5 esercizi · corpo libero".
   String get summary =>
       '$minutes min · ${exercises.length} '
-      '${exercises.length == 1 ? 'esercizio' : 'esercizi'} · corpo libero';
+      '${exercises.length == 1 ? 'esercizio' : 'esercizi'} · ${place.where}';
 }
 
 int restSecondsFor(Difficulty d) => switch (d) {
@@ -175,6 +183,7 @@ WorkoutPlan buildWorkout({
   required WorkoutTemplate template,
   required Map<ChainId, int> positions,
   required Difficulty difficulty,
+  TrainingPlace place = TrainingPlace.park,
 }) {
   final rest = restSecondsFor(difficulty);
   final chosen = <({Exercise exercise, bool volume})>[];
@@ -184,9 +193,15 @@ WorkoutPlan buildWorkout({
     if (base == null) continue;
     final position = base + slot.offset;
     if (position < 0) continue;
-    final exercise = Catalog.at(slot.chain, position);
+    // Senza l'attrezzo giusto si usa un sostituto (che non conta per la
+    // progressione: la catena resta dov'è).
+    final original = Catalog.at(slot.chain, position);
+    final exercise = adaptTo(original, place);
     if (chosen.any((c) => c.exercise.id == exercise.id)) continue;
-    chosen.add((exercise: exercise, volume: slot.offset != 0));
+    chosen.add((
+      exercise: exercise,
+      volume: slot.offset != 0 || exercise != original,
+    ));
   }
 
   final budget = difficulty.sessionMinutes * 60 - _warmupSeconds(difficulty);
@@ -198,6 +213,7 @@ WorkoutPlan buildWorkout({
 
   return WorkoutPlan(
     template: template,
+    place: place,
     minutes: difficulty.sessionMinutes,
     exercises: [
       for (final c in chosen)

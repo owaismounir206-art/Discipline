@@ -439,6 +439,67 @@ const australianRow = Motion(
   props: [Bar(0.58, -0.55, 0.82, -0.55, thick: true)],
 );
 
+/// Rematore sotto il tavolo: come le australiane, al bordo di un tavolo.
+const tableRow = Motion(
+  'tableRow',
+  [
+    (
+      Pose(
+        hip: Offset(0.415, -0.176),
+        low: -19.4,
+        arm: To(0.70, -0.55),
+        leg: To(0, -0.03),
+      ),
+      1,
+    ),
+    (
+      Pose(
+        hip: Offset(0.366, -0.274),
+        low: -33.7,
+        arm: To(0.70, -0.55),
+        leg: To(0, -0.03),
+      ),
+      1,
+    ),
+  ],
+  props: [Block(0.62, -0.58, 1.02, -0.53), Bar(0.98, -0.53, 0.98, 0)],
+);
+
+/// Dip tra due sedie: le parallele sono gli schienali.
+const chairDip = Motion(
+  'chairDip',
+  [
+    (
+      Pose(
+        hip: Offset(-0.02, -0.62),
+        low: -88,
+        high: -82,
+        arm: To(0.04, -0.62),
+        leg: To(-0.18, -0.30),
+      ),
+      1,
+    ),
+    (
+      Pose(
+        hip: Offset(-0.04, -0.40),
+        low: -80,
+        high: -65,
+        neck: -70,
+        arm: To(0.04, -0.62),
+        leg: To(-0.22, -0.09),
+      ),
+      1,
+    ),
+  ],
+  props: [
+    Block(-0.05, -0.64, 0.20, -0.60),
+    Bar(0.18, -0.60, 0.18, -0.36),
+    Block(-0.05, -0.38, 0.30, -0.34),
+    Bar(-0.03, -0.34, -0.03, 0),
+    Bar(0.28, -0.34, 0.28, 0),
+  ],
+);
+
 const deadHang = Motion(
   'deadHang',
   [
@@ -1776,7 +1837,15 @@ const allMotions = [
   wallPushUp, inclinePushUp, kneePushUp, pushUp, hinduPushUp, pikePushUp, //
   elevatedPike, wallHandstandPushUp, wallHandstand, handstand, crow,
   tuckPlanche, pullUp, negativePullUp, lSitPullUp, australianRow, deadHang,
-  scapPull, frontLever, tuckFrontLever, muscleUp, dip, benchDip, barDip,
+  scapPull,
+  tableRow,
+  chairDip,
+  frontLever,
+  tuckFrontLever,
+  muscleUp,
+  dip,
+  benchDip,
+  barDip,
   squat, deepSquat, squatJump, lunge, bulgarian, stepUp, pistol,
   assistedPistol, shrimp, calfRaise, wallSit, nordic, gluteBridge, plank,
   sidePlank, shoulderTaps, hollow, lSit, tuckLSit, dragonFlag, deadBug,
@@ -1794,6 +1863,8 @@ const _byId = <String, Motion>{
   'push_archer': pushUp,
   'push_one_arm': pushUp,
   'acc_hindu_pushup': hinduPushUp,
+  'acc_table_row': tableRow,
+  'acc_chair_dip': chairDip,
   'shoulders_pike': pikePushUp,
   'shoulders_pike_elevated': elevatedPike,
   'shoulders_wall_hspu': wallHandstandPushUp,

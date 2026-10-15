@@ -229,6 +229,7 @@ class SessionController extends Notifier<SessionState?> {
       template: template,
       positions: {for (final e in chains.entries) e.key: e.value.position},
       difficulty: profile.difficulty,
+      place: profile.place,
     );
     final now = _now();
     final first = plan.exercises.first.exercise;

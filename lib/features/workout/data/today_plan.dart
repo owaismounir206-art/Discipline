@@ -45,6 +45,7 @@ final todayWorkoutProvider = Provider<({WorkoutPlan plan, bool scheduled})?>((
       template: template ?? WorkoutTemplate.fullBody,
       positions: positions,
       difficulty: profile.difficulty,
+      place: profile.place,
     ),
     scheduled: template != null,
   );

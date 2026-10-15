@@ -12,6 +12,7 @@ import '../../../core/theme/discipline_theme.dart';
 import '../../../core/utils/local_date.dart';
 import '../../../core/widgets/common.dart';
 import '../../exercises/domain/catalog.dart';
+import '../../exercises/domain/equipment.dart';
 import '../../exercises/domain/placement.dart';
 import '../../streak/data/reminders.dart';
 import '../../workout/domain/workout_plan.dart';
@@ -35,6 +36,7 @@ class _AthleteProfileScreenState extends ConsumerState<AthleteProfileScreen> {
   var _difficulty = Difficulty.intermediate;
   var _experience = Experience.threeToTwelveMonths;
   var _days = <int>{1, 2, 4, 6};
+  var _place = TrainingPlace.park;
   var _pushUps = 10;
   var _pullUps = 0;
   var _plank = 30;
@@ -52,6 +54,7 @@ class _AthleteProfileScreenState extends ConsumerState<AthleteProfileScreen> {
         _difficulty = p.difficulty;
         _experience = p.experience;
         _days = {...p.trainingDays};
+        _place = p.place;
         _pushUps = p.test.maxPushUps;
         _pullUps = p.test.maxPullUps;
         _plank = p.test.plankSeconds;
@@ -72,6 +75,7 @@ class _AthleteProfileScreenState extends ConsumerState<AthleteProfileScreen> {
       difficulty: _difficulty,
       experience: _experience,
       trainingDays: _days,
+      place: _place,
       test: InitialTest(
         maxPushUps: _pushUps,
         maxPullUps: _pullUps,
@@ -162,6 +166,35 @@ class _AthleteProfileScreenState extends ConsumerState<AthleteProfileScreen> {
                         : BorderSide(color: scheme.outline),
                   ),
               ],
+            ),
+            const SizedBox(height: 18),
+            const SectionTitle('Dove ti alleni'),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final p in TrainingPlace.values)
+                  ChoiceChip(
+                    label: Text(p.label),
+                    selected: p == _place,
+                    showCheckmark: false,
+                    onSelected: (_) => setState(() => _place = p),
+                    selectedColor: scheme.secondaryContainer,
+                    side: p == _place
+                        ? BorderSide.none
+                        : BorderSide(color: scheme.outline),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${_place.hint}. Senza sbarra o parallele gli esercizi che le '
+              'usano diventano alternative con sedie e tavolo.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+                height: 18 / 13,
+              ),
             ),
             const SizedBox(height: 18),
             SectionTitle(

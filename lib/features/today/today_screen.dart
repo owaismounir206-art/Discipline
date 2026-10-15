@@ -21,6 +21,7 @@ import '../rewards/data/rewards_repository.dart';
 import '../rewards/data/rewards_state.dart';
 import '../streak/domain/streak.dart';
 import '../workout/data/today_plan.dart';
+import '../workout/presentation/place_sheet.dart';
 import '../workout/presentation/suggestions_card.dart';
 
 /// Scheda "Oggi": streak, livello, allenamento del giorno e inviti.
@@ -504,6 +505,22 @@ class _TodayWorkoutCard extends ConsumerWidget {
                 style: theme.textTheme.bodyMedium?.copyWith(color: muted),
               ),
             ],
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ActionChip(
+              avatar: Icon(
+                placeIcon(today.plan.place),
+                size: 18,
+                color: scheme.onTertiaryContainer,
+              ),
+              label: Text('Ti alleni ${today.plan.place.where}'),
+              tooltip: 'Cambia dove ti alleni',
+              side: BorderSide(color: muted),
+              backgroundColor: Colors.transparent,
+              labelStyle: TextStyle(color: scheme.onTertiaryContainer),
+              onPressed: () => showPlaceSheet(context, ref),
+            ),
           ),
           PressScale(
             child: FilledButton.icon(

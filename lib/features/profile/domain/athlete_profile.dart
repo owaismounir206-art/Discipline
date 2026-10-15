@@ -4,6 +4,8 @@
 
 import 'package:meta/meta.dart';
 
+import '../../exercises/domain/equipment.dart';
+
 /// Difficoltà scelta dall'utente.
 enum Difficulty {
   beginner(
@@ -136,9 +138,13 @@ class AthleteProfile {
     required this.trainingDays,
     required this.test,
     this.reminder,
+    this.place = TrainingPlace.park,
   });
 
   final String name;
+
+  /// Dove ti alleni di solito: decide gli esercizi possibili.
+  final TrainingPlace place;
   final Difficulty difficulty;
   final Experience experience;
 
@@ -161,7 +167,9 @@ class AthleteProfile {
     InitialTest? test,
     ReminderTime? reminder,
     bool clearReminder = false,
+    TrainingPlace? place,
   }) => AthleteProfile(
+    place: place ?? this.place,
     name: name ?? this.name,
     difficulty: difficulty ?? this.difficulty,
     experience: experience ?? this.experience,
@@ -177,11 +185,15 @@ class AthleteProfile {
     'days': (trainingDays.toList()..sort()),
     'test': test.toJson(),
     if (reminder != null) 'reminder': [reminder!.hour, reminder!.minute],
+    'place': place.name,
   };
 
   factory AthleteProfile.fromJson(Map<String, Object?> json) {
     final reminder = json['reminder'] as List<Object?>?;
     return AthleteProfile(
+      // Profili di prima: sbarra e parallele, come al parco.
+      place:
+          TrainingPlace.values.asNameMap()[json['place']] ?? TrainingPlace.park,
       name: json['name'] as String? ?? '',
       difficulty: Difficulty.values.byName(json['difficulty']! as String),
       experience: Experience.values.byName(json['experience']! as String),

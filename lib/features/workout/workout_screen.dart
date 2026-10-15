@@ -106,6 +106,7 @@ class _WeekCard extends StatelessWidget {
                 template: template,
                 positions: positions,
                 difficulty: profile.difficulty,
+                place: profile.place,
               ),
               isToday: day == weekday,
             ),
