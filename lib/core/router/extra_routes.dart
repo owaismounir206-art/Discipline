@@ -11,9 +11,11 @@ import '../../features/challenge/presentation/friend_challenge_screen.dart';
 import '../../features/challenge/presentation/timed_challenge_screen.dart';
 import '../../features/exercises/domain/exercise.dart';
 import '../../features/exercises/presentation/chain_path_screen.dart';
+import '../../features/food/domain/homemade.dart';
 import '../../features/food/domain/nutrition.dart';
 import '../../features/food/presentation/body_data_screen.dart';
 import '../../features/food/presentation/food_search_screen.dart';
+import '../../features/food/presentation/homemade_screen.dart';
 import '../../features/food/presentation/nutrition_screen.dart';
 import '../../features/food/presentation/scanner_screen.dart';
 import '../../features/timer/domain/interval.dart';
@@ -41,6 +43,20 @@ List<RouteBase> extraRoutes(GlobalKey<NavigatorState> root) => [
     ),
   ),
   _page(root, Routes.foodScanner, (_) => const ScannerScreen()),
+  _page(
+    root,
+    Routes.foodPick,
+    (_) => const FoodSearchScreen(meal: Meal.snack, pickOnly: true),
+  ),
+  _page(
+    root,
+    Routes.homemade,
+    (state) => HomemadeScreen(
+      recipe: state.extra is HomemadeRecipe
+          ? state.extra! as HomemadeRecipe
+          : null,
+    ),
+  ),
   _page(root, Routes.nutrition, (_) => const NutritionScreen()),
   _page(root, Routes.bodyData, (_) => const BodyDataScreen()),
   _page(root, Routes.cameraCounter, (_) => const CameraCounterScreen()),

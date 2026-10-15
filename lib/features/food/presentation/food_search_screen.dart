@@ -9,11 +9,13 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/data/providers.dart';
+import '../../../core/router/routes.dart';
 import '../../workout/data/today_plan.dart';
 import '../data/food_state.dart';
 import '../data/food_repository.dart';
 import '../data/open_food_facts.dart';
 import '../domain/foods.dart';
+import '../domain/homemade.dart';
 import '../domain/nutrition.dart';
 import '../food_screen.dart';
 import 'custom_food_sheet.dart';
@@ -21,9 +23,17 @@ import 'food_amount_sheet.dart';
 
 /// Cerca un alimento: preferiti, piatti italiani e Open Food Facts.
 class FoodSearchScreen extends ConsumerStatefulWidget {
-  const FoodSearchScreen({super.key, required this.meal});
+  const FoodSearchScreen({
+    super.key,
+    required this.meal,
+    this.pickOnly = false,
+  });
 
   final Meal meal;
+
+  /// Solo scelta (ingrediente di una ricetta): restituisce l'alimento senza
+  /// aggiungerlo al diario.
+  final bool pickOnly;
 
   @override
   ConsumerState<FoodSearchScreen> createState() => _FoodSearchScreenState();
@@ -86,6 +96,10 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
   }
 
   Future<void> _pick(FoodItem food) async {
+    if (widget.pickOnly) {
+      context.pop(food);
+      return;
+    }
     final added = await showFoodAmountSheet(context, food, meal: widget.meal);
     if (added && mounted) context.pop();
   }
@@ -100,6 +114,12 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
       ref.watch(favoritesProvider).value ?? const [],
     );
     final local = searchLocalFoods(query);
+    final homemade = <HomemadeRecipe>[
+      for (final r in ref.watch(homemadeProvider).value ?? <HomemadeRecipe>[])
+        if (query.trim().isEmpty ||
+            r.name.toLowerCase().contains(query.trim().toLowerCase()))
+          r,
+    ];
     final isToday = ref.watch(foodDayProvider) == ref.watch(todayProvider);
     final before = isToday ? 'di ieri' : 'del giorno prima';
 
@@ -125,7 +145,13 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text('Aggiungi ${widget.meal.toMeal}')),
+      appBar: AppBar(
+        title: Text(
+          widget.pickOnly
+              ? 'Scegli un ingrediente'
+              : 'Aggiungi ${widget.meal.toMeal}',
+        ),
+      ),
       body: SafeArea(
         top: false,
         child: ListView(
@@ -228,6 +254,34 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
                 if (context.mounted) await _pick(food);
               },
             ),
+            if (!widget.pickOnly) ...[
+              ListTile(
+                leading: const Icon(Icons.soup_kitchen_outlined),
+                title: const Text('Ricetta fatta in casa'),
+                subtitle: const Text(
+                  'Metti gli ingredienti: calcolo io calorie e porzioni',
+                ),
+                onTap: () => context.push(Routes.homemade),
+              ),
+              if (homemade.isNotEmpty) ...[
+                header('Le tue ricette'),
+                for (final r in homemade)
+                  ListTile(
+                    title: Text(r.name),
+                    subtitle: Text(
+                      '${r.perPortion.kcal.round()} kcal a porzione · '
+                      '${r.portionGrams.round()} g',
+                    ),
+                    leading: IconButton(
+                      tooltip: 'Modifica ${r.name}',
+                      icon: const Icon(Icons.edit_outlined),
+                      onPressed: () => context.push(Routes.homemade, extra: r),
+                    ),
+                    trailing: const Icon(Icons.add_circle_outline),
+                    onTap: () => _pick(r.toFood()),
+                  ),
+              ],
+            ],
             header('Piatti e alimenti italiani'),
             if (local.isEmpty)
               const ListTile(title: Text('Nessun alimento con questo nome'))

@@ -12,6 +12,7 @@ import '../../../core/utils/local_date.dart';
 import '../../rewards/data/rewards_repository.dart';
 import '../../rewards/domain/rewards.dart';
 import '../domain/foods.dart';
+import '../domain/homemade.dart';
 import '../domain/nutrition.dart';
 
 /// Una voce del diario.
@@ -317,6 +318,45 @@ class FoodRepository {
             );
       });
 
+  // --- Ricette fatte in casa ---
+
+  static const homemadeKey = 'homemade';
+
+  Stream<List<HomemadeRecipe>> watchHomemade() =>
+      _db.watchJson(homemadeKey).map(_recipes);
+
+  static List<HomemadeRecipe> _recipes(Object? json) => [
+    for (final r in (json as List?) ?? const [])
+      HomemadeRecipe.fromJson((r as Map).cast<String, Object?>()),
+  ]..sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+
+  /// Salva la ricetta (sostituisce quella con lo stesso nome, o con
+  /// [previousName] se l'hai rinominata) e la mette tra i preferiti.
+  Future<void> saveHomemade(HomemadeRecipe recipe, {String? previousName}) =>
+      _db.transaction(() async {
+        final name = recipe.name.trim();
+        final others = [
+          for (final r in _recipes(await _db.readJson(homemadeKey)))
+            if (r.name != name && r.name != previousName) r,
+        ];
+        await _db.writeJson(homemadeKey, [
+          for (final r in [...others, recipe]) r.toJson(),
+        ]);
+        if (previousName != null && previousName != name) {
+          await removeFavorite(previousName);
+        }
+        final food = recipe.toFood();
+        await addFavorite(food, food.defaultGrams);
+      });
+
+  Future<void> deleteHomemade(String name) => _db.transaction(() async {
+    await _db.writeJson(homemadeKey, [
+      for (final r in _recipes(await _db.readJson(homemadeKey)))
+        if (r.name != name) r.toJson(),
+    ]);
+    await removeFavorite(name);
+  });
+
   Future<void> removeFavorite(String name) =>
       (_db.delete(_db.favoriteFoods)..where((t) => t.name.equals(name))).go();
 }
@@ -331,6 +371,10 @@ final bodyProfileProvider = StreamProvider<BodyProfile?>(
 
 final weightsProvider = StreamProvider<Map<LocalDate, double>>(
   (ref) => ref.watch(foodRepositoryProvider).watchWeights(),
+);
+
+final homemadeProvider = StreamProvider<List<HomemadeRecipe>>(
+  (ref) => ref.watch(foodRepositoryProvider).watchHomemade(),
 );
 
 final favoritesProvider = StreamProvider<List<FoodItem>>(

@@ -22,6 +22,8 @@ abstract final class Routes {
   static const cameraCounter = '/fotocamera';
   static const foodSearch = '/cibo/cerca';
   static const foodScanner = '/cibo/scanner';
+  static const foodPick = '/cibo/scegli';
+  static const homemade = '/cibo/ricetta';
   static const nutrition = '/cibo/consigli';
   static const bodyData = '/cibo/dati';
   static const timedChallenge = '/sfide/a-tempo';
