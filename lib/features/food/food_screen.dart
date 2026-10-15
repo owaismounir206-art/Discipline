@@ -19,6 +19,7 @@ import '../workout/data/today_plan.dart';
 import 'data/food_repository.dart';
 import 'data/food_state.dart';
 import 'domain/nutrition.dart';
+import 'presentation/ai_food_screen.dart';
 import 'presentation/food_amount_sheet.dart';
 import 'presentation/scanner_screen.dart';
 import 'presentation/week_and_water.dart';
@@ -84,6 +85,7 @@ class FoodScreen extends ConsumerWidget {
       ),
       children: [
         const DayBar(),
+        AiWriteCard(meal: next),
         if (targets == null)
           _SetupCard(totals: totals)
         else

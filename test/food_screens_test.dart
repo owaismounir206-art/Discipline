@@ -126,6 +126,9 @@ void main() {
     // Niente consigli per i giorni passati.
     expect(find.textContaining('Cosa mangio'), findsNothing);
 
+    await tester.scrollUntilVisible(find.text('Aggiungi la colazione'), 200);
+    await tester.ensureVisible(find.text('Aggiungi la colazione'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Aggiungi la colazione'));
     await settle(tester);
     await tester.enterText(find.byType(TextField), 'banana');
@@ -142,8 +145,13 @@ void main() {
     ]);
     expect(find.text('Colazione'), findsOneWidget);
 
+    await tester.scrollUntilVisible(find.text('Torna a oggi'), -200);
     await tester.tap(find.text('Torna a oggi'));
     await settle(tester);
+    await tester.scrollUntilVisible(
+      find.text('Oggi, martedì 13 ottobre'),
+      -200,
+    );
     expect(find.text('Oggi, martedì 13 ottobre'), findsOneWidget);
     expect(find.text('Pranzo'), findsOneWidget);
     await disposeDiscipline(tester, db);
@@ -184,6 +192,9 @@ void main() {
     await tester.runAsync(() => FoodRepository(db).saveBody(testBody));
     await pumpDiscipline(tester, db, now: DateTime(2026, 10, 13, 8));
     await openFood(tester);
+    await tester.scrollUntilVisible(find.text('Aggiungi la colazione'), 200);
+    await tester.ensureVisible(find.text('Aggiungi la colazione'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Aggiungi la colazione'));
     await settle(tester);
     await tester.enterText(find.byType(TextField), 'Barretta della nonna');

@@ -23,6 +23,14 @@ i risultati restano sul telefono.
   nessun tuo dato, solo la richiesta con il nome dell'app. Puoi spegnerlo in
   Impostazioni > Controlla gli aggiornamenti.
 
+- **AI per il diario del cibo (facoltativa, spenta di base)**: se inserisci
+  una tua chiave di Groq o di Google AI Studio, il testo che scrivi ("due
+  uova e una fetta di pane") viene inviato a quel servizio con la tua
+  chiave, secondo le sue condizioni d'uso. Non vengono inviati nome, peso o
+  altri dati. La chiave resta nel portachiavi protetto del telefono
+  (Android Keystore / iOS Keychain) e non finisce nei backup. Puoi
+  cancellarla in Impostazioni > AI per il diario del cibo.
+
 Sono gli unici collegamenti a internet.
 
 ## Sfide con gli amici

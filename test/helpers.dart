@@ -15,6 +15,7 @@ import 'package:discipline/core/services/share.dart';
 import 'package:discipline/core/update/update_checker.dart';
 import 'package:discipline/core/utils/local_date.dart';
 import 'package:discipline/features/exercises/domain/exercise.dart';
+import 'package:discipline/features/food/data/ai_food.dart';
 import 'package:discipline/features/food/data/food_repository.dart';
 import 'package:discipline/features/food/data/open_food_facts.dart';
 import 'package:discipline/features/food/domain/foods.dart';
@@ -52,6 +53,18 @@ class FakeReminders implements ReminderService {
 
   @override
   Future<void> cancelAll() async => cancelled++;
+}
+
+/// Chiavi in memoria al posto del portachiavi del telefono.
+class MemorySecrets implements SecretStore {
+  final values = <String, String>{};
+
+  @override
+  Future<String?> read(String key) async => values[key];
+
+  @override
+  Future<void> write(String key, String? value) async =>
+      value == null ? values.remove(key) : values[key] = value;
 }
 
 /// Nessuna rete nei test: di base non c'è una versione nuova.
@@ -92,6 +105,7 @@ List<Override> testOverrides(
   sessionFeedbackProvider.overrideWithValue(SilentSessionFeedback()),
   foodCatalogProvider.overrideWithValue(FakeFoodCatalog()),
   releaseSourceProvider.overrideWithValue(releases ?? FakeReleases()),
+  secretStoreProvider.overrideWithValue(MemorySecrets()),
   ...extra,
 ];
 

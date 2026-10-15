@@ -24,6 +24,8 @@ abstract final class Routes {
   static const foodScanner = '/cibo/scanner';
   static const foodPick = '/cibo/scegli';
   static const homemade = '/cibo/ricetta';
+  static const aiFood = '/cibo/ai';
+  static const aiSettings = '/impostazioni/ai';
   static const nutrition = '/cibo/consigli';
   static const bodyData = '/cibo/dati';
   static const timedChallenge = '/sfide/a-tempo';

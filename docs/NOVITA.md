@@ -1,10 +1,9 @@
-## Discipline 1.0.2
+## Discipline 1.1
 
-- Ricerca del cibo su Open Food Facts di nuovo funzionante (il vecchio servizio di ricerca non rispondeva più)
-- Figurine degli esercizi rifatte: 61 movimenti dedicati, con scheletro vero, sbarra, parallele, panca e muro
-- Bonus della serie di allenamenti pagato correttamente e timer che continuano a schermo spento
-- La sfida della settimana resta la stessa tutta la settimana
-- Più di 30 correzioni in cibo, sfide, punti, backup, promemoria e accessibilità
+- Ricette fatte in casa: ingredienti, peso a fine cottura e porzioni, con calorie e macro calcolate
+- Scrivi cosa hai mangiato e l'AI lo mette nel diario (facoltativa, con la tua chiave gratuita Groq o Google AI Studio)
+- Allenati a casa, al parco o in palestra: gli esercizi si adattano agli attrezzi che hai
+- Due esercizi nuovi per casa: rematore sotto il tavolo e dip tra due sedie
 
 Su Android si installa sopra la versione precedente senza perdere i dati.
 

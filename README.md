@@ -73,6 +73,16 @@ fotocamera su un push-up vero e regolare le soglie se serve
   contare i bicchieri d'acqua e vedere la settimana rispetto all'obiettivo.
   Registrare almeno 3 pasti in un giorno vale 10 punti. I valori sono stime
   e non sostituiscono un nutrizionista.
+- **Ricette fatte in casa**: metti gli ingredienti con i grammi, il peso
+  a fine cottura e le porzioni; Discipline calcola calorie e macro per
+  porzione e la salva tra i preferiti.
+- **AI per il diario (facoltativa)**: scrivi "a pranzo pasta al pomodoro e
+  un'insalata" e l'AI propone gli alimenti con i valori, da controllare
+  prima di salvarli. Usa una tua chiave gratuita di Groq o Google AI
+  Studio, conservata nel portachiavi del telefono.
+- **Dove ti alleni**: casa, casa con sbarra, parco o palestra. Gli esercizi
+  che chiedono attrezzi che non hai diventano alternative (rematore sotto
+  il tavolo, dip tra due sedie...).
 - **Diario del peso** con grafico: il peso più recente aggiorna i consigli
   sul cibo.
 - **Aggiornamenti automatici**: una volta al giorno l'app controlla su GitHub

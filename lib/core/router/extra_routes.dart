@@ -13,6 +13,8 @@ import '../../features/exercises/domain/exercise.dart';
 import '../../features/exercises/presentation/chain_path_screen.dart';
 import '../../features/food/domain/homemade.dart';
 import '../../features/food/domain/nutrition.dart';
+import '../../features/food/presentation/ai_food_screen.dart';
+import '../../features/food/presentation/ai_settings_screen.dart';
 import '../../features/food/presentation/body_data_screen.dart';
 import '../../features/food/presentation/food_search_screen.dart';
 import '../../features/food/presentation/homemade_screen.dart';
@@ -48,6 +50,14 @@ List<RouteBase> extraRoutes(GlobalKey<NavigatorState> root) => [
     Routes.foodPick,
     (_) => const FoodSearchScreen(meal: Meal.snack, pickOnly: true),
   ),
+  _page(
+    root,
+    Routes.aiFood,
+    (state) => AiFoodScreen(
+      meal: state.extra is Meal ? state.extra! as Meal : Meal.snack,
+    ),
+  ),
+  _page(root, Routes.aiSettings, (_) => const AiSettingsScreen()),
   _page(
     root,
     Routes.homemade,

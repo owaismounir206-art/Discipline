@@ -187,6 +187,20 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
           const BackupSection(),
+          const _SectionTitle('Intelligenza artificiale'),
+          _Group(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.auto_awesome),
+                title: const Text('AI per il diario del cibo'),
+                subtitle: const Text(
+                  'Facoltativa: con una tua chiave gratuita Groq o Google',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push(Routes.aiSettings),
+              ),
+            ],
+          ),
           const _SectionTitle('Informazioni'),
           _Group(
             children: [

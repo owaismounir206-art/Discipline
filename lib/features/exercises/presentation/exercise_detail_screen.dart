@@ -13,6 +13,7 @@ import '../../../core/utils/local_date.dart';
 import '../../../core/widgets/common.dart';
 import '../../profile/data/profile_repository.dart';
 import '../domain/catalog.dart';
+import '../domain/equipment.dart';
 import '../domain/progression.dart';
 import 'exercise_figure.dart';
 
@@ -34,6 +35,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final chain = Catalog.chain(exercise.chain);
+    final place = ref.watch(athleteProfileProvider).value?.place;
     final progress = ref.watch(chainProgressProvider).value?[exercise.chain];
     final isCurrent = progress?.position == exercise.position;
 
@@ -60,8 +62,23 @@ class ExerciseDetailScreen extends ConsumerWidget {
                 _Tag(exercise.targetLabel),
                 if (exercise.chain.isProgression)
                   _Tag('Tappa ${exercise.position + 1} di ${chain.length}'),
+                _Tag(
+                  needs(exercise).isEmpty
+                      ? 'Senza attrezzi'
+                      : needs(exercise).map((e) => e.label).join(' + '),
+                ),
               ],
             ),
+            if (place != null && !canDo(exercise, place)) ...[
+              const SizedBox(height: 10),
+              Text(
+                'Ti alleni ${place.where}: nella scheda al suo posto trovi '
+                '"${adaptTo(exercise, place).name}".',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             DisciplineCard(
               color: scheme.surfaceContainerLow,
