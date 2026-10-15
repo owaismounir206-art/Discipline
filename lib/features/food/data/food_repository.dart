@@ -9,6 +9,8 @@ import 'package:meta/meta.dart';
 import '../../../core/data/database.dart';
 import '../../../core/data/providers.dart';
 import '../../../core/utils/local_date.dart';
+import '../../rewards/data/rewards_repository.dart';
+import '../../rewards/domain/rewards.dart';
 import '../domain/foods.dart';
 import '../domain/nutrition.dart';
 
@@ -82,24 +84,85 @@ class FoodRepository {
     required FoodItem food,
     required double grams,
     required DateTime now,
-  }) => _db
-      .into(_db.foodEntries)
-      .insert(
-        FoodEntriesCompanion.insert(
-          date: date.key,
-          meal: meal.name,
-          name: food.displayName,
-          grams: grams,
-          kcal100: food.per100.kcal,
-          protein100: food.per100.protein,
-          carbs100: food.per100.carbs,
-          fat100: food.per100.fat,
-          sugar100: food.per100.sugar,
-          source: food.source.name,
-          barcode: Value(food.barcode),
-          createdAt: now,
-        ),
+  }) async {
+    await _db
+        .into(_db.foodEntries)
+        .insert(
+          FoodEntriesCompanion.insert(
+            date: date.key,
+            meal: meal.name,
+            name: food.displayName,
+            grams: grams,
+            kcal100: food.per100.kcal,
+            protein100: food.per100.protein,
+            carbs100: food.per100.carbs,
+            fat100: food.per100.fat,
+            sugar100: food.per100.sugar,
+            source: food.source.name,
+            barcode: Value(food.barcode),
+            createdAt: now,
+          ),
+        );
+    await _rewardDiary(date, now);
+  }
+
+  /// 10 punti il giorno in cui registri almeno 3 pasti (solo per oggi:
+  /// riempire i giorni passati non vale).
+  Future<void> _rewardDiary(LocalDate date, DateTime now) async {
+    if (date != LocalDate.fromDateTime(now)) return;
+    final rows = await (_db.select(
+      _db.foodEntries,
+    )..where((t) => t.date.equals(date.key))).get();
+    if ({for (final r in rows) r.meal}.length < diaryMeals) return;
+    await RewardsRepository(
+      _db,
+    ).award(PointKind.diary, pointsDiary, at: now, ref: 'diario-${date.key}');
+  }
+
+  /// Cambia grammi o pasto di una voce già nel diario.
+  Future<void> updateEntry(
+    int id, {
+    required double grams,
+    required Meal meal,
+  }) => (_db.update(_db.foodEntries)..where((t) => t.id.equals(id))).write(
+    FoodEntriesCompanion(grams: Value(grams), meal: Value(meal.name)),
+  );
+
+  /// Totali per giorno tra [from] e [to] (compresi).
+  Stream<Map<LocalDate, Nutrients>> watchTotals(LocalDate from, LocalDate to) =>
+      (_db.select(_db.foodEntries)
+            ..where((t) => t.date.isBetweenValues(from.key, to.key)))
+          .watch()
+          .map((rows) {
+            final totals = <LocalDate, Nutrients>{};
+            for (final r in rows) {
+              final e = _entry(r);
+              totals[e.date] = (totals[e.date] ?? Nutrients.zero) + e.nutrients;
+            }
+            return totals;
+          });
+
+  // --- Acqua ---
+
+  static const waterKey = 'water';
+
+  /// Millilitri bevuti per giorno.
+  Stream<Map<LocalDate, int>> watchWater() => _db
+      .watchJson(waterKey)
+      .map(
+        (json) => {
+          for (final e in ((json as Map?) ?? const {}).entries)
+            LocalDate.parse('${e.key}'): (e.value as num).toInt(),
+        },
       );
+
+  Future<void> setWater(LocalDate date, int ml) async {
+    final current = (await _db.readJson(waterKey) as Map?) ?? const {};
+    await _db.writeJson(waterKey, {
+      ...current.cast<String, Object?>(),
+      date.key: ml.clamp(0, 10000),
+    });
+  }
 
   Future<void> deleteEntry(int id) =>
       (_db.delete(_db.foodEntries)..where((t) => t.id.equals(id))).go();

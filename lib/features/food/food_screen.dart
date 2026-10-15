@@ -9,6 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/router/routes.dart';
+import '../../core/theme/motion.dart';
+import '../../core/utils/local_date.dart';
 import '../../core/utils/italian_date.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/screen_header.dart';
@@ -19,6 +21,7 @@ import 'data/food_state.dart';
 import 'domain/nutrition.dart';
 import 'presentation/food_amount_sheet.dart';
 import 'presentation/scanner_screen.dart';
+import 'presentation/week_and_water.dart';
 
 /// Formatta 1530 come "1.530".
 String thousands(num value) {
@@ -29,6 +32,14 @@ String thousands(num value) {
     b.write(s[i]);
   }
   return b.toString();
+}
+
+/// "Oggi, martedì 13 ottobre", "Ieri, lunedì 12 ottobre", "Domenica 11 ottobre".
+String dayLabel(LocalDate day, LocalDate today) {
+  final date = formatItalianDate(day.dateTime);
+  if (day == today) return 'Oggi, $date';
+  if (day == today.addDays(-1)) return 'Ieri, $date';
+  return formatItalianDate(day.dateTime, capitalize: true);
 }
 
 /// Apre lo scanner e poi la scelta dei grammi.
@@ -46,15 +57,23 @@ class FoodScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final today = ref.watch(todayProvider);
-    final entries = ref.watch(todayDiaryProvider).value ?? const [];
-    final next = ref.watch(nextMealProvider);
+    final day = ref.watch(foodDayProvider);
+    final isToday = day == today;
+    final entries = ref.watch(dayDiaryProvider).value ?? const [];
+    final logged = {for (final e in entries) e.meal};
+    final next = isToday
+        ? ref.watch(nextMealProvider)
+        : Meal.values.firstWhere(
+            (m) => !logged.contains(m),
+            orElse: () => Meal.snack,
+          );
     final targets = ref.watch(targetsProvider);
-    final totals = ref.watch(todayTotalsProvider);
+    final totals = ref.watch(dayTotalsProvider);
 
     return TabScaffold(
       header: ScreenHeader(
         title: 'Cibo',
-        subtitle: 'Oggi, ${formatItalianDate(today.dateTime)}',
+        subtitle: 'Diario, acqua e settimana',
         actions: [
           HeaderPillButton(
             icon: Icons.qr_code_scanner,
@@ -64,6 +83,7 @@ class FoodScreen extends ConsumerWidget {
         ],
       ),
       children: [
+        const DayBar(),
         if (targets == null)
           _SetupCard(totals: totals)
         else
@@ -72,9 +92,11 @@ class FoodScreen extends ConsumerWidget {
             totals: totals,
             goal: ref.watch(bodyProfileProvider).value?.goal ?? Goal.maintain,
           ),
-        _MealsSection(entries: entries, next: next),
-        if (targets != null)
+        _MealsSection(entries: entries, next: next, isToday: isToday),
+        if (targets != null && isToday)
           _AdviceLink(targets: targets, totals: totals, meal: next),
+        const WaterCard(),
+        if (targets != null) WeekCard(target: targets),
       ],
     );
   }
@@ -101,7 +123,7 @@ class _SetupCard extends StatelessWidget {
               spacing: 4,
               children: [
                 Text(
-                  'Oggi: ${thousands(totals.kcal)} kcal',
+                  'Mangiate: ${thousands(totals.kcal)} kcal',
                   style: theme.textTheme.titleLarge?.copyWith(
                     color: scheme.onPrimaryContainer,
                   ),
@@ -200,25 +222,42 @@ class _SummaryCard extends StatelessWidget {
                       '${thousands(totals.kcal)} kcal su '
                       '${thousands(targets.kcal)}',
                   excludeSemantics: true,
-                  child: CustomPaint(
-                    painter: CalorieRingPainter(
-                      fraction: totals.kcal / targets.kcal,
-                      color: scheme.primary,
-                      track: Color.lerp(
-                        scheme.primaryContainer,
-                        scheme.primary,
-                        0.25,
-                      )!,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(end: totals.kcal / targets.kcal),
+                    duration: DisciplineMotion.of(
+                      context,
+                      DisciplineMotion.long,
+                    ),
+                    curve: DisciplineMotion.decelerate,
+                    builder: (context, fraction, child) => CustomPaint(
+                      painter: CalorieRingPainter(
+                        fraction: fraction,
+                        color: scheme.primary,
+                        track: Color.lerp(
+                          scheme.primaryContainer,
+                          scheme.primary,
+                          0.25,
+                        )!,
+                      ),
+                      child: child,
                     ),
                     child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(
-                            thousands(left.abs()),
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
+                          TweenAnimationBuilder<double>(
+                            tween: Tween(end: left.abs()),
+                            duration: DisciplineMotion.of(
+                              context,
+                              DisciplineMotion.long,
+                            ),
+                            curve: DisciplineMotion.decelerate,
+                            builder: (context, v, _) => Text(
+                              thousands(v),
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
                           ),
                           Text(
@@ -361,10 +400,15 @@ class CalorieRingPainter extends CustomPainter {
 }
 
 class _MealsSection extends ConsumerWidget {
-  const _MealsSection({required this.entries, required this.next});
+  const _MealsSection({
+    required this.entries,
+    required this.next,
+    required this.isToday,
+  });
 
   final List<DiaryEntry> entries;
   final Meal next;
+  final bool isToday;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -384,8 +428,11 @@ class _MealsSection extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
-              'Ancora niente oggi. Cerca un alimento, scansiona un codice a '
-              'barre o scegli un piatto italiano.',
+              isToday
+                  ? 'Ancora niente oggi. Cerca un alimento, scansiona un '
+                        'codice a barre o scegli un piatto italiano.'
+                  : 'Niente registrato in questo giorno. Puoi aggiungere '
+                        'adesso quello che hai mangiato.',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: scheme.onSurfaceVariant,
               ),
@@ -499,8 +546,7 @@ class _MealSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final entries = [
-      for (final e
-          in ref.watch(todayDiaryProvider).value ?? const <DiaryEntry>[])
+      for (final e in ref.watch(dayDiaryProvider).value ?? const <DiaryEntry>[])
         if (e.meal == meal) e,
     ];
     return SafeArea(
@@ -510,10 +556,23 @@ class _MealSheet extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            child: Text(meal.label, style: theme.textTheme.titleLarge),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(meal.label, style: theme.textTheme.titleLarge),
+                Text(
+                  'Tocca un alimento per cambiare i grammi',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
           for (final e in entries)
             ListTile(
+              onTap: () =>
+                  showFoodAmountSheet(context, e.food, meal: e.meal, entry: e),
               title: Text(e.food.name),
               subtitle: Text(
                 '${e.grams.round()} g · ${e.nutrients.macrosLabel}',
@@ -539,7 +598,7 @@ class _MealSheet extends ConsumerWidget {
                     },
                   ),
                   IconButton(
-                    tooltip: 'Elimina',
+                    tooltip: 'Elimina ${e.food.name}',
                     icon: const Icon(Icons.delete_outline),
                     onPressed: () =>
                         ref.read(foodRepositoryProvider).deleteEntry(e.id),

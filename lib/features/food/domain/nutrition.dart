@@ -242,6 +242,17 @@ NutritionTargets computeTargets(BodyProfile body, {required int trainingDays}) {
 }
 
 /// Valori nutrizionali (per 100 g o per una porzione).
+/// Acqua consigliata al giorno: 35 ml per kg, a bicchieri da 250 ml
+/// (tra 1,5 e 4 litri; 2 litri senza dati).
+int waterTargetMl(BodyProfile? body) {
+  if (body == null) return 2000;
+  final ml = (body.weightKg * 35 / 250).round() * 250;
+  return ml.clamp(1500, 4000);
+}
+
+/// Un bicchiere.
+const glassMl = 250;
+
 @immutable
 class Nutrients {
   const Nutrients({

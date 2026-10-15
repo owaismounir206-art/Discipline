@@ -10,11 +10,13 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/data/providers.dart';
 import '../../workout/data/today_plan.dart';
+import '../data/food_state.dart';
 import '../data/food_repository.dart';
 import '../data/open_food_facts.dart';
 import '../domain/foods.dart';
 import '../domain/nutrition.dart';
 import '../food_screen.dart';
+import 'custom_food_sheet.dart';
 import 'food_amount_sheet.dart';
 
 /// Cerca un alimento: preferiti, piatti italiani e Open Food Facts.
@@ -93,6 +95,8 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
       ref.watch(favoritesProvider).value ?? const [],
     );
     final local = searchLocalFoods(query);
+    final isToday = ref.watch(foodDayProvider) == ref.watch(todayProvider);
+    final before = isToday ? 'di ieri' : 'del giorno prima';
 
     Widget header(String text) => Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
@@ -151,13 +155,13 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: OutlinedButton.icon(
                   icon: const Icon(Icons.replay),
-                  label: Text('Ripeti ${widget.meal.withArticle} di ieri'),
+                  label: Text('Ripeti ${widget.meal.withArticle} $before'),
                   onPressed: () async {
                     final count = await ref
                         .read(foodRepositoryProvider)
                         .repeatYesterday(
                           widget.meal,
-                          ref.read(todayProvider),
+                          ref.read(foodDayProvider),
                           ref.read(clockProvider)(),
                         );
                     if (!context.mounted) return;
@@ -165,7 +169,10 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            'Ieri non hai registrato ${widget.meal.withArticle}',
+                            isToday
+                                ? 'Ieri non hai registrato ${widget.meal.withArticle}'
+                                : 'Il giorno prima non hai registrato '
+                                      '${widget.meal.withArticle}',
                           ),
                         ),
                       );
@@ -196,6 +203,22 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
               else
                 for (final f in _online.take(15)) tile(f),
             ],
+            ListTile(
+              leading: const Icon(Icons.edit_note),
+              title: const Text('Crea un alimento'),
+              subtitle: const Text(
+                'Non lo trovi? Inserisci i valori dell\'etichetta',
+              ),
+              onTap: () async {
+                final food = await showCustomFoodSheet(
+                  context,
+                  name: query.trim(),
+                );
+                if (food == null || !context.mounted) return;
+                await ref.read(foodRepositoryProvider).addFavorite(food, 100);
+                if (context.mounted) await _pick(food);
+              },
+            ),
             header('Piatti e alimenti italiani'),
             if (local.isEmpty)
               const ListTile(title: Text('Nessun alimento con questo nome'))

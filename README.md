@@ -23,7 +23,7 @@ abbonamenti, acquisti in-app, pubblicità o tracciamento.
   <img src="docs/screenshots/allenati.png" width="200" alt="Piano settimanale">
   <img src="docs/screenshots/progressi.png" width="200" alt="Progressi e record">
   <img src="docs/screenshots/cibo.png" width="200" alt="Diario del cibo">
-  <img src="docs/screenshots/consigli.png" width="200" alt="Consigli per il prossimo pasto">
+  <img src="docs/screenshots/cibo-settimana.png" width="200" alt="Acqua e riepilogo della settimana">
 </p>
 
 ## Stato del progetto
@@ -54,8 +54,11 @@ fotocamera su un push-up vero e regolare le soglie se serve
   video viene salvato o inviato. Le ripetizioni contate così valgono 1,5
   punti invece di 1.
 - **Diario del cibo** con kcal e macronutrienti, ricerca su Open Food Facts,
-  scanner del codice a barre e consigli per il prossimo pasto. I valori sono
-  stime e non sostituiscono un nutrizionista.
+  scanner del codice a barre e consigli per il prossimo pasto. Puoi tornare
+  ai giorni passati, correggere i grammi, creare un alimento dall'etichetta,
+  contare i bicchieri d'acqua e vedere la settimana rispetto all'obiettivo.
+  Registrare almeno 3 pasti in un giorno vale 10 punti. I valori sono stime
+  e non sostituiscono un nutrizionista.
 
 ## Provala sul telefono (Android)
 

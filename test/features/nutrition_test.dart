@@ -5,6 +5,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:discipline/features/rewards/data/rewards_repository.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:discipline/core/utils/local_date.dart';
@@ -328,5 +329,62 @@ void main() {
       expect(await repo.watchFavorites().first, isEmpty);
       await db.close();
     });
+  });
+
+  test('acqua consigliata', () {
+    expect(waterTargetMl(null), 2000);
+    expect(waterTargetMl(testBody), 2500);
+    expect(waterTargetMl(testBody.copyWith(weightKg: 30)), 1500);
+    expect(waterTargetMl(testBody.copyWith(weightKg: 140)), 4000);
+  });
+
+  test('diario: grammi, totali per giorno, acqua e punti', () async {
+    final db = memoryDatabase();
+    final repo = FoodRepository(db);
+    final today = LocalDate.fromDateTime(testNow);
+    final banana = localFoods.firstWhere((f) => f.name == 'Banana');
+    Future<void> add(LocalDate day, Meal meal) => repo.addEntry(
+      date: day,
+      meal: meal,
+      food: banana,
+      grams: 100,
+      now: testNow,
+    );
+    await add(today, Meal.breakfast);
+    await add(today, Meal.lunch);
+    await add(today.addDays(-1), Meal.breakfast);
+    await add(today.addDays(-1), Meal.lunch);
+    await add(today.addDays(-1), Meal.dinner);
+    // I giorni passati non danno punti.
+    expect(await RewardsRepository(db).points(), isEmpty);
+    await add(today, Meal.snack);
+    await add(today, Meal.dinner);
+    final points = await RewardsRepository(db).points();
+    expect(points.single.amount, 10);
+    expect(points.single.ref, 'diario-${today.key}');
+
+    final entry = (await repo.entriesOf(today, Meal.snack)).single;
+    await repo.updateEntry(entry.id, grams: 200, meal: Meal.dinner);
+    expect(await repo.entriesOf(today, Meal.snack), isEmpty);
+    expect(
+      (await repo.entriesOf(today, Meal.dinner)).map((e) => e.grams),
+      unorderedEquals([100, 200]),
+    );
+
+    final totals = await repo.watchTotals(today.addDays(-6), today).first;
+    expect(totals[today]!.kcal, closeTo(banana.per100.kcal * 5, 0.01));
+    expect(
+      totals[today.addDays(-1)]!.kcal,
+      closeTo(banana.per100.kcal * 3, 0.01),
+    );
+
+    await repo.setWater(today, 500);
+    await repo.setWater(today.addDays(-1), 1000);
+    await repo.setWater(today, 750);
+    expect(await repo.watchWater().first, {
+      today: 750,
+      today.addDays(-1): 1000,
+    });
+    await db.close();
   });
 }

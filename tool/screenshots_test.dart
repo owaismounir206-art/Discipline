@@ -21,6 +21,9 @@ import 'package:discipline/features/challenge/domain/friend_code.dart';
 import 'package:discipline/features/challenge/domain/timed.dart';
 import 'package:discipline/features/rewards/data/rewards_repository.dart';
 import 'package:discipline/features/rewards/domain/rewards.dart';
+import 'package:discipline/features/food/data/food_repository.dart';
+import 'package:discipline/features/food/domain/foods.dart';
+import 'package:discipline/features/food/domain/nutrition.dart';
 
 import '../test/helpers.dart';
 
@@ -128,10 +131,39 @@ void main() {
   testWidgets('cibo', (tester) async {
     final evening = DateTime(2026, 10, 13, 19);
     await tester.runAsync(() => seedHistory(db));
-    await tester.runAsync(() => seedFood(db, now: evening));
+    await tester.runAsync(() async {
+      await seedFood(db, now: evening);
+      // Il resto della settimana, per il riepilogo.
+      final repo = FoodRepository(db);
+      final pasta = localFoods.firstWhere(
+        (f) => f.name == 'Pasta di semola (cruda)',
+      );
+      final monday = LocalDate.fromDateTime(evening).startOfWeek;
+      await repo.addEntry(
+        date: monday,
+        meal: Meal.lunch,
+        food: pasta,
+        grams: 750,
+        now: evening,
+      );
+      await repo.setWater(LocalDate.fromDateTime(evening), 1500);
+    });
     await pumpDiscipline(tester, db, now: evening);
     await openTab(tester, 'Cibo');
     await shoot('cibo');
+    await tester.scrollUntilVisible(
+      find.text('Questa settimana'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -200));
+    await wait(tester);
+    await shoot('cibo-settimana');
+    await tester.scrollUntilVisible(
+      find.text('Cosa mangio a cena?'),
+      -300,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('Cosa mangio a cena?'));
     await wait(tester);
     await shoot('consigli');

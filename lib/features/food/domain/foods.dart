@@ -7,7 +7,7 @@ import 'package:meta/meta.dart';
 import 'nutrition.dart';
 
 /// Da dove viene un alimento.
-enum FoodSource { local, openFoodFacts, recipe }
+enum FoodSource { local, openFoodFacts, recipe, custom }
 
 /// Un alimento con i valori per 100 g.
 @immutable

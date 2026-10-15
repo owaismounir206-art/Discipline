@@ -5,12 +5,56 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/data/providers.dart';
+import '../../../core/utils/local_date.dart';
 import '../../profile/data/profile_repository.dart';
 import '../../streak/domain/streak.dart';
 import '../../workout/data/today_plan.dart';
 import '../domain/foods.dart';
 import '../domain/nutrition.dart';
 import 'food_repository.dart';
+
+/// Giorno mostrato nella scheda Cibo: null = oggi.
+class FoodDayNotifier extends Notifier<LocalDate?> {
+  @override
+  LocalDate? build() => null;
+
+  void show(LocalDate day, LocalDate today) =>
+      state = day.isBefore(today) ? day : null;
+}
+
+final foodDayNotifierProvider = NotifierProvider<FoodDayNotifier, LocalDate?>(
+  FoodDayNotifier.new,
+);
+
+/// Il giorno scelto (mai nel futuro).
+final foodDayProvider = Provider<LocalDate>((ref) {
+  final today = ref.watch(todayProvider);
+  final chosen = ref.watch(foodDayNotifierProvider);
+  return chosen == null || !chosen.isBefore(today) ? today : chosen;
+});
+
+/// Diario del giorno scelto.
+final dayDiaryProvider = StreamProvider<List<DiaryEntry>>((ref) {
+  final day = ref.watch(foodDayProvider);
+  return ref.watch(foodRepositoryProvider).watchDay(day);
+});
+
+final dayTotalsProvider = Provider<Nutrients>((ref) {
+  final entries = ref.watch(dayDiaryProvider).value ?? const [];
+  return entries.fold(Nutrients.zero, (sum, e) => sum + e.nutrients);
+});
+
+/// Totali dei 7 giorni (da lunedì) della settimana del giorno scelto.
+final weekTotalsProvider = StreamProvider<Map<LocalDate, Nutrients>>((ref) {
+  final monday = ref.watch(foodDayProvider).startOfWeek;
+  return ref
+      .watch(foodRepositoryProvider)
+      .watchTotals(monday, monday.addDays(6));
+});
+
+final waterProvider = StreamProvider<Map<LocalDate, int>>(
+  (ref) => ref.watch(foodRepositoryProvider).watchWater(),
+);
 
 /// Diario di oggi.
 final todayDiaryProvider = StreamProvider<List<DiaryEntry>>((ref) {

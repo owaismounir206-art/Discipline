@@ -18,6 +18,10 @@ const pointsRecord = 30;
 /// Bonus per la serie: 5 punti per ogni allenamento di fila, fino a 50.
 int streakBonus(int streak) => math.min(streak, 10) * 5;
 
+/// Diario del cibo con almeno 3 pasti in un giorno.
+const pointsDiary = 10;
+const diaryMeals = 3;
+
 /// Sfida a tempo: un punto per push-up (1,5 se contato dalla fotocamera),
 /// più 20 se batti il record o l'amico.
 int timedPoints({
@@ -33,6 +37,7 @@ enum PointKind {
   record('Nuovo record'),
   challenge('Sfida completata'),
   timed('Sfida a tempo'),
+  diary('Diario completo'),
   freeze('Giorno jolly'),
   theme('Tema');
 

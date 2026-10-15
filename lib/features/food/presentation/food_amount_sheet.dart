@@ -7,39 +7,50 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/data/providers.dart';
 import '../../../core/widgets/common.dart';
-import '../../workout/data/today_plan.dart';
+import '../data/food_state.dart';
 import '../data/food_repository.dart';
 import '../domain/foods.dart';
 import '../domain/nutrition.dart';
 
 /// Chiede i grammi e il pasto, poi aggiunge l'alimento al diario.
 /// Restituisce true se è stato aggiunto.
+///
+/// Con [entry] corregge una voce già nel diario (grammi e pasto).
 Future<bool> showFoodAmountSheet(
   BuildContext context,
   FoodItem food, {
   required Meal meal,
+  DiaryEntry? entry,
 }) async {
   final added = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (_) => FoodAmountSheet(food: food, meal: meal),
+    builder: (_) => FoodAmountSheet(food: food, meal: meal, entry: entry),
   );
   return added ?? false;
 }
 
 class FoodAmountSheet extends ConsumerStatefulWidget {
-  const FoodAmountSheet({super.key, required this.food, required this.meal});
+  const FoodAmountSheet({
+    super.key,
+    required this.food,
+    required this.meal,
+    this.entry,
+  });
 
   final FoodItem food;
   final Meal meal;
+  final DiaryEntry? entry;
 
   @override
   ConsumerState<FoodAmountSheet> createState() => _FoodAmountSheetState();
 }
 
 class _FoodAmountSheetState extends ConsumerState<FoodAmountSheet> {
-  late int _grams = widget.food.defaultGrams.round().clamp(1, 2000);
+  late int _grams = (widget.entry?.grams ?? widget.food.defaultGrams)
+      .round()
+      .clamp(1, 2000);
   late Meal _meal = widget.meal;
 
   @override
@@ -150,21 +161,44 @@ class _FoodAmountSheetState extends ConsumerState<FoodAmountSheet> {
                     }
                   },
                 ),
-                Expanded(
-                  child: FilledButton(
+                if (widget.entry != null)
+                  IconButton.outlined(
+                    tooltip: 'Elimina',
+                    icon: const Icon(Icons.delete_outline),
                     onPressed: () async {
                       await ref
                           .read(foodRepositoryProvider)
-                          .addEntry(
-                            date: ref.read(todayProvider),
-                            meal: _meal,
-                            food: food,
-                            grams: _grams.toDouble(),
-                            now: ref.read(clockProvider)(),
-                          );
+                          .deleteEntry(widget.entry!.id);
                       if (context.mounted) Navigator.pop(context, true);
                     },
-                    child: Text('Aggiungi ${_meal.toMeal}'),
+                  ),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () async {
+                      final repo = ref.read(foodRepositoryProvider);
+                      final entry = widget.entry;
+                      if (entry != null) {
+                        await repo.updateEntry(
+                          entry.id,
+                          grams: _grams.toDouble(),
+                          meal: _meal,
+                        );
+                      } else {
+                        await repo.addEntry(
+                          date: ref.read(foodDayProvider),
+                          meal: _meal,
+                          food: food,
+                          grams: _grams.toDouble(),
+                          now: ref.read(clockProvider)(),
+                        );
+                      }
+                      if (context.mounted) Navigator.pop(context, true);
+                    },
+                    child: Text(
+                      widget.entry != null
+                          ? 'Salva'
+                          : 'Aggiungi ${_meal.toMeal}',
+                    ),
                   ),
                 ),
               ],
