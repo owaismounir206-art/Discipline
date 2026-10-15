@@ -16,6 +16,9 @@ import '../../features/food/presentation/body_data_screen.dart';
 import '../../features/food/presentation/food_search_screen.dart';
 import '../../features/food/presentation/nutrition_screen.dart';
 import '../../features/food/presentation/scanner_screen.dart';
+import '../../features/timer/domain/interval.dart';
+import '../../features/timer/presentation/interval_run_screen.dart';
+import '../../features/timer/presentation/interval_setup_screen.dart';
 import 'routes.dart';
 
 GoRoute _page(
@@ -52,6 +55,14 @@ List<RouteBase> extraRoutes(GlobalKey<NavigatorState> root) => [
     ),
   ),
   _page(root, Routes.friendChallenge, (_) => const FriendChallengeScreen()),
+  _page(root, Routes.timer, (_) => const IntervalSetupScreen()),
+  _page(
+    root,
+    Routes.timerRunning,
+    (state) => IntervalRunScreen(
+      config: IntervalConfig.fromQuery(state.uri.queryParameters),
+    ),
+  ),
   _page(
     root,
     Routes.path(':chain'),

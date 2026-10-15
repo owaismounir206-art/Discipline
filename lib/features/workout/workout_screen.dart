@@ -51,6 +51,8 @@ class WorkoutScreen extends ConsumerWidget {
               _ChainTile(chain: chain, position: chains[chain]!.position),
           if (chains[ChainId.skills] == null) const _LockedSkills(),
         ],
+        const SectionTitle('Timer e routine'),
+        const _TimerCard(),
         const SectionTitle('Percorsi'),
         _PathGrid(chains: chains),
       ],
@@ -259,6 +261,54 @@ class _LockedSkills extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Accesso al timer a intervalli e alle routine guidate.
+class _TimerCard extends StatelessWidget {
+  const _TimerCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return PressScale(
+      child: DisciplineCard(
+        color: scheme.tertiaryContainer,
+        onTap: () => context.push(Routes.timer),
+        child: Row(
+          spacing: 14,
+          children: [
+            Icon(
+              Icons.timer_outlined,
+              size: 36,
+              color: scheme.onTertiaryContainer,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tabata, EMOM, AMRAP',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: scheme.onTertiaryContainer,
+                    ),
+                  ),
+                  Text(
+                    'Riscaldamento, defaticamento e allenamento rapido da 10 '
+                    'minuti',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onTertiaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: scheme.onTertiaryContainer),
+          ],
+        ),
       ),
     );
   }

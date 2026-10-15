@@ -22,6 +22,9 @@ int streakBonus(int streak) => math.min(streak, 10) * 5;
 const pointsDiary = 10;
 const diaryMeals = 3;
 
+/// Timer o routine portati a termine (una volta al giorno).
+const pointsTimer = 15;
+
 /// Sfida a tempo: un punto per push-up (1,5 se contato dalla fotocamera),
 /// più 20 se batti il record o l'amico.
 int timedPoints({
@@ -38,6 +41,7 @@ enum PointKind {
   challenge('Sfida completata'),
   timed('Sfida a tempo'),
   diary('Diario completo'),
+  timer('Timer completato'),
   freeze('Giorno jolly'),
   theme('Tema');
 

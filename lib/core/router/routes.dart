@@ -26,11 +26,17 @@ abstract final class Routes {
   static const bodyData = '/cibo/dati';
   static const timedChallenge = '/sfide/a-tempo';
   static const friendChallenge = '/sfide/amico';
+  static const timer = '/timer';
+  static const timerRunning = '/timer/via';
 
   static String exercise(String id) => '/esercizio/$id';
 
   /// Percorso a tappe di una catena (nome dell'enum).
   static String path(String chain) => '/percorso/$chain';
+
+  /// Timer in corso con le sue impostazioni.
+  static String timerRun(Map<String, String> query) =>
+      Uri(path: timerRunning, queryParameters: query).toString();
 
   /// Sfida a tempo; con [code] è la sfida di un amico.
   static String timed(String mode, {String? code}) => Uri(

@@ -14,6 +14,7 @@ import '../../../core/widgets/motion_widgets.dart';
 import '../../exercises/domain/catalog.dart';
 import '../../exercises/domain/exercise.dart';
 import '../../exercises/domain/progression.dart';
+import '../../timer/domain/interval.dart';
 import '../domain/workout_plan.dart';
 import '../data/session_controller.dart';
 import 'suggestions_card.dart';
@@ -667,6 +668,19 @@ class _SummaryView extends ConsumerWidget {
               _SummarySuggestion(suggestion: s),
             ],
             const SizedBox(height: 20),
+            OutlinedButton.icon(
+              icon: const Icon(Icons.self_improvement),
+              label: const Text('Defaticamento guidato (5 min)'),
+              onPressed: () {
+                context.go(Routes.today);
+                context.push(
+                  Routes.timerRun(
+                    const IntervalConfig.of(IntervalKind.coolDown).toQuery(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 10),
             FilledButton(
               onPressed: () => context.go(Routes.today),
               child: const Text('Fine'),

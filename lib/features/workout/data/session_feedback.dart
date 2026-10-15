@@ -13,6 +13,9 @@ abstract interface class SessionFeedback {
   Future<void> keepScreenOn(bool on);
   Future<void> restFinished();
   Future<void> setDone();
+
+  /// Bip breve negli ultimi secondi di una fase del timer.
+  Future<void> tick();
 }
 
 class DeviceSessionFeedback implements SessionFeedback {
@@ -43,6 +46,20 @@ class DeviceSessionFeedback implements SessionFeedback {
 
   @override
   Future<void> setDone() => HapticFeedback.mediumImpact();
+
+  AudioPlayer? _tick;
+
+  @override
+  Future<void> tick() async {
+    await HapticFeedback.selectionClick();
+    try {
+      final player = _tick ??= AudioPlayer();
+      await player.setReleaseMode(ReleaseMode.stop);
+      await player.play(AssetSource('sounds/bip.wav'));
+    } on Object {
+      // Senza audio resta la vibrazione.
+    }
+  }
 }
 
 class SilentSessionFeedback implements SessionFeedback {
@@ -54,6 +71,9 @@ class SilentSessionFeedback implements SessionFeedback {
 
   @override
   Future<void> setDone() async {}
+
+  @override
+  Future<void> tick() async {}
 }
 
 final sessionFeedbackProvider = Provider<SessionFeedback>(
