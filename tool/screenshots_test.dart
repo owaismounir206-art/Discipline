@@ -16,6 +16,8 @@ import 'package:discipline/core/widgets/motion_widgets.dart';
 import 'package:discipline/app.dart';
 import 'package:discipline/core/data/database.dart';
 import 'package:discipline/core/router/routes.dart';
+import 'package:discipline/core/widgets/celebration.dart';
+import 'package:discipline/features/timer/domain/interval.dart';
 import 'package:discipline/core/utils/local_date.dart';
 import 'package:discipline/features/challenge/domain/friend_code.dart';
 import 'package:discipline/features/challenge/domain/timed.dart';
@@ -117,6 +119,55 @@ void main() {
     await pumpDiscipline(tester, db);
     await openTab(tester, 'Allenati');
     await shoot('allenati');
+    await disposeDiscipline(tester, db);
+  });
+
+  testWidgets('percorso', (tester) async {
+    await tester.runAsync(() => seedHistory(db));
+    await pumpDiscipline(tester, db);
+    final router = GoRouter.of(
+      tester.element(find.byType(DisciplineNavigationBar)),
+    );
+    unawaited(router.push(Routes.path('push')));
+    await wait(tester);
+    await shoot('percorso');
+    await disposeDiscipline(tester, db);
+  });
+
+  testWidgets('timer', (tester) async {
+    await tester.runAsync(() => seedHistory(db));
+    await pumpDiscipline(tester, db);
+    final router = GoRouter.of(
+      tester.element(find.byType(DisciplineNavigationBar)),
+    );
+    unawaited(
+      router.push(
+        Routes.timerRun(const IntervalConfig.of(IntervalKind.quick).toQuery()),
+      ),
+    );
+    await wait(tester);
+    await tester.pump(const Duration(seconds: 23));
+    await wait(tester, 2);
+    await shoot('timer');
+    await disposeDiscipline(tester, db);
+  });
+
+  testWidgets('festa', (tester) async {
+    await tester.runAsync(() => seedHistory(db));
+    await pumpDiscipline(tester, db);
+    unawaited(
+      celebrate(
+        tester.element(find.byType(DisciplineNavigationBar)),
+        kicker: 'Nuovo record',
+        title: '42 push-up in un minuto',
+        subtitle: 'Il precedente era 38',
+        points: 62,
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 700));
+    await shoot('festa');
+    await tester.pump(const Duration(seconds: 2));
     await disposeDiscipline(tester, db);
   });
 

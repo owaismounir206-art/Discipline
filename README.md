@@ -25,6 +25,11 @@ abbonamenti, acquisti in-app, pubblicità o tracciamento.
   <img src="docs/screenshots/cibo.png" width="200" alt="Diario del cibo">
   <img src="docs/screenshots/cibo-settimana.png" width="200" alt="Acqua e riepilogo della settimana">
 </p>
+<p>
+  <img src="docs/screenshots/percorso.png" width="200" alt="Percorso a tappe con figurina animata">
+  <img src="docs/screenshots/timer.png" width="200" alt="Timer a intervalli, tema scuro">
+  <img src="docs/screenshots/festa.png" width="200" alt="Festa per un nuovo record">
+</p>
 
 ## Stato del progetto
 
