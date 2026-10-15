@@ -35,7 +35,11 @@ final todayWorkoutProvider = Provider<({WorkoutPlan plan, bool scheduled})?>((
   final positions = ref.watch(positionsProvider);
   if (profile == null || positions.isEmpty) return null;
   final today = ref.watch(todayProvider);
-  final template = templateForWeekday(profile.trainingDays, today.weekday);
+  // Gli stessi giorni che usa la streak: se cambi i giorni oggi, la modifica
+  // vale da domani (oggi resta com'era, anche per la scheda in "Oggi").
+  final schedule = ref.watch(scheduleProvider).value ?? const [];
+  final days = daysOn(schedule, today) ?? profile.trainingDays;
+  final template = templateForWeekday(days, today.weekday);
   return (
     plan: buildWorkout(
       template: template ?? WorkoutTemplate.fullBody,

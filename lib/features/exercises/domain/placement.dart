@@ -104,11 +104,7 @@ Placement computePlacement(AthleteProfile profile) {
     );
   }
 
-  final skillsUnlocked =
-      profile.difficulty.index >= Difficulty.advanced.index &&
-      positions[ChainId.push]! >= 4 &&
-      positions[ChainId.pull]! >= 3;
-  if (skillsUnlocked) {
+  if (skillsUnlocked(profile.difficulty, positions)) {
     positions[ChainId.skills] = profile.difficulty == Difficulty.elite ? 1 : 0;
   }
 
@@ -155,3 +151,10 @@ List<String> _notes(
 }
 
 String _count(int n, String one, String many) => n == 1 ? '1 $one' : '$n $many';
+
+/// Le skill si sbloccano dal livello Avanzato con push-up diamante e
+/// trazioni (all'inizio o più avanti, allenandosi).
+bool skillsUnlocked(Difficulty difficulty, Map<ChainId, int> positions) =>
+    difficulty.index >= Difficulty.advanced.index &&
+    (positions[ChainId.push] ?? 0) >= 4 &&
+    (positions[ChainId.pull] ?? 0) >= 3;

@@ -67,7 +67,17 @@ class LocalReminderService implements ReminderService {
       final info = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(info.identifier));
     } on Object {
-      tz.setLocalLocation(tz.UTC);
+      // Fuso non riconosciuto: si usa lo scostamento attuale del telefono
+      // (le zone "Etc/GMT" hanno il segno invertito), non UTC.
+      final hours = DateTime.now().timeZoneOffset.inHours;
+      final name = hours == 0
+          ? 'UTC'
+          : 'Etc/GMT${hours > 0 ? '-' : '+'}${hours.abs()}';
+      try {
+        tz.setLocalLocation(tz.getLocation(name));
+      } on Object {
+        tz.setLocalLocation(tz.UTC);
+      }
     }
     await _plugin.initialize(
       settings: const InitializationSettings(

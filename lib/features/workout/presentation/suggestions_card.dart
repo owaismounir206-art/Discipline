@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/widgets/common.dart';
+import '../../exercises/domain/exercise.dart';
+import '../../exercises/domain/placement.dart';
 import '../../exercises/domain/progression.dart';
 import '../../profile/data/profile_repository.dart';
 import '../data/today_plan.dart';
@@ -27,14 +29,30 @@ Future<void> answerSuggestion(
   ProgressionSuggestion suggestion, {
   required bool accept,
 }) async {
+  // Letti prima delle attese: la schermata può chiudersi nel frattempo.
   final repo = ref.read(profileRepositoryProvider);
+  final today = ref.read(todayProvider);
   final chains = {...await repo.loadChains()};
   final current = chains[suggestion.chain];
   if (current == null) return;
   chains[suggestion.chain] = accept
-      ? changePosition(current, suggestion.to.position, ref.read(todayProvider))
+      ? changePosition(current, suggestion.to.position, today)
       // Rifiutata: si riparte a contare, così non la riproponiamo subito.
       : current.copyWith(topStreak: 0, belowStreak: 0);
+  // Arrivato a diamante e trazioni: si aprono le skill.
+  final profile = await repo.loadProfile();
+  if (accept &&
+      profile != null &&
+      !chains.containsKey(ChainId.skills) &&
+      skillsUnlocked(profile.difficulty, {
+        for (final e in chains.entries) e.key: e.value.position,
+      })) {
+    chains[ChainId.skills] = ChainProgress(
+      chain: ChainId.skills,
+      position: 0,
+      since: today,
+    );
+  }
   await repo.saveChains(chains);
 }
 

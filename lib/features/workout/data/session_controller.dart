@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 
@@ -171,6 +172,15 @@ int defaultValue(Exercise e) => e.measure == Measure.reps ? e.range.max : 0;
 class SessionController extends Notifier<SessionState?> {
   Timer? _ticker;
 
+  /// Una serie si sta salvando: un secondo tocco non la registra due volte.
+  bool _saving = false;
+  bool _finishing = false;
+
+  /// Quando l'app è andata in background: al ritorno si recuperano i
+  /// secondi persi (il timer del telefono si ferma a schermo spento).
+  DateTime? _pausedAt;
+  AppLifecycleListener? _lifecycle;
+
   SessionFeedback get _feedback => ref.read(sessionFeedbackProvider);
   WorkoutRepository get _repo => ref.read(workoutRepositoryProvider);
   DateTime _now() => ref.read(clockProvider)();
@@ -180,16 +190,41 @@ class SessionController extends Notifier<SessionState?> {
     final feedback = ref.read(sessionFeedbackProvider);
     ref.onDispose(() {
       _ticker?.cancel();
+      _lifecycle?.dispose();
       feedback.keepScreenOn(false);
     });
     return null;
   }
 
+  void _watchLifecycle() {
+    _lifecycle?.dispose();
+    _lifecycle = AppLifecycleListener(
+      onHide: () => _pausedAt = DateTime.now(),
+      onShow: () {
+        final at = _pausedAt;
+        _pausedAt = null;
+        if (at == null) return;
+        advance(DateTime.now().difference(at).inSeconds);
+      },
+    );
+  }
+
+  /// Fa passare [seconds] secondi in un colpo (ritorno dal background).
+  void advance(int seconds) {
+    for (var i = 0; i < seconds.clamp(0, 6 * 3600); i++) {
+      final s = state;
+      if (s == null || s.finished) return;
+      tick();
+    }
+  }
+
   /// Avvia una sessione della scheda indicata con le varianti attuali.
   Future<void> start(WorkoutTemplate template) async {
-    final profile = await ref.read(profileRepositoryProvider).loadProfile();
-    final chains = await ref.read(profileRepositoryProvider).loadChains();
-    if (profile == null || chains.isEmpty) return;
+    final repo = ref.read(profileRepositoryProvider);
+    final profile = await repo.loadProfile();
+    final chains = await repo.loadChains();
+    // Uscito dalla schermata mentre si caricava: niente sessione.
+    if (!ref.mounted || profile == null || chains.isEmpty) return;
     final plan = buildWorkout(
       template: template,
       positions: {for (final e in chains.entries) e.key: e.value.position},
@@ -209,16 +244,22 @@ class SessionController extends Notifier<SessionState?> {
       startedAt: now,
       elapsed: 0,
     );
-    final id = await _repo.startSession(
+    final sessions = _repo;
+    final id = await sessions.startSession(
       date: LocalDate.fromDateTime(now),
       template: template,
       plannedSets: plan.totalSets,
       now: now,
     );
+    if (!ref.mounted) {
+      await sessions.discardIfEmpty(id);
+      return;
+    }
     state = state?.copyWith(sessionId: id);
     await _feedback.keepScreenOn(true);
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) => tick());
+    _watchLifecycle();
   }
 
   /// Avanza di un secondo (chiamato dal timer; pubblico per i test).
@@ -314,6 +355,16 @@ class SessionController extends Notifier<SessionState?> {
 
   /// Registra la serie e avvia il recupero (o passa al prossimo esercizio).
   Future<void> completeSet() async {
+    if (_saving) return;
+    _saving = true;
+    try {
+      await _completeSet();
+    } finally {
+      _saving = false;
+    }
+  }
+
+  Future<void> _completeSet() async {
     final s = state;
     if (s == null || s.finished) return;
     final current = s.current;
@@ -335,18 +386,22 @@ class SessionController extends Notifier<SessionState?> {
       );
     }
 
+    if (!ref.mounted) return;
+    // Il timer è andato avanti durante il salvataggio: si parte dallo stato
+    // attuale per non perdere secondi.
+    final latest = state ?? s;
     var index = s.index;
     if (updated.complete) {
       index = exercises.indexWhere((e) => !e.complete);
       if (index == -1) {
-        state = s.copyWith(exercises: exercises);
+        state = latest.copyWith(exercises: exercises);
         await finish();
         return;
       }
     }
     final next = exercises[index].exercise;
     final rest = current.planned.restSeconds;
-    state = s.copyWith(
+    state = latest.copyWith(
       exercises: exercises,
       index: index,
       value: index == s.index && next.measure == Measure.reps
@@ -398,15 +453,31 @@ class SessionController extends Notifier<SessionState?> {
       }
     }
 
-    await give(PointKind.workout, pointsWorkout, 'allenamento-$id');
+    final done = s.progress >= doneThreshold - 1e-9;
+    // I punti base valgono per un allenamento vero (almeno l'80%), una volta
+    // al giorno: iniziare e chiudere subito più volte non dà punti.
+    if (done) {
+      await give(PointKind.workout, pointsWorkout, 'allenamento-${today.key}');
+    }
 
-    // La serie conta solo se l'allenamento di oggi è programmato e fatto.
-    final streak = ref.read(streakProvider);
-    if (streak.statuses[today] == DayStatus.today &&
-        s.progress >= doneThreshold - 1e-9) {
+    // La serie conta solo se l'allenamento del giorno è programmato e fatto.
+    // Lo stato può essere già "fatto": le serie si salvano una alla volta e
+    // la streak si aggiorna prima della fine della sessione.
+    // Calcolata dal database (non dalla cache): così è aggiornata con
+    // l'ultima serie salvata anche se la schermata "Oggi" non è aperta.
+    final streak = computeStreak(
+      schedule: await ref.read(profileRepositoryProvider).loadSchedule(),
+      completions: await _repo.watchCompletions().first,
+      today: today,
+      protectedDays: await rewards.protectedDays(),
+    );
+    final status = streak.statuses[today];
+    if (done && (status == DayStatus.today || status == DayStatus.done)) {
       await give(
         PointKind.streak,
-        streakBonus(streak.current + 1),
+        streakBonus(
+          status == DayStatus.done ? streak.current : streak.current + 1,
+        ),
         'serie-${today.key}',
       );
     }
@@ -436,11 +507,16 @@ class SessionController extends Notifier<SessionState?> {
   /// proposte di cambio variante.
   Future<void> finish() async {
     final s = state;
-    if (s == null || s.finished) return;
+    if (s == null || s.finished || _finishing) return;
+    _finishing = true;
     _ticker?.cancel();
+    _lifecycle?.dispose();
+    _lifecycle = null;
     await _feedback.keepScreenOn(false);
     final now = _now();
-    final today = LocalDate.fromDateTime(now);
+    // Il giorno dell'allenamento è quello in cui è iniziato (anche se finisce
+    // dopo mezzanotte).
+    final today = LocalDate.fromDateTime(s.startedAt);
 
     var points = 0;
     if (s.sessionId != null) {
@@ -462,11 +538,16 @@ class SessionController extends Notifier<SessionState?> {
         for (final d in e.done)
           if (d.exerciseId == progress.exercise.id) d.value,
       ];
-      chains[e.exercise.chain] = recordSession(progress, sets);
+      chains[e.exercise.chain] = recordSession(
+        progress,
+        sets,
+        planned: e.planned.sets,
+      );
     }
     await repo.saveChains(chains);
 
     final profile = await repo.loadProfile();
+    if (!ref.mounted) return;
     state = s.copyWith(
       finished: true,
       pointsEarned: points,

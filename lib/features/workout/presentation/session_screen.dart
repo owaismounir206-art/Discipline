@@ -759,14 +759,14 @@ class _SummarySuggestionState extends ConsumerState<_SummarySuggestion> {
                 TextButton(
                   onPressed: () async {
                     await answerSuggestion(ref, s, accept: false);
-                    setState(() => _answer = false);
+                    if (mounted) setState(() => _answer = false);
                   },
                   child: const Text('Non ora'),
                 ),
                 FilledButton(
                   onPressed: () async {
                     await answerSuggestion(ref, s, accept: true);
-                    setState(() => _answer = true);
+                    if (mounted) setState(() => _answer = true);
                   },
                   child: Text(
                     s.direction == ChangeDirection.harder ? 'Proviamo' : 'Ok',

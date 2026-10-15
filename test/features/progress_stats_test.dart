@@ -111,11 +111,13 @@ void main() {
         chain: ChainId.push,
         position: 4,
         since: LocalDate(2026, 10, 12),
+        start: 3,
       ),
       ChainId.pull: const ChainProgress(
         chain: ChainId.pull,
         position: 3,
         since: LocalDate(2026, 9, 20),
+        start: 2,
       ),
       ChainId.core: const ChainProgress(
         chain: ChainId.core,
@@ -135,6 +137,18 @@ void main() {
       ]);
       expect(skills.first.best, 15);
       expect(skills.last.best, 0);
+    });
+
+    test('tornare a una variante più facile non è una conquista', () {
+      final easier = {
+        ChainId.push: const ChainProgress(
+          chain: ChainId.push,
+          position: 2,
+          since: LocalDate(2026, 10, 12),
+          start: 3,
+        ),
+      };
+      expect(unlockedSkills(easier, const [], start), isEmpty);
     });
 
     test('conta le varianti raggiunte', () {

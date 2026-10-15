@@ -211,7 +211,9 @@ List<UnlockedSkill> unlockedSkills(
 ) {
   final result = [
     for (final p in chains.values)
-      if (p.since.isAfter(start))
+      // Solo varianti più difficili di quella di partenza: tornare a una
+      // più facile o cambiare il profilo non è una conquista.
+      if (p.since.isAfter(start) && p.position > p.start)
         UnlockedSkill(
           exercise: p.exercise,
           since: p.since,

@@ -18,9 +18,14 @@ class ChainProgress {
     required this.since,
     this.topStreak = 0,
     this.belowStreak = 0,
-  });
+    int? start,
+  }) : start = start ?? position;
 
   final ChainId chain;
+
+  /// Variante di partenza (dal profilo): conta come "conquistata" solo una
+  /// variante più difficile di questa.
+  final int start;
 
   /// Variante attuale nella catena.
   final int position;
@@ -49,6 +54,7 @@ class ChainProgress {
     since: since ?? this.since,
     topStreak: topStreak ?? this.topStreak,
     belowStreak: belowStreak ?? this.belowStreak,
+    start: start,
   );
 
   Map<String, Object?> toJson() => {
@@ -56,6 +62,7 @@ class ChainProgress {
     'since': since.key,
     'top': topStreak,
     'below': belowStreak,
+    'start': start,
   };
 
   factory ChainProgress.fromJson(ChainId chain, Map<String, Object?> json) =>
@@ -68,6 +75,9 @@ class ChainProgress {
         since: LocalDate.parse(json['since']! as String),
         topStreak: (json['top'] as num?)?.toInt() ?? 0,
         belowStreak: (json['below'] as num?)?.toInt() ?? 0,
+        // Dati di prima della 1.0.2 senza partenza: come prima, conta tutto
+        // quello che è cambiato dopo l'inizio.
+        start: (json['start'] as num?)?.toInt() ?? 0,
       );
 
   @override
@@ -77,11 +87,12 @@ class ChainProgress {
       other.position == position &&
       other.since == since &&
       other.topStreak == topStreak &&
-      other.belowStreak == belowStreak;
+      other.belowStreak == belowStreak &&
+      other.start == start;
 
   @override
   int get hashCode =>
-      Object.hash(chain, position, since, topStreak, belowStreak);
+      Object.hash(chain, position, since, topStreak, belowStreak, start);
 }
 
 /// Sessioni di fila necessarie per proporre un cambio di variante.
@@ -99,10 +110,17 @@ enum SessionOutcome {
   inRange,
 }
 
-/// Valuta le serie fatte rispetto all'intervallo dell'esercizio.
-SessionOutcome evaluateSets(TargetRange range, List<int> sets) {
+/// Valuta le serie fatte rispetto all'intervallo dell'esercizio. Per essere
+/// "al massimo" servono anche tutte le serie previste ([planned]).
+SessionOutcome evaluateSets(
+  TargetRange range,
+  List<int> sets, {
+  int planned = 0,
+}) {
   if (sets.isEmpty) return SessionOutcome.belowMin;
-  if (sets.every((v) => v >= range.max)) return SessionOutcome.top;
+  if (sets.length >= planned && sets.every((v) => v >= range.max)) {
+    return SessionOutcome.top;
+  }
   final average = sets.reduce((a, b) => a + b) / sets.length;
   if (average < range.min) return SessionOutcome.belowMin;
   return SessionOutcome.inRange;
@@ -110,9 +128,17 @@ SessionOutcome evaluateSets(TargetRange range, List<int> sets) {
 
 /// Aggiorna la catena dopo una sessione in cui si è usata la sua variante
 /// attuale. Le serie fatte con altre varianti non contano.
-ChainProgress recordSession(ChainProgress progress, List<int> sets) {
+ChainProgress recordSession(
+  ChainProgress progress,
+  List<int> sets, {
+  int planned = 0,
+}) {
   if (sets.isEmpty) return progress;
-  return switch (evaluateSets(progress.exercise.range, sets)) {
+  return switch (evaluateSets(
+    progress.exercise.range,
+    sets,
+    planned: planned,
+  )) {
     SessionOutcome.top => progress.copyWith(
       topStreak: progress.topStreak + 1,
       belowStreak: 0,
@@ -193,4 +219,5 @@ ChainProgress changePosition(
   chain: progress.chain,
   position: position.clamp(0, Catalog.lastPosition(progress.chain)),
   since: today,
+  start: progress.start,
 );
