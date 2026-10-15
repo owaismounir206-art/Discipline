@@ -244,6 +244,7 @@ void main() {
     });
 
     test('ricerca e codice a barre con un server finto', () async {
+      var searches = 0;
       final client = MockClient((request) async {
         if (request.url.path.contains('/api/v2/product/123')) {
           return http.Response(
@@ -261,25 +262,65 @@ void main() {
           return http.Response('{"status":0}', 404);
         }
         expect(request.headers['User-Agent'], contains('Discipline'));
-        expect(request.url.queryParameters['search_terms'], 'pane');
+        // Il nuovo motore di ricerca: il vecchio /cgi/search.pl dà 503.
+        expect(request.url.host, 'search.openfoodfacts.org');
+        expect(request.url.queryParameters['q'], 'pane');
+        searches++;
+        // Formato reale di search-a-licious: "hits" e marche in una lista.
         return http.Response(
           jsonEncode({
-            'products': [
+            'hits': [
               {
+                'code': '8001',
                 'product_name': 'Pane',
+                'brands': ['Forno', 'Altro'],
                 'nutriments': {'energy-kcal_100g': 270},
               },
-              {'product_name': 'Senza calorie'},
+              {
+                'product_name': 'Senza calorie',
+                'brands': ['X'],
+              },
+              {
+                'product_name': {'it': 'Strano'},
+                'nutriments': 'non valido',
+              },
             ],
+            'page': 1,
           }),
           200,
         );
       });
       final off = OpenFoodFacts(client: client);
-      expect((await off.search('pane')).single.name, 'Pane');
+      final found = await off.search('Pane ');
+      expect(found.single.name, 'Pane');
+      expect(found.single.brand, 'Forno');
+      expect(found.single.barcode, '8001');
+      // La stessa ricerca non richiama il server (limite di 10 al minuto).
+      await off.search('pane');
+      expect(searches, 1);
       expect(await off.search('p'), isEmpty);
       expect((await off.byBarcode('123'))!.barcode, '123');
       expect(await off.byBarcode('999'), isNull);
+    });
+
+    test('server occupato o troppe ricerche: messaggi chiari', () async {
+      for (final (code, text) in [(503, 'non risponde'), (429, 'Troppe')]) {
+        final off = OpenFoodFacts(
+          client: MockClient(
+            (_) async => http.Response('<html>busy</html>', code),
+          ),
+        );
+        await expectLater(
+          off.search('pane'),
+          throwsA(
+            isA<FoodCatalogException>().having(
+              (e) => e.message,
+              'message',
+              contains(text),
+            ),
+          ),
+        );
+      }
     });
 
     test('offline: messaggio comprensibile', () async {

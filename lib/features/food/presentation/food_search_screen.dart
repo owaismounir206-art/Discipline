@@ -48,6 +48,8 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
     setState(() {});
     _debounce?.cancel();
     if (text.trim().length < 3) {
+      // Una risposta ancora in arrivo non deve riempire la lista vuota.
+      _request++;
       setState(() {
         _online = const [];
         _error = null;
@@ -55,10 +57,12 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
       });
       return;
     }
-    _debounce = Timer(const Duration(milliseconds: 500), () => _search(text));
+    _debounce = Timer(const Duration(milliseconds: 700), () => _search(text));
   }
 
   Future<void> _search(String text) async {
+    _debounce?.cancel();
+    if (text.trim().length < 3) return;
     final id = ++_request;
     setState(() {
       _loading = true;
