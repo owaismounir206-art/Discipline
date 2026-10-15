@@ -55,22 +55,53 @@ void main() {
         'Push-up arciere',
         'Push-up a un braccio',
       ]);
-      expect(Catalog.chain(ChainId.pull), hasLength(6));
-      expect(Catalog.chain(ChainId.dip), hasLength(3));
-      expect(Catalog.chain(ChainId.legs), hasLength(5));
-      expect(Catalog.chain(ChainId.core), hasLength(4));
+      expect(Catalog.chain(ChainId.pull), hasLength(7));
+      expect(Catalog.chain(ChainId.dip), hasLength(4));
+      expect(Catalog.chain(ChainId.legs), hasLength(6));
+      expect(Catalog.chain(ChainId.core), hasLength(5));
       expect(Catalog.chain(ChainId.skills).map((e) => e.id), [
         'skill_crow',
         'skill_wall_handstand',
         'skill_tuck_planche',
         'skill_tuck_front_lever',
         'skill_muscle_up',
+        'skill_handstand_free',
+        'skill_front_lever',
       ]);
       expect(Catalog.chain(ChainId.core).first.measure, Measure.seconds);
     });
 
+    test('le nuove tappe sono in fondo: le posizioni salvate non cambiano', () {
+      // Posizioni dei percorsi prima della versione 1.0.
+      const before = {
+        ChainId.pull: 'pull_archer',
+        ChainId.dip: 'dip_parallel',
+        ChainId.legs: 'legs_pistol',
+        ChainId.core: 'core_lsit',
+        ChainId.shoulders: 'shoulders_pike_elevated',
+        ChainId.skills: 'skill_muscle_up',
+      };
+      for (final MapEntry(key: chain, value: id) in before.entries) {
+        expect(
+          Catalog.chain(chain).indexWhere((e) => e.id == id),
+          Catalog.byId(id)!.position,
+        );
+      }
+      expect(Catalog.byId('pull_archer')!.position, 5);
+      expect(Catalog.byId('legs_pistol')!.position, 4);
+    });
+
+    test('famiglie per variare: cardio, mobilità, complementari', () {
+      expect(Catalog.all.length, greaterThanOrEqualTo(70));
+      for (final c in [ChainId.cardio, ChainId.mobility, ChainId.accessory]) {
+        expect(c.isProgression, isFalse);
+        expect(c.isMain, isFalse);
+        expect(Catalog.chain(c), isNotEmpty);
+      }
+    });
+
     test('at() resta dentro la catena', () {
-      expect(Catalog.at(ChainId.dip, 99).id, 'dip_parallel');
+      expect(Catalog.at(ChainId.dip, 99).id, 'dip_straight_bar');
       expect(Catalog.at(ChainId.dip, -3).id, 'dip_bench');
     });
   });

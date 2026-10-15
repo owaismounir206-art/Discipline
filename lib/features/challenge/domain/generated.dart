@@ -140,7 +140,26 @@ int pointsFor(GeneratedChallenge c, ChallengeProgress p) =>
     p.cameraBonus ? (c.basePoints * 1.5).round() : c.basePoints;
 
 /// Catene da cui pescare (le trazioni no: serve una sbarra).
-const _chains = [ChainId.push, ChainId.legs, ChainId.core, ChainId.dip];
+const _chains = [
+  ChainId.push,
+  ChainId.legs,
+  ChainId.core,
+  ChainId.dip,
+  ChainId.cardio,
+  ChainId.accessory,
+];
+
+/// Esercizi delle famiglie per variare che vanno bene senza attrezzi.
+List<Exercise> _variety(ChainId chain) => [
+  for (final e in Catalog.chain(chain))
+    if (!const {
+      'acc_nordic',
+      'acc_chin_up',
+      'acc_scap_pull',
+      'acc_dead_hang',
+    }.contains(e.id))
+      e,
+];
 
 double _multiplier(Difficulty d) => switch (d) {
   Difficulty.beginner => 2,
@@ -169,7 +188,10 @@ List<GeneratedChallenge> generateChallenges({
   final mult = _multiplier(difficulty);
 
   GeneratedChallenge make(ChallengePeriod period, ChainId chain) {
-    final exercise = Catalog.at(chain, positions[chain] ?? 0);
+    final seed = period == ChallengePeriod.day ? daySeed : weekSeed;
+    final exercise = chain.isProgression
+        ? Catalog.at(chain, positions[chain] ?? 0)
+        : _variety(chain)[(seed * 7) % _variety(chain).length];
     final perDay = exercise.range.max * mult;
     final total = period == ChallengePeriod.day ? perDay : perDay * 4;
     return GeneratedChallenge(

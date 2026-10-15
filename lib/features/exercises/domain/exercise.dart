@@ -27,14 +27,22 @@ enum ChainId {
   legs('Gambe', isMain: true),
   core('Core', isMain: true),
   shoulders('Spalle', isMain: false),
-  skills('Skill', isMain: false);
+  skills('Skill', isMain: false),
+  cardio('Cardio', isMain: false, isProgression: false),
+  mobility('Mobilità', isMain: false, isProgression: false),
+  accessory('Complementari', isMain: false, isProgression: false);
 
-  const ChainId(this.label, {required this.isMain});
+  const ChainId(this.label, {required this.isMain, this.isProgression = true});
 
   final String label;
 
   /// Le catene principali decidono il livello mostrato.
   final bool isMain;
+
+  /// Percorso con tappe da sbloccare. Le famiglie senza progressione
+  /// (cardio, mobilità, complementari) servono per variare, scaldarsi e
+  /// allungarsi.
+  final bool isProgression;
 }
 
 /// Come si misura una serie.

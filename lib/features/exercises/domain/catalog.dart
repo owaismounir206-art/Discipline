@@ -2,18 +2,22 @@
 // Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'catalog_more.dart';
 import 'exercise.dart';
 
 /// Catalogo degli esercizi a corpo libero, organizzato in catene.
 abstract final class Catalog {
   static final Map<ChainId, List<Exercise>> chains = {
     ChainId.push: _push,
-    ChainId.pull: _pull,
-    ChainId.dip: _dip,
-    ChainId.legs: _legs,
-    ChainId.core: _core,
-    ChainId.shoulders: _shoulders,
-    ChainId.skills: _skills,
+    ChainId.pull: [..._pull, ...pullMore],
+    ChainId.dip: [..._dip, ...dipMore],
+    ChainId.legs: [..._legs, ...legsMore],
+    ChainId.core: [..._core, ...coreMore],
+    ChainId.shoulders: [..._shoulders, ...shouldersMore],
+    ChainId.skills: [..._skills, ...skillsMore],
+    ChainId.cardio: cardio,
+    ChainId.mobility: mobility,
+    ChainId.accessory: accessory,
   };
 
   static final Map<String, Exercise> _byId = {
