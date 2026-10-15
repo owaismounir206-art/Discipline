@@ -12,6 +12,7 @@ import 'package:discipline/app.dart';
 import 'package:discipline/core/data/database.dart';
 import 'package:discipline/core/data/providers.dart';
 import 'package:discipline/core/services/share.dart';
+import 'package:discipline/core/update/update_checker.dart';
 import 'package:discipline/core/utils/local_date.dart';
 import 'package:discipline/features/exercises/domain/exercise.dart';
 import 'package:discipline/features/food/data/food_repository.dart';
@@ -45,6 +46,20 @@ class FakeReminders implements ReminderService {
   Future<void> schedule(AthleteProfile profile) async => scheduled.add(profile);
 }
 
+/// Nessuna rete nei test: di base non c'è una versione nuova.
+class FakeReleases implements ReleaseSource {
+  FakeReleases([this.release]);
+
+  Release? release;
+  var calls = 0;
+
+  @override
+  Future<Release?> latest() async {
+    calls++;
+    return release;
+  }
+}
+
 AppDatabase memoryDatabase() => AppDatabase(NativeDatabase.memory());
 
 /// Salva un profilo (con il suo punto di partenza) nel database.
@@ -61,12 +76,14 @@ List<Override> testOverrides(
   DateTime? now,
   DateTime Function()? clock,
   List<Override> extra = const [],
+  ReleaseSource? releases,
 }) => [
   databaseProvider.overrideWithValue(db),
   clockProvider.overrideWithValue(clock ?? () => now ?? testNow),
   remindersProvider.overrideWithValue(FakeReminders()),
   sessionFeedbackProvider.overrideWithValue(SilentSessionFeedback()),
   foodCatalogProvider.overrideWithValue(FakeFoodCatalog()),
+  releaseSourceProvider.overrideWithValue(releases ?? FakeReleases()),
   ...extra,
 ];
 
@@ -77,6 +94,7 @@ Future<void> pumpDiscipline(
   DateTime? now,
   DateTime Function()? clock,
   List<Override> extra = const [],
+  ReleaseSource? releases,
 }) async {
   // Schermo di un telefono (390 × 844 come nel design).
   tester.view
@@ -85,7 +103,13 @@ Future<void> pumpDiscipline(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: testOverrides(db, now: now, clock: clock, extra: extra),
+      overrides: testOverrides(
+        db,
+        now: now,
+        clock: clock,
+        extra: extra,
+        releases: releases,
+      ),
       child: const DisciplineApp(),
     ),
   );

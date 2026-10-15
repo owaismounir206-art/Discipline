@@ -1,7 +1,7 @@
 name: discipline
 description: "Discipline: calisthenics libera e gratuita."
 publish_to: 'none'
-version: 0.3.0+4
+version: 1.0.0+5
 
 environment:
   sdk: ^3.13.5
@@ -28,6 +28,7 @@ dependencies:
   path_provider: ^2.1.6
   meta: ^1.19.0
   file_picker: ^13.1.0
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:

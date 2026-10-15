@@ -41,11 +41,20 @@ fotocamera su un push-up vero e regolare le soglie se serve
 - **Allenamenti a corpo libero** organizzati in catene di progressione
   (es. push-up al muro → inclinati → classici → diamante → arciere → a un
   braccio), adattati a difficoltà, esperienza e a un test iniziale.
-- **Streak** che conta solo i giorni di allenamento che scegli.
+- **71 esercizi**: 7 percorsi a tappe (push-up, trazioni, dip, gambe, core,
+  spalle, skill fino a verticale e front lever) più cardio, mobilità e
+  complementari per variare. Ogni esercizio ha una figurina animata che
+  mostra il movimento.
+- **Timer a intervalli**: Tabata, EMOM, AMRAP e libero, con anello, colori per
+  fase e bip negli ultimi 3 secondi. Routine guidate di riscaldamento,
+  defaticamento e allenamento rapido da 10 minuti.
+- **Streak** che conta solo i giorni di allenamento che scegli, con un
+  calendario delle ultime 16 settimane.
 - **Sfide e punti**: una sfida del giorno e una della settimana tarate sul
   tuo livello, sfide a tempo (Un minuto, Gara a 50) contro il tuo record.
   I punti fanno salire di grado, sbloccano badge e colori dell'app e
   comprano il **giorno jolly**, che salva la serie se salti un allenamento.
+  Record, sfide vinte e nuovi gradi si festeggiano con i coriandoli.
 - **Sfida un amico senza server**: fai la sfida, mandagli un codice su
   WhatsApp; lui fa la stessa sfida e vede chi ha vinto.
 - **Animazioni Material You**: indicatori e pulsanti che scorrono partendo
@@ -59,21 +68,25 @@ fotocamera su un push-up vero e regolare le soglie se serve
   contare i bicchieri d'acqua e vedere la settimana rispetto all'obiettivo.
   Registrare almeno 3 pasti in un giorno vale 10 punti. I valori sono stime
   e non sostituiscono un nutrizionista.
+- **Diario del peso** con grafico: il peso più recente aggiorna i consigli
+  sul cibo.
+- **Aggiornamenti automatici**: una volta al giorno l'app controlla su GitHub
+  se c'è una versione nuova e te la propone (si può spegnere).
 
 ## Provala sul telefono (Android)
 
 Senza installare nulla sul computer:
 
-1. Apri la scheda **Actions** del repository e scegli l'ultima esecuzione
-   verde di **CI**.
-2. In fondo, nella sezione **Artifacts**, scarica `discipline-apk-prova` (serve
-   essere collegati a GitHub) ed estrai lo zip.
-3. Copia `app-release.apk` sul telefono e aprilo. Android ti chiederà di
-   consentire l'installazione da questa fonte.
+1. Apri le **Releases** del repository e scarica il file `.apk` dell'ultima
+   versione.
+2. Aprilo sul telefono: Android ti chiederà di consentire l'installazione da
+   questa fonte.
+3. Dalla 1.0 in poi gli aggiornamenti si installano sopra la versione
+   vecchia senza perdere i dati: l'app ti avvisa da sola.
 
-È una versione di prova firmata con una chiave di sviluppo. Le versioni
-ufficiali (con file `.apk` e impronta SHA-256) sono nelle **Releases**; come
-pubblicarle: [docs/PUBBLICAZIONE.md](docs/PUBBLICAZIONE.md).
+Se avevi una versione di prova (0.x), disinstallala prima: era firmata con
+una chiave diversa. Come pubblicare una versione:
+[docs/PUBBLICAZIONE.md](docs/PUBBLICAZIONE.md).
 
 ## Compilarla
 

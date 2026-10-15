@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/router/routes.dart';
+import '../../core/update/update_card.dart';
 import '../../core/theme/discipline_theme.dart';
 import '../../core/utils/italian_date.dart';
 import '../../core/utils/local_date.dart';
@@ -77,6 +78,7 @@ class TodayScreen extends ConsumerWidget {
       ),
       children: [
         if (profile != null) ...[
+          const UpdateCard(),
           _StreakCard(profile: profile),
           const _FreezeHint(),
           const _LevelCard(),

@@ -17,7 +17,13 @@ i risultati restano sul telefono.
 
 - **Ricerca degli alimenti**: il testo che cerchi o il codice a barre
   scansionato vengono inviati a [Open Food Facts](https://world.openfoodfacts.org)
-  per trovare i valori nutrizionali. È l'unico collegamento a internet.
+  per trovare i valori nutrizionali.
+- **Aggiornamenti**: una volta al giorno l'app chiede a GitHub
+  (`api.github.com`) qual è l'ultima versione pubblicata. Non viene inviato
+  nessun tuo dato, solo la richiesta con il nome dell'app. Puoi spegnerlo in
+  Impostazioni > Controlla gli aggiornamenti.
+
+Sono gli unici collegamenti a internet.
 
 ## Sfide con gli amici
 
@@ -38,7 +44,7 @@ telefono**: le immagini non vengono salvate né inviate.
 ## Permessi
 
 Fotocamera (conteggio e scanner dei codici a barre), notifiche (promemoria
-che scegli tu) e rete (solo ricerca degli alimenti). Nessun microfono,
+che scegli tu) e rete (ricerca degli alimenti e controllo degli aggiornamenti). Nessun microfono,
 nessuna posizione, nessun contatto, nessun identificativo pubblicitario.
 
 ## Dati sanitari

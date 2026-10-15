@@ -105,6 +105,7 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: Discipline ${{ steps.version.outputs.name }}
           files: dist/*
-          generate_release_notes: true
+          # Le novità (righe con "- ") compaiono anche nell'avviso dentro l'app.
+          body_path: docs/NOVITA.md
           # Senza keystore nei segreti l'APK è firmato con la chiave di prova.
           prerelease: ${{ env.KEYSTORE_B64 == '' }}

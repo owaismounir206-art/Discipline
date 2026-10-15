@@ -12,6 +12,7 @@ import '../../core/theme/discipline_theme.dart';
 import '../../core/theme/theme_settings.dart';
 import '../../core/utils/local_date.dart';
 import '../../core/widgets/motion_widgets.dart';
+import '../../core/update/update_card.dart';
 import '../profile/data/profile_repository.dart';
 import '../profile/domain/athlete_profile.dart';
 import '../streak/data/reminders.dart';
@@ -181,6 +182,7 @@ class SettingsScreen extends ConsumerWidget {
                   'dell\'AI (Claude).',
                 ),
               ),
+              const UpdateSettingsTiles(),
               const ListTile(
                 leading: Icon(Icons.code),
                 title: Text('Codice sorgente'),

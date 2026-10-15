@@ -29,7 +29,10 @@ chiave copia `android/key.properties.example` in `android/key.properties`.
 
 ## 2. Pubblicare una versione
 
-1. Aggiorna `version` in `pubspec.yaml` (es. `0.2.0+1`) e committa.
+1. Aggiorna `version` in `pubspec.yaml` (es. `1.1.0+6`) **e** `appVersion`
+   in `lib/core/update/update_checker.dart` (un test controlla che siano
+   uguali). Scrivi le novità in `docs/NOVITA.md`: le righe che iniziano con
+   `- ` compaiono anche nell'avviso di aggiornamento dentro l'app. Committa.
 2. Crea e invia il tag:
    ```bash
    git tag v0.2.0
@@ -39,6 +42,9 @@ chiave copia `android/key.properties.example` in `android/key.properties`.
    versione da `pubspec.yaml` e crea lei tag e release.
 3. L'azione **Rilascio** esegue analisi e test, compila `.apk` e `.aab` e
    crea la release su GitHub con le impronte `SHA256SUMS.txt`.
+4. Entro un giorno le app installate vedono la nuova versione in **Oggi**
+   (l'API `releases/latest` di GitHub ignora le pre-release: senza la chiave
+   di firma nei segreti la release è una pre-release e l'avviso non parte).
 
 ## 3. Store (facoltativo)
 
