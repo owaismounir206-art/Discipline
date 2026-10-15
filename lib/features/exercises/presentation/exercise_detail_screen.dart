@@ -14,6 +14,7 @@ import '../../../core/widgets/common.dart';
 import '../../profile/data/profile_repository.dart';
 import '../domain/catalog.dart';
 import '../domain/progression.dart';
+import 'exercise_figure.dart';
 
 /// Dettaglio di un esercizio: come si esegue, errori comuni, catena.
 class ExerciseDetailScreen extends ConsumerWidget {
@@ -57,8 +58,20 @@ class ExerciseDetailScreen extends ConsumerWidget {
               children: [
                 _Tag(exercise.muscleGroup.label),
                 _Tag(exercise.targetLabel),
-                _Tag('Variante ${exercise.position + 1} di ${chain.length}'),
+                if (exercise.chain.isProgression)
+                  _Tag('Tappa ${exercise.position + 1} di ${chain.length}'),
               ],
+            ),
+            const SizedBox(height: 16),
+            DisciplineCard(
+              color: scheme.surfaceContainerLow,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Center(
+                child: ExerciseFigure(
+                  motion: motionFor(exercise),
+                  size: const Size(200, 140),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             DisciplineCard(

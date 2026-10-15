@@ -9,6 +9,8 @@ import '../../features/camera/presentation/camera_counter_screen.dart';
 import '../../features/challenge/domain/timed.dart';
 import '../../features/challenge/presentation/friend_challenge_screen.dart';
 import '../../features/challenge/presentation/timed_challenge_screen.dart';
+import '../../features/exercises/domain/exercise.dart';
+import '../../features/exercises/presentation/chain_path_screen.dart';
 import '../../features/food/domain/nutrition.dart';
 import '../../features/food/presentation/body_data_screen.dart';
 import '../../features/food/presentation/food_search_screen.dart';
@@ -50,4 +52,13 @@ List<RouteBase> extraRoutes(GlobalKey<NavigatorState> root) => [
     ),
   ),
   _page(root, Routes.friendChallenge, (_) => const FriendChallengeScreen()),
+  _page(
+    root,
+    Routes.path(':chain'),
+    (state) => ChainPathScreen(
+      chain:
+          ChainId.values.asNameMap()[state.pathParameters['chain']] ??
+          ChainId.push,
+    ),
+  ),
 ];

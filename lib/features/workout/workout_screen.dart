@@ -8,11 +8,15 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/router/routes.dart';
 import '../../core/theme/discipline_theme.dart';
+import '../../core/theme/motion.dart';
 import '../../core/widgets/common.dart';
+import '../../core/widgets/motion_widgets.dart';
 import '../../core/widgets/screen_header.dart';
 import '../../core/widgets/tab_scaffold.dart';
 import '../exercises/domain/catalog.dart';
 import '../exercises/domain/exercise.dart';
+import '../exercises/domain/progression.dart';
+import '../exercises/presentation/exercise_figure.dart';
 import '../profile/data/profile_repository.dart';
 import '../profile/domain/athlete_profile.dart';
 import 'data/today_plan.dart';
@@ -47,9 +51,8 @@ class WorkoutScreen extends ConsumerWidget {
               _ChainTile(chain: chain, position: chains[chain]!.position),
           if (chains[ChainId.skills] == null) const _LockedSkills(),
         ],
-        const SectionTitle('Catalogo esercizi'),
-        for (final chain in ChainId.values)
-          _CatalogChain(chain: chain, position: chains[chain]?.position),
+        const SectionTitle('Percorsi'),
+        _PathGrid(chains: chains),
       ],
     );
   }
@@ -261,60 +264,97 @@ class _LockedSkills extends StatelessWidget {
   }
 }
 
-class _CatalogChain extends StatelessWidget {
-  const _CatalogChain({required this.chain, this.position});
+/// Griglia dei percorsi: ogni scheda apre la strada a tappe.
+class _PathGrid extends StatelessWidget {
+  const _PathGrid({required this.chains});
 
-  final ChainId chain;
-  final int? position;
+  final Map<ChainId, ChainProgress> chains;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final list = Catalog.chain(chain);
-    return Card(
-      child: ExpansionTile(
-        shape: const RoundedRectangleBorder(),
-        title: Text(chain.label, style: theme.textTheme.titleMedium),
-        subtitle: Text(
-          '${list.length} varianti · ${list.first.muscleGroup.label}',
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: scheme.onSurfaceVariant,
-          ),
-        ),
-        children: [
-          for (final e in list)
-            ListTile(
-              leading: CircleAvatar(
-                radius: 16,
-                backgroundColor: position != null && e.position <= position!
-                    ? scheme.primary
-                    : scheme.surfaceContainerHigh,
-                foregroundColor: position != null && e.position <= position!
-                    ? scheme.onPrimary
-                    : scheme.onSurfaceVariant,
-                child: Text(
-                  '${e.position + 1}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.05,
+      children: [
+        for (final chain in ChainId.values)
+          Builder(
+            builder: (context) {
+              final list = Catalog.chain(chain);
+              final position = chains[chain]?.position;
+              final shown = list[(position ?? 0).clamp(0, list.length - 1)];
+              final label = !chain.isProgression
+                  ? '${list.length} esercizi'
+                  : position == null
+                  ? 'Da iniziare · ${list.length} tappe'
+                  : 'Tappa ${position + 1} di ${list.length}';
+              return PressScale(
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  clipBehavior: Clip.antiAlias,
+                  color: chain.isProgression
+                      ? scheme.surfaceContainer
+                      : scheme.secondaryContainer,
+                  child: InkWell(
+                    onTap: () => context.push(Routes.path(chain.name)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Center(
+                              child: ExerciseFigure(
+                                motion: motionFor(shown),
+                                size: const Size(96, 64),
+                              ),
+                            ),
+                          ),
+                          Text(chain.label, style: theme.textTheme.titleMedium),
+                          Text(
+                            label,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
+                          ),
+                          if (chain.isProgression) ...[
+                            const SizedBox(height: 6),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(3),
+                              child: TweenAnimationBuilder<double>(
+                                tween: Tween(
+                                  begin: 0,
+                                  end: position == null
+                                      ? 0
+                                      : (position + 1) / list.length,
+                                ),
+                                duration: DisciplineMotion.of(
+                                  context,
+                                  DisciplineMotion.long,
+                                ),
+                                curve: DisciplineMotion.decelerate,
+                                builder: (context, v, _) =>
+                                    LinearProgressIndicator(
+                                      value: v,
+                                      minHeight: 6,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              title: Text(e.name),
-              subtitle: Text(e.targetLabel),
-              trailing: e.position == position
-                  ? Chip(
-                      label: const Text('Attuale'),
-                      backgroundColor: scheme.primaryContainer,
-                      side: BorderSide.none,
-                      visualDensity: VisualDensity.compact,
-                    )
-                  : null,
-              onTap: () => context.push(Routes.exercise(e.id)),
-            ),
-        ],
-      ),
+              );
+            },
+          ),
+      ],
     );
   }
 }

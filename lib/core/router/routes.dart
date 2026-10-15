@@ -29,6 +29,9 @@ abstract final class Routes {
 
   static String exercise(String id) => '/esercizio/$id';
 
+  /// Percorso a tappe di una catena (nome dell'enum).
+  static String path(String chain) => '/percorso/$chain';
+
   /// Sfida a tempo; con [code] è la sfida di un amico.
   static String timed(String mode, {String? code}) => Uri(
     path: timedChallenge,
