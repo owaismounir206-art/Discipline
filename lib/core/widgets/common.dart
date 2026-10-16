@@ -7,6 +7,9 @@ import 'package:material_ui/material_ui.dart';
 import '../theme/motion.dart';
 import '../theme/discipline_theme.dart';
 import '../feedback/ui_feedback.dart';
+import '../theme/styles/app_style.dart';
+import '../theme/styles/style_border.dart';
+import 'motion_widgets.dart';
 
 /// Contatore con − e + (ripetizioni, secondi, grammi).
 class ValueStepper extends StatelessWidget {
@@ -41,12 +44,10 @@ class ValueStepper extends StatelessWidget {
       fixedSize: const Size(44, 44),
     );
 
-    return Container(
+    return DisciplineCard(
       padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 8, 8),
-      decoration: BoxDecoration(
-        color: background ?? scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(DisciplineRadii.card),
-      ),
+      color: background ?? scheme.surfaceContainer,
+      radius: DisciplineRadii.card,
       child: Row(
         children: [
           Expanded(
@@ -70,16 +71,21 @@ class ValueStepper extends StatelessWidget {
             icon: const Icon(Icons.remove),
           ),
           ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 56),
+            constraints: const BoxConstraints(minWidth: 56, maxWidth: 110),
             child: Semantics(
               liveRegion: true,
               label: '$label: $value${suffix ?? ''}',
               excludeSemantics: true,
-              child: Text(
-                '$value${suffix ?? ''}',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontFeatures: const [FontFeature.tabularFigures()],
+              // Con il testo grande il numero si stringe invece di spingere
+              // fuori i pulsanti.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  '$value${suffix ?? ''}',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
                 ),
               ),
             ),
@@ -146,10 +152,12 @@ class SegmentBar extends StatelessWidget {
     );
   }
 
-  Widget _bar(Color c) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: c,
-      borderRadius: BorderRadius.circular(height / 2),
+  Widget _bar(Color c) => Builder(
+    builder: (context) => DecoratedBox(
+      decoration: BoxDecoration(
+        color: c,
+        borderRadius: BorderRadius.circular(_barRadius(context, height)),
+      ),
     ),
   );
 }
@@ -188,7 +196,7 @@ class ChainDots extends StatelessWidget {
                 color: i <= position
                     ? (color ?? scheme.primary)
                     : (track ?? scheme.outlineVariant),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(_barRadius(context, 8)),
               ),
             ),
         ],
@@ -207,6 +215,7 @@ class SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final style = AppStyle.of(context);
     // Un po' di aria sopra: separa la sezione da quella prima, anche nelle
     // pagine senza spaziatura tra gli elementi.
     return Padding(
@@ -219,8 +228,11 @@ class SectionTitle extends StatelessWidget {
             child: Semantics(
               header: true,
               child: Text(
-                text,
-                style: theme.textTheme.titleMedium?.copyWith(fontSize: 16),
+                style.navLabel(text),
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontSize: style.uppercaseLabels ? 14 : 16,
+                  letterSpacing: style.uppercaseLabels ? 1 : null,
+                ),
               ),
             ),
           ),
@@ -231,7 +243,8 @@ class SectionTitle extends StatelessWidget {
   }
 }
 
-/// Card con angoli molto arrotondati e colore pieno.
+/// Card con il colore pieno e la forma dello stile (in Material You angoli
+/// molto arrotondati; altrove bordi, ombre piene, vetro, plastilina...).
 class DisciplineCard extends StatelessWidget {
   const DisciplineCard({
     super.key,
@@ -246,23 +259,54 @@ class DisciplineCard extends StatelessWidget {
   final Widget child;
   final Color? color;
   final EdgeInsetsGeometry padding;
+
+  /// Solo per Material You: gli altri stili usano i loro angoli.
   final double radius;
   final VoidCallback? onTap;
   final String? semanticsLabel;
 
   @override
   Widget build(BuildContext context) {
+    final style = AppStyle.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final content = Padding(padding: padding, child: child);
-    return Semantics(
-      container: true,
-      label: semanticsLabel,
-      child: Material(
-        color: color ?? Theme.of(context).colorScheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(radius),
-        clipBehavior: Clip.antiAlias,
-        child: onTap == null ? content : InkWell(onTap: onTap, child: content),
+    if (style.id == StyleId.material) {
+      return Semantics(
+        container: true,
+        label: semanticsLabel,
+        child: Material(
+          color: color ?? scheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(radius),
+          clipBehavior: Clip.antiAlias,
+          child: onTap == null
+              ? content
+              : InkWell(onTap: onTap, child: content),
+        ),
+      );
+    }
+    var shape = StyleBorder.card(style, scheme);
+    // Premuta in uno stile "che affonda": l'ombra piena sparisce.
+    if (PressedScope.of(context)) shape = shape.pressed;
+    Widget card = Material(
+      color: color ?? scheme.surfaceContainer,
+      shape: shape,
+      child: ClipPath(
+        clipper: ShapeBorderClipper(shape: shape),
+        child: onTap == null
+            ? content
+            : InkWell(customBorder: shape, onTap: onTap, child: content),
       ),
     );
+    if (style.softShadows.isNotEmpty) {
+      card = DecoratedBox(
+        decoration: ShapeDecoration(
+          shape: shape.pressed,
+          shadows: style.softShadows,
+        ),
+        child: card,
+      );
+    }
+    return Semantics(container: true, label: semanticsLabel, child: card);
   }
 }
 
@@ -286,21 +330,41 @@ class IconBadge extends StatelessWidget {
   final double radius;
 
   @override
-  Widget build(BuildContext context) => ExcludeSemantics(
-    child: Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: background ?? Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(radius),
+  Widget build(BuildContext context) {
+    final style = AppStyle.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: ShapeDecoration(
+          color: background ?? scheme.primaryContainer,
+          shape: style.id == StyleId.material
+              ? RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(radius),
+                )
+              : StyleBorder(
+                  radius: style.smallRadius.clamp(0, radius),
+                  corner: style.corner,
+                  side: style.borderWidth >= 2
+                      ? BorderSide(color: scheme.outline, width: 2)
+                      : BorderSide.none,
+                ),
+        ),
+        child: Icon(
+          icon,
+          color: foreground ?? Theme.of(context).colorScheme.onPrimaryContainer,
+          size: size * 0.55,
+        ),
       ),
-      child: Icon(
-        icon,
-        color: foreground ?? Theme.of(context).colorScheme.onPrimaryContainer,
-        size: size * 0.55,
-      ),
-    ),
-  );
+    );
+  }
+}
+
+/// Barre e puntini: tondi, oppure squadrati negli stili ad angoli vivi.
+double _barRadius(BuildContext context, double height) {
+  final style = AppStyle.of(context);
+  return style.id == StyleId.material || style.radius >= 8 ? height / 2 : 0;
 }
 
 /// Formatta secondi come "1:05".
@@ -329,7 +393,7 @@ class AnimatedProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(height / 2),
+    borderRadius: BorderRadius.circular(_barRadius(context, height)),
     child: TweenAnimationBuilder<double>(
       tween: Tween(end: value.clamp(0.0, 1.0)),
       duration: DisciplineMotion.of(context, DisciplineMotion.long),

@@ -8,6 +8,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/router/routes.dart';
 import '../../core/theme/motion.dart';
+import '../../core/theme/styles/app_style.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/motion_widgets.dart';
 import '../../core/widgets/screen_header.dart';
@@ -131,13 +132,15 @@ class _TemplateRow extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final fg = scheme.onTertiaryContainer;
+    final radius = BorderRadius.circular(
+      AppStyle.of(context).smallRadius.clamp(0, 16),
+    );
+    // La riga di oggi: un velo del colore del testo, leggibile in ogni stile.
     return Material(
-      color: isToday
-          ? scheme.surface.withValues(alpha: 0.6)
-          : Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
+      color: isToday ? fg.withValues(alpha: 0.12) : Colors.transparent,
+      borderRadius: radius,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: radius,
         onTap: () => context.push(Routes.session, extra: template),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -145,10 +148,16 @@ class _TemplateRow extends StatelessWidget {
             spacing: 12,
             children: [
               SizedBox(
-                width: 36,
-                child: Text(
-                  weekdayNames[day - 1].substring(0, 3),
-                  style: theme.textTheme.titleMedium?.copyWith(color: fg),
+                width: 40,
+                // Con il testo grande il giorno si stringe invece di andare
+                // a capo.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    weekdayNames[day - 1].substring(0, 3),
+                    style: theme.textTheme.titleMedium?.copyWith(color: fg),
+                  ),
                 ),
               ),
               Expanded(
@@ -296,7 +305,10 @@ class _PathGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 0.9,
+      // Più alte se il testo del telefono è grande (le tre righe sotto la
+      // figura crescono).
+      childAspectRatio:
+          0.9 / MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.8),
       children: [
         for (final chain in ChainId.values)
           Builder(

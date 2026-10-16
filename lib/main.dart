@@ -31,6 +31,24 @@ import 'core/feedback/ui_feedback.dart';
 import 'core/data/providers.dart';
 import 'core/theme/theme_settings.dart';
 
+const _styleFonts = {
+  'Anton': 'Anton',
+  'Archivo': 'Archivo',
+  'ArchivoBlack': 'Archivo Black',
+  'Baloo': 'Baloo 2',
+  'Barlow': 'Barlow',
+  'Fredoka': 'Fredoka',
+  'OpenSans': 'Open Sans',
+  'Orbitron': 'Orbitron',
+  'PlexMono': 'IBM Plex Mono',
+  'PressStart': 'Press Start 2P',
+  'Rajdhani': 'Rajdhani',
+  'Shippori': 'Shippori Mincho',
+  'DotGothic': 'DotGothic16',
+  'YujiBoku': 'Yuji Boku',
+  'ZenKaku': 'Zen Kaku Gothic New',
+};
+
 Future<void> main() async {
   // Come WidgetsFlutterBinding, in più fa suonare i tocchi.
   DisciplineBinding();
@@ -39,6 +57,13 @@ Future<void> main() async {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('assets/fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['Figtree'], license);
+    // I caratteri degli stili (tool/make_fonts.py).
+    for (final MapEntry(key: file, value: name) in _styleFonts.entries) {
+      final text = await rootBundle.loadString(
+        'assets/fonts/licenses/$file.txt',
+      );
+      yield LicenseEntryWithLineBreaks([name], text);
+    }
   });
 
   // Database aperto qui per leggere subito il tema scelto (niente lampo del

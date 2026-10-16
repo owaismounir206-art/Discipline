@@ -96,17 +96,16 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 150));
-    double opacity(String text) => tester
-        .widget<FadeTransition>(
-          find
-              .ancestor(
-                of: find.text(text),
-                matching: find.byType(FadeTransition),
-              )
-              .first,
-        )
-        .opacity
-        .value;
+    // Finito l'ingresso l'Opacity sparisce: vale 1.
+    double opacity(String text) {
+      final found = find.ancestor(
+        of: find.text(text),
+        matching: find.byType(Opacity),
+      );
+      return found.evaluate().isEmpty
+          ? 1
+          : tester.widget<Opacity>(found.first).opacity;
+    }
     expect(opacity('Prima'), greaterThan(opacity('Quinta')));
     await tester.pumpAndSettle();
     expect(opacity('Quinta'), 1);

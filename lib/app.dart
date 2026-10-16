@@ -11,6 +11,9 @@ import 'package:material_ui/material_ui.dart';
 import 'core/data/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/discipline_theme.dart';
+import 'core/theme/styles/app_style.dart';
+import 'core/theme/styles/style_backdrop.dart';
+import 'core/theme/styles/style_catalog.dart';
 import 'core/theme/theme_settings.dart';
 import 'core/update/update_checker.dart';
 import 'features/rewards/domain/rewards.dart';
@@ -70,17 +73,29 @@ class _DisciplineAppState extends ConsumerState<DisciplineApp> {
             settings.useDynamicColor &&
             lightDynamic != null &&
             darkDynamic != null;
+        final style = styleById(settings.style);
+        // Gli stili hanno colori fissi: chiaro e scuro sono lo stesso tema.
+        final styled = style.id == StyleId.material
+            ? null
+            : DisciplineTheme.forStyle(style);
 
         return MaterialApp.router(
           title: 'Discipline',
           debugShowCheckedModeBanner: false,
-          theme: useDynamic
-              ? DisciplineTheme.fromScheme(lightDynamic.harmonized())
-              : _paletteTheme(settings.palette, Brightness.light),
-          darkTheme: useDynamic
-              ? DisciplineTheme.fromScheme(darkDynamic.harmonized())
-              : _paletteTheme(settings.palette, Brightness.dark),
+          theme:
+              styled ??
+              (useDynamic
+                  ? DisciplineTheme.fromScheme(lightDynamic.harmonized())
+                  : _paletteTheme(settings.palette, Brightness.light)),
+          darkTheme:
+              styled ??
+              (useDynamic
+                  ? DisciplineTheme.fromScheme(darkDynamic.harmonized())
+                  : _paletteTheme(settings.palette, Brightness.dark)),
           themeMode: settings.mode,
+          // Un solo orologio per gli sfondi che si muovono.
+          builder: (context, child) =>
+              StyleClock(style: style, child: child ?? const SizedBox()),
           locale: const Locale('it'),
           supportedLocales: const [Locale('it')],
           localizationsDelegates: GlobalMaterialLocalizations.delegates,

@@ -11,6 +11,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/data/providers.dart';
 import '../../../core/theme/discipline_theme.dart';
+import '../../../core/theme/styles/app_style.dart';
 import '../../../core/theme/motion.dart';
 import '../../../core/utils/local_date.dart';
 import '../../../core/widgets/motion_widgets.dart';
@@ -135,7 +136,7 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
   @override
   Widget build(BuildContext context) {
     return Theme(
-      data: DisciplineTheme.dark,
+      data: DisciplineTheme.immersive(context),
       child: Builder(builder: _build),
     );
   }
@@ -147,10 +148,10 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
     final done = pos.done;
     final step = _steps[pos.index];
     final next = pos.index + 1 < _steps.length ? _steps[pos.index + 1] : null;
-    final color = switch (step.phase) {
-      Phase.prepare => scheme.tertiary,
-      Phase.work => scheme.primary,
-      Phase.rest => scheme.secondary,
+    final (color, onColor) = switch (step.phase) {
+      Phase.prepare => (scheme.tertiary, scheme.onTertiary),
+      Phase.work => (scheme.primary, scheme.onPrimary),
+      Phase.rest => (scheme.secondary, scheme.onSecondary),
     };
     final (round, rounds) = roundOf(_steps, pos.index);
     final total = totalSeconds(_steps);
@@ -162,9 +163,7 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
     final exercise = step.exercise;
 
     return Scaffold(
-      backgroundColor: scheme.surface,
       appBar: AppBar(
-        backgroundColor: scheme.surface,
         leading: IconButton(
           tooltip: 'Chiudi',
           icon: const Icon(Icons.close),
@@ -189,8 +188,10 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(16),
+                            color: color,
+                            borderRadius: BorderRadius.circular(
+                              AppStyle.of(context).smallRadius.clamp(0, 16),
+                            ),
                           ),
                           child: Text(
                             switch (step.phase) {
@@ -199,18 +200,21 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
                               Phase.rest => 'Recupero',
                             },
                             style: TextStyle(
-                              color: color,
+                              color: onColor,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
                         ),
-                        const Spacer(),
-                        Text(
-                          step.phase == Phase.prepare
-                              ? '$rounds giri'
-                              : 'Giro $round di $rounds',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: scheme.onSurfaceVariant,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            step.phase == Phase.prepare
+                                ? '$rounds giri'
+                                : 'Giro $round di $rounds',
+                            textAlign: TextAlign.end,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: scheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ],
@@ -252,6 +256,9 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
                                         child: ExcludeSemantics(
                                           child: Text(
                                             clock(pos.remaining),
+                                            // Già grande quanto il cerchio:
+                                            // non si ingrandisce di nuovo.
+                                            textScaler: TextScaler.noScaling,
                                             style: theme.textTheme.displayLarge
                                                 ?.copyWith(
                                                   fontSize: side * .24,
@@ -340,7 +347,7 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
                             iconSize: 40,
                             style: IconButton.styleFrom(
                               backgroundColor: color,
-                              foregroundColor: scheme.surface,
+                              foregroundColor: onColor,
                               fixedSize: const Size(88, 88),
                             ),
                             onPressed: _togglePause,

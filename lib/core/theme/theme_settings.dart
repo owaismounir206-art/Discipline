@@ -15,6 +15,7 @@ class ThemeSettings {
     this.mode = ThemeMode.system,
     this.useDynamicColor = false,
     this.palette = 'coral',
+    this.style = 'material',
   });
 
   /// Chiaro, scuro o come il telefono.
@@ -26,20 +27,26 @@ class ThemeSettings {
   /// Colori dell'app (nome di un AppPalette sbloccato con i punti).
   final String palette;
 
+  /// Stile grafico (nome di uno [StyleId]); "material" è Material You.
+  final String style;
+
   ThemeSettings copyWith({
     ThemeMode? mode,
     bool? useDynamicColor,
     String? palette,
+    String? style,
   }) => ThemeSettings(
     mode: mode ?? this.mode,
     useDynamicColor: useDynamicColor ?? this.useDynamicColor,
     palette: palette ?? this.palette,
+    style: style ?? this.style,
   );
 
   Map<String, Object?> toJson() => {
     'mode': mode.name,
     'dynamic': useDynamicColor,
     'palette': palette,
+    'style': style,
   };
 
   factory ThemeSettings.fromJson(Map<String, Object?> json) => ThemeSettings(
@@ -49,6 +56,7 @@ class ThemeSettings {
     ),
     useDynamicColor: json['dynamic'] as bool? ?? false,
     palette: json['palette'] as String? ?? 'coral',
+    style: json['style'] as String? ?? 'material',
   );
 }
 
@@ -92,8 +100,12 @@ class ThemeSettingsNotifier extends Notifier<ThemeSettings> {
   Future<void> setUseDynamicColor(bool value) =>
       _save(state.copyWith(useDynamicColor: value));
 
-  Future<void> setPalette(String name) =>
-      _save(state.copyWith(palette: name, useDynamicColor: false));
+  /// Le palette sono di Material You: sceglierne una torna a quello stile.
+  Future<void> setPalette(String name) => _save(
+    state.copyWith(palette: name, useDynamicColor: false, style: 'material'),
+  );
+
+  Future<void> setStyle(String name) => _save(state.copyWith(style: name));
 }
 
 final themeSettingsProvider =

@@ -18,6 +18,7 @@ import '../../features/today/today_screen.dart';
 import '../../features/workout/domain/workout_plan.dart';
 import '../../features/workout/presentation/session_screen.dart';
 import '../../features/workout/workout_screen.dart';
+import '../theme/styles/style_backdrop.dart';
 import '../widgets/home_shell.dart';
 import '../widgets/motion_widgets.dart';
 import 'extra_routes.dart';
@@ -27,7 +28,10 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 GoRoute _tab(String path, Widget screen) => GoRoute(
   path: path,
-  pageBuilder: (context, state) => NoTransitionPage(child: screen),
+  // Le schede cambiano senza transizione (ci pensa FadeThroughBranches) e
+  // portano lo sfondo dello stile.
+  pageBuilder: (context, state) =>
+      NoTransitionPage(child: StyleBackdrop(child: screen)),
 );
 
 GoRoute _page(String path, Widget Function(GoRouterState state) builder) =>
@@ -72,8 +76,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Ogni scheda ha la sua pila di schermate e ricorda dove eri rimasto.
       // Cambiando scheda la nuova appare con una dissolvenza (fade through).
       StatefulShellRoute(
-        builder: (context, state, navigationShell) =>
-            HomeShell(navigationShell: navigationShell),
+        // Lo sfondo lo disegnano le schede: qui niente pagina "materiale".
+        pageBuilder: (context, state, navigationShell) => NoTransitionPage(
+          child: HomeShell(navigationShell: navigationShell),
+        ),
         navigatorContainerBuilder: (context, navigationShell, children) =>
             FadeThroughBranches(
               currentIndex: navigationShell.currentIndex,

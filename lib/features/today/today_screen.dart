@@ -8,6 +8,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/router/routes.dart';
 import '../../core/update/update_card.dart';
+import '../../core/theme/styles/app_style.dart';
 import '../../core/theme/discipline_theme.dart';
 import '../../core/utils/italian_date.dart';
 import '../../core/utils/local_date.dart';
@@ -109,8 +110,10 @@ class _StreakCard extends ConsumerWidget {
     final schedule = ref.watch(scheduleProvider).value ?? const [];
     final today = ref.watch(todayProvider);
     final strip = weekStrip(streak: streak, schedule: schedule, today: today);
-    final muted = Color.lerp(scheme.primary, scheme.onPrimary, 0.25)!;
-    final soft = scheme.primaryContainer;
+    // Tutto sulla card piena usa onPrimary (anche più chiaro): così si
+    // legge in ogni stile, qualunque sia il colore della card.
+    final muted = scheme.onPrimary.withValues(alpha: 0.55);
+    final soft = scheme.onPrimary.withValues(alpha: 0.88);
 
     final title = switch (streak.current) {
       0 => 'Inizia la tua streak',
@@ -130,7 +133,7 @@ class _StreakCard extends ConsumerWidget {
             children: [
               IconBadge(
                 icon: Icons.local_fire_department,
-                background: soft,
+                background: scheme.onPrimary,
                 foreground: scheme.primary,
                 size: 52,
                 radius: 18,
@@ -215,7 +218,7 @@ class _DayCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final soft = scheme.primaryContainer;
+    final soft = scheme.onPrimary.withValues(alpha: 0.88);
     final letter = weekdayLetters[day.weekday - 1];
     final (label, Widget mark) = switch (status) {
       DayStatus.done || DayStatus.bonus => (
@@ -224,7 +227,7 @@ class _DayCell extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: status == DayStatus.bonus ? muted : soft,
+            color: status == DayStatus.bonus ? muted : scheme.onPrimary,
             shape: BoxShape.circle,
           ),
           child: Icon(Icons.check, size: 18, color: scheme.primary),
@@ -235,12 +238,19 @@ class _DayCell extends StatelessWidget {
         _Outlined(
           dashed: true,
           color: soft,
-          child: Text(
-            'oggi',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: scheme.onPrimary,
+          // Nel cerchio di 36: con il testo grande si stringe.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Padding(
+              padding: const EdgeInsets.all(2),
+              child: Text(
+                'oggi',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: scheme.onPrimary,
+                ),
+              ),
             ),
           ),
         ),
@@ -375,7 +385,7 @@ class _LevelCard extends ConsumerWidget {
     final level = ref.watch(levelProvider);
     final profile = ref.watch(athleteProfileProvider).value;
     if (level == null || profile == null) return const SizedBox.shrink();
-    final accent = Color.lerp(scheme.primary, scheme.onPrimaryContainer, 0.4)!;
+    final accent = scheme.onPrimaryContainer.withValues(alpha: 0.8);
 
     final detail = [
       if (level.next != null)
@@ -421,12 +431,18 @@ class _LevelCard extends ConsumerWidget {
                 ),
               ),
               Container(
-                height: 32,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                // Altezza minima: con il testo grande la pillola cresce.
+                constraints: const BoxConstraints(minHeight: 32),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: scheme.surface,
-                  borderRadius: BorderRadius.circular(16),
+                  color: scheme.surfaceContainerLowest,
+                  borderRadius: BorderRadius.circular(
+                    AppStyle.of(context).buttonRadius.clamp(0, 16),
+                  ),
                 ),
                 child: Text(
                   'Modifica',

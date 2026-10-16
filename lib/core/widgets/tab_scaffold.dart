@@ -20,7 +20,14 @@ class TabScaffold extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+          // In fondo lo spazio per la barra in basso, che può galleggiare
+          // sopra il contenuto.
+          padding: EdgeInsets.fromLTRB(
+            16,
+            20,
+            16,
+            24 + MediaQuery.paddingOf(context).bottom,
+          ),
           children: [
             Entrance(index: 0, child: header),
             for (final (i, child) in children.indexed) ...[

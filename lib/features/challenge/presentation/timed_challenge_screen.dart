@@ -211,12 +211,14 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dark = DisciplineTheme.dark;
+    final dark = DisciplineTheme.immersive(context);
     final invalidCode = widget.friendCode != null && _friend == null;
     return Theme(
       data: dark,
       child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.light,
+        value: dark.brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
         child: PopScope(
           canPop: _result != null || _run.startAt == null,
           onPopInvokedWithResult: (didPop, _) {

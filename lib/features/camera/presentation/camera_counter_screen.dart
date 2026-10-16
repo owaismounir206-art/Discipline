@@ -38,7 +38,7 @@ class _CameraCounterScreenState extends State<CameraCounterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final dark = DisciplineTheme.dark;
+    final dark = DisciplineTheme.immersive(context);
     final scheme = dark.colorScheme;
     return Theme(
       data: dark,

@@ -12,6 +12,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/router/routes.dart';
 import '../../../core/theme/motion.dart';
+import '../../../core/theme/styles/app_style.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/motion_widgets.dart';
 import '../../exercises/domain/catalog.dart';
@@ -120,13 +121,18 @@ class _RunningView extends ConsumerWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Una riga sola: con il testo grande non esce dalla barra.
             Text(
               '${state.template.label} · ${state.difficulty.label}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: theme.textTheme.titleLarge?.copyWith(fontSize: 20),
             ),
             Text(
               'Esercizio ${state.index + 1} di ${state.exercises.length} · '
               '${formatDuration(state.elapsed)} trascorsi',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: scheme.onSurfaceVariant,
               ),
@@ -182,7 +188,7 @@ class _RunningView extends ConsumerWidget {
             SegmentBar(
               value: state.progress,
               color: scheme.primary,
-              track: Color.lerp(scheme.primaryContainer, scheme.primary, 0.25)!,
+              track: scheme.surfaceContainerHighest,
               height: 6,
               semanticsLabel: 'Avanzamento allenamento',
             ),
@@ -287,9 +293,6 @@ class _RunningView extends ConsumerWidget {
               child: FilledButton.icon(
                 style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(60),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
                   textStyle: theme.textTheme.titleMedium?.copyWith(
                     fontSize: 17,
                   ),
@@ -379,11 +382,14 @@ class _SetChip extends StatelessWidget {
       child: AnimatedContainer(
         duration: DisciplineMotion.of(context, DisciplineMotion.medium),
         curve: DisciplineMotion.decelerate,
-        height: 32,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        // Altezza minima: con il testo grande la scritta non si taglia.
+        constraints: const BoxConstraints(minHeight: 32),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
           color: bg,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(
+            AppStyle.of(context).smallRadius.clamp(0, 8),
+          ),
           border: Border.all(color: border ?? Colors.transparent, width: 2),
         ),
         child: Row(
@@ -418,8 +424,8 @@ class _TimerCard extends ConsumerWidget {
     final controller = ref.read(sessionControllerProvider.notifier);
     final exercise = state.current.exercise;
     final isHold = exercise.measure == Measure.seconds;
-    final accent = Color.lerp(scheme.primary, scheme.onPrimaryContainer, 0.4)!;
-    final track = Color.lerp(scheme.primaryContainer, scheme.primary, 0.25)!;
+    final accent = scheme.onPrimaryContainer.withValues(alpha: 0.8);
+    final track = scheme.onPrimaryContainer.withValues(alpha: 0.15);
 
     final (
       String top,
@@ -448,8 +454,8 @@ class _TimerCard extends ConsumerWidget {
     };
 
     final buttonStyle = TextButton.styleFrom(
-      backgroundColor: scheme.surface,
-      foregroundColor: scheme.primary,
+      backgroundColor: scheme.surfaceContainerLowest,
+      foregroundColor: scheme.onSurface,
       minimumSize: const Size(0, 40),
       padding: const EdgeInsets.symmetric(horizontal: 16),
       textStyle: theme.textTheme.labelLarge?.copyWith(fontSize: 14),
@@ -458,12 +464,10 @@ class _TimerCard extends ConsumerWidget {
     return Semantics(
       label: 'Timer di recupero',
       liveRegion: state.mode == TimerMode.ready,
-      child: Container(
+      child: DisciplineCard(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: scheme.primaryContainer,
-          borderRadius: BorderRadius.circular(32),
-        ),
+        color: scheme.primaryContainer,
+        radius: 32,
         child: Column(
           spacing: 8,
           children: [
@@ -476,35 +480,40 @@ class _TimerCard extends ConsumerWidget {
                   color: scheme.primary,
                   track: track,
                 ),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        top,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: accent,
+                // Con il testo grande il contenuto si stringe nel cerchio.
+                child: Padding(
+                  padding: const EdgeInsets.all(22),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          top,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: accent,
+                          ),
                         ),
-                      ),
-                      Text(
-                        big,
-                        style: TextStyle(
-                          fontSize: 46,
-                          height: 52 / 46,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -1,
-                          color: scheme.onPrimaryContainer,
-                          fontFeatures: const [FontFeature.tabularFigures()],
+                        Text(
+                          big,
+                          style: TextStyle(
+                            fontSize: 46,
+                            height: 52 / 46,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -1,
+                            color: scheme.onPrimaryContainer,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
                         ),
-                      ),
-                      Text(
-                        bottom,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: accent,
+                        Text(
+                          bottom,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: accent,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -635,7 +644,7 @@ class _SummaryView extends ConsumerWidget {
                               'streak serve almeno l\'80%.',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: counts
-                          ? scheme.primaryContainer
+                          ? scheme.onPrimary.withValues(alpha: 0.88)
                           : scheme.onSurfaceVariant,
                     ),
                   ),

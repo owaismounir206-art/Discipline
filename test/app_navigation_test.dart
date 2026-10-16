@@ -111,6 +111,7 @@ void main() {
       'mode': 'dark',
       'dynamic': false,
       'palette': 'coral',
+      'style': 'material',
     });
     await disposeDiscipline(tester, db);
   });

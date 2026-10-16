@@ -40,6 +40,9 @@ class HomeShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Il contenuto scorre fin sotto la barra (che in alcuni stili
+      // galleggia ed è trasparente).
+      extendBody: true,
       body: _RankWatcher(child: navigationShell),
       bottomNavigationBar: DisciplineNavigationBar(
         selectedIndex: navigationShell.currentIndex,

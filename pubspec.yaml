@@ -72,9 +72,12 @@ flutter:
   assets:
     - assets/sounds/
     - assets/fonts/OFL.txt
+    - assets/fonts/licenses/
 
-  # Figtree è incluso nell'app (licenza SIL OFL 1.1, vedi assets/fonts/OFL.txt):
-  # nessun font viene scaricato da internet mentre usi Discipline.
+  # Tutti i caratteri sono inclusi nell'app (licenza SIL OFL 1.1, vedi
+  # assets/fonts/OFL.txt e assets/fonts/licenses/): nessun font viene
+  # scaricato da internet mentre usi Discipline. Quelli degli stili li
+  # prepara tool/make_fonts.py.
   fonts:
     - family: Figtree
       fonts:
@@ -88,3 +91,97 @@ flutter:
           weight: 700
         - asset: assets/fonts/Figtree-ExtraBold.ttf
           weight: 800
+    - family: Anton
+      fonts:
+        - asset: assets/fonts/Anton/Anton-400.ttf
+          weight: 400
+    - family: Archivo
+      fonts:
+        - asset: assets/fonts/Archivo/Archivo-400.ttf
+          weight: 400
+        - asset: assets/fonts/Archivo/Archivo-600.ttf
+          weight: 600
+        - asset: assets/fonts/Archivo/Archivo-800.ttf
+          weight: 800
+    - family: ArchivoBlack
+      fonts:
+        - asset: assets/fonts/ArchivoBlack/ArchivoBlack-400.ttf
+          weight: 400
+    - family: Baloo
+      fonts:
+        - asset: assets/fonts/Baloo/Baloo-500.ttf
+          weight: 500
+        - asset: assets/fonts/Baloo/Baloo-700.ttf
+          weight: 700
+        - asset: assets/fonts/Baloo/Baloo-800.ttf
+          weight: 800
+    - family: Barlow
+      fonts:
+        - asset: assets/fonts/Barlow/Barlow-500.ttf
+          weight: 500
+        - asset: assets/fonts/Barlow/Barlow-600.ttf
+          weight: 600
+        - asset: assets/fonts/Barlow/Barlow-700.ttf
+          weight: 700
+    - family: Fredoka
+      fonts:
+        - asset: assets/fonts/Fredoka/Fredoka-500.ttf
+          weight: 500
+        - asset: assets/fonts/Fredoka/Fredoka-600.ttf
+          weight: 600
+        - asset: assets/fonts/Fredoka/Fredoka-700.ttf
+          weight: 700
+    - family: OpenSans
+      fonts:
+        - asset: assets/fonts/OpenSans/OpenSans-400.ttf
+          weight: 400
+        - asset: assets/fonts/OpenSans/OpenSans-600.ttf
+          weight: 600
+        - asset: assets/fonts/OpenSans/OpenSans-700.ttf
+          weight: 700
+    - family: Orbitron
+      fonts:
+        - asset: assets/fonts/Orbitron/Orbitron-600.ttf
+          weight: 600
+        - asset: assets/fonts/Orbitron/Orbitron-800.ttf
+          weight: 800
+    - family: PlexMono
+      fonts:
+        - asset: assets/fonts/PlexMono/PlexMono-500.ttf
+          weight: 500
+        - asset: assets/fonts/PlexMono/PlexMono-700.ttf
+          weight: 700
+    - family: PressStart
+      fonts:
+        - asset: assets/fonts/PressStart/PressStart-400.ttf
+          weight: 400
+    - family: Rajdhani
+      fonts:
+        - asset: assets/fonts/Rajdhani/Rajdhani-500.ttf
+          weight: 500
+        - asset: assets/fonts/Rajdhani/Rajdhani-600.ttf
+          weight: 600
+        - asset: assets/fonts/Rajdhani/Rajdhani-700.ttf
+          weight: 700
+    - family: Shippori
+      fonts:
+        - asset: assets/fonts/Shippori/Shippori-600.ttf
+          weight: 600
+        - asset: assets/fonts/Shippori/Shippori-800.ttf
+          weight: 800
+    - family: YujiBoku
+      fonts:
+        - asset: assets/fonts/YujiBoku/YujiBoku-400.ttf
+          weight: 400
+    - family: ZenKaku
+      fonts:
+        - asset: assets/fonts/ZenKaku/ZenKaku-400.ttf
+          weight: 400
+        - asset: assets/fonts/ZenKaku/ZenKaku-500.ttf
+          weight: 500
+        - asset: assets/fonts/ZenKaku/ZenKaku-700.ttf
+          weight: 700
+    - family: DotGothic
+      fonts:
+        - asset: assets/fonts/DotGothic/DotGothic-400.ttf
+          weight: 400

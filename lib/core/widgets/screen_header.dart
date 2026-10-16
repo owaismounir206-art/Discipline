@@ -4,6 +4,9 @@
 
 import 'package:material_ui/material_ui.dart';
 
+import '../theme/styles/app_style.dart';
+import '../theme/styles/kanji_text.dart';
+
 /// Intestazione delle schermate principali: titolo grande, una riga di
 /// contesto (sopra o sotto il titolo) e azioni a destra.
 class ScreenHeader extends StatelessWidget {
@@ -28,9 +31,11 @@ class ScreenHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final style = AppStyle.of(context);
     final small = theme.textTheme.bodyMedium?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
     );
+    final kanji = style.isKanji ? kanjiTitles[title] : null;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 48),
@@ -48,7 +53,39 @@ class ScreenHeader extends StatelessWidget {
                   ),
                 Semantics(
                   header: true,
-                  child: Text(title, style: theme.textTheme.headlineMedium),
+                  label: title,
+                  excludeSemantics: kanji != null,
+                  child: kanji == null
+                      ? _Title(text: style.title(title), style: style)
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          spacing: 10,
+                          children: [
+                            // Il titolo in kanji a pennello, l'italiano
+                            // accanto più piccolo.
+                            Text(
+                              kanji,
+                              style: TextStyle(
+                                fontFamily: 'YujiBoku',
+                                fontSize: 46,
+                                height: 1.05,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Text(
+                                  title.toUpperCase(),
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    letterSpacing: 3,
+                                    color: theme.colorScheme.secondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                 ),
                 if (subtitle != null) Text(subtitle!, style: small),
               ],
@@ -57,6 +94,35 @@ class ScreenHeader extends StatelessWidget {
           ...actions,
         ],
       ),
+    );
+  }
+}
+
+/// Il titolo grande; nello stile cartoon è bianco con il contorno nero.
+class _Title extends StatelessWidget {
+  const _Title({required this.text, required this.style});
+
+  final String text;
+  final AppStyle style;
+
+  @override
+  Widget build(BuildContext context) {
+    final base = Theme.of(context).textTheme.headlineMedium;
+    if (style.id != StyleId.cartoon) return Text(text, style: base);
+    return Stack(
+      children: [
+        Text(
+          text,
+          style: base?.copyWith(
+            foreground: Paint()
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 5
+              ..strokeJoin = StrokeJoin.round
+              ..color = const Color(0xFF1D1D1D),
+          ),
+        ),
+        Text(text, style: base?.copyWith(color: const Color(0xFFFFFFFF))),
+      ],
     );
   }
 }
