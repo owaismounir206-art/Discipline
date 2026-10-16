@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/router/routes.dart';
+import '../../../core/theme/motion.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/motion_widgets.dart';
 import '../../exercises/domain/catalog.dart';
@@ -374,19 +375,22 @@ class _SetChip extends StatelessWidget {
               ? 'in corso'
               : 'da fare'}',
       excludeSemantics: true,
-      child: Container(
+      // Quando la serie è fatta il colore si riempie e la spunta "salta".
+      child: AnimatedContainer(
+        duration: DisciplineMotion.of(context, DisciplineMotion.medium),
+        curve: DisciplineMotion.decelerate,
         height: 32,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
           color: bg,
           borderRadius: BorderRadius.circular(8),
-          border: border == null ? null : Border.all(color: border, width: 2),
+          border: Border.all(color: border ?? Colors.transparent, width: 2),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           spacing: 4,
           children: [
-            if (done) Icon(Icons.check, size: 16, color: fg),
+            if (done) PopIn(child: Icon(Icons.check, size: 16, color: fg)),
             Text(
               'Serie $number',
               style: TextStyle(
@@ -611,10 +615,12 @@ class _SummaryView extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 6,
                 children: [
-                  Icon(
-                    counts ? Icons.local_fire_department : Icons.timelapse,
-                    size: 36,
-                    color: counts ? scheme.onPrimary : scheme.primary,
+                  PopIn(
+                    child: Icon(
+                      counts ? Icons.local_fire_department : Icons.timelapse,
+                      size: 36,
+                      color: counts ? scheme.onPrimary : scheme.primary,
+                    ),
                   ),
                   Text(
                     counts ? 'Allenamento completato!' : 'Allenamento salvato',
@@ -640,8 +646,8 @@ class _SummaryView extends ConsumerWidget {
             Row(
               spacing: 10,
               children: [
-                _Stat(label: 'Serie', value: '${state.completedSets}'),
-                _Stat(label: 'Ripetizioni', value: '${state.totalReps}'),
+                _Stat(label: 'Serie', count: state.completedSets),
+                _Stat(label: 'Ripetizioni', count: state.totalReps),
                 _Stat(label: 'Tempo', value: formatDuration(state.elapsed)),
               ],
             ),
@@ -654,10 +660,16 @@ class _SummaryView extends ConsumerWidget {
                 child: Row(
                   spacing: 12,
                   children: [
-                    Icon(Icons.stars, color: scheme.onTertiaryContainer),
+                    PopIn(
+                      child: Icon(
+                        Icons.stars,
+                        color: scheme.onTertiaryContainer,
+                      ),
+                    ),
                     Expanded(
-                      child: Text(
-                        '+${state.pointsEarned} punti',
+                      child: CountUp(
+                        state.pointsEarned,
+                        format: (n) => '+$n punti',
                         style: theme.textTheme.titleLarge?.copyWith(
                           color: scheme.onTertiaryContainer,
                         ),
@@ -697,10 +709,13 @@ class _SummaryView extends ConsumerWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat({required this.label, required this.value});
+  const _Stat({required this.label, this.value, this.count});
 
   final String label;
-  final String value;
+  final String? value;
+
+  /// Numero che si conta fino al valore.
+  final int? count;
 
   @override
   Widget build(BuildContext context) {
@@ -718,7 +733,10 @@ class _Stat extends StatelessWidget {
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
-            Text(value, style: theme.textTheme.headlineSmall),
+            if (count case final n?)
+              CountUp(n, style: theme.textTheme.headlineSmall)
+            else
+              Text(value ?? '', style: theme.textTheme.headlineSmall),
           ],
         ),
       ),

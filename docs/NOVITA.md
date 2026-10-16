@@ -1,10 +1,9 @@
-## Discipline 1.2
+## Discipline 1.3
 
-- Grafica più ordinata: pulsanti al posto giusto, schede Allenati e Cibo più chiare
-- 16 esercizi nuovi con figura animata (crunch, torsioni russe, pseudo-planche, squat sumo, corda e altri)
-- Foto del piatto: l'AI riconosce il cibo e lo mette nel diario
-- Coach AI: chiedi consigli su allenamento e alimentazione
-- Cosa cucino?: una ricetta per i valori che ti mancano oggi
+- Suoni leggeri a ogni tocco e azione: serie fatta, allenamento finito, cibo aggiunto, nuovo grado
+- I suoni non fermano la tua musica e tacciono con il telefono in silenzioso; si spengono in Impostazioni
+- Cambio di scheda con una dissolvenza morbida
+- Numeri che contano fino al risultato e spunte che "saltano" quando completi una serie
 
 Su Android si installa sopra la versione precedente senza perdere i dati.
 

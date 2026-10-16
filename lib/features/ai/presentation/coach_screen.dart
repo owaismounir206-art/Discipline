@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/router/routes.dart';
 import '../../food/data/ai_food.dart';
 import '../ai_assistant.dart';
+import '../../../core/feedback/ui_feedback.dart';
 
 /// Domande che si possono fare con un tocco.
 const coachIdeas = [
@@ -63,11 +64,13 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
         history,
       );
       if (!mounted) return;
+      UiFeedback.instance.play(UiSound.select);
       setState(() {
         _messages.add(ChatMessage.ai(reply));
         _busy = false;
       });
     } on AiException catch (e) {
+      UiFeedback.instance.play(UiSound.error);
       if (!mounted) return;
       setState(() {
         // La domanda torna nel campo, così si può riprovare.

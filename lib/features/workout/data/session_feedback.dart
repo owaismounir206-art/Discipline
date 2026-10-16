@@ -2,10 +2,10 @@
 // Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+
+import '../../../core/feedback/ui_feedback.dart';
 
 /// Effetti del telefono durante l'allenamento: schermo acceso, vibrazione e
 /// suono a fine recupero. Nei test si sostituisce con una versione muta.
@@ -16,10 +16,13 @@ abstract interface class SessionFeedback {
 
   /// Bip breve negli ultimi secondi di una fase del timer.
   Future<void> tick();
+
+  /// Fine allenamento: [completed] se conta per la serie di giorni.
+  Future<void> finished({required bool completed});
 }
 
 class DeviceSessionFeedback implements SessionFeedback {
-  AudioPlayer? _player;
+  UiFeedback get _ui => UiFeedback.instance;
 
   @override
   Future<void> keepScreenOn(bool on) async {
@@ -31,35 +34,17 @@ class DeviceSessionFeedback implements SessionFeedback {
   }
 
   @override
-  Future<void> restFinished() async {
-    await HapticFeedback.heavyImpact();
-    await Future<void>.delayed(const Duration(milliseconds: 180));
-    await HapticFeedback.heavyImpact();
-    try {
-      final player = _player ??= AudioPlayer();
-      await player.setReleaseMode(ReleaseMode.stop);
-      await player.play(AssetSource('sounds/fine_recupero.wav'));
-    } on Object {
-      // Senza audio resta la vibrazione.
-    }
-  }
+  Future<void> restFinished() async => _ui.play(UiSound.restEnd);
 
   @override
-  Future<void> setDone() => HapticFeedback.mediumImpact();
-
-  AudioPlayer? _tick;
+  Future<void> setDone() async => _ui.play(UiSound.success);
 
   @override
-  Future<void> tick() async {
-    await HapticFeedback.selectionClick();
-    try {
-      final player = _tick ??= AudioPlayer();
-      await player.setReleaseMode(ReleaseMode.stop);
-      await player.play(AssetSource('sounds/bip.wav'));
-    } on Object {
-      // Senza audio resta la vibrazione.
-    }
-  }
+  Future<void> tick() async => _ui.play(UiSound.tick);
+
+  @override
+  Future<void> finished({required bool completed}) async =>
+      _ui.play(completed ? UiSound.complete : UiSound.success);
 }
 
 class SilentSessionFeedback implements SessionFeedback {
@@ -74,6 +59,9 @@ class SilentSessionFeedback implements SessionFeedback {
 
   @override
   Future<void> tick() async {}
+
+  @override
+  Future<void> finished({required bool completed}) async {}
 }
 
 final sessionFeedbackProvider = Provider<SessionFeedback>(

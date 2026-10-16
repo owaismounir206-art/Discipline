@@ -2,10 +2,10 @@
 // Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/motion.dart';
+import '../feedback/ui_feedback.dart';
 
 /// Un'opzione di [SlidingSegmented].
 typedef Segment<T> = ({T value, String label});
@@ -78,7 +78,7 @@ class SlidingSegmented<T> extends StatelessWidget {
                             borderRadius: BorderRadius.circular(24),
                             onTap: () {
                               if (i == index) return;
-                              HapticFeedback.selectionClick();
+                              UiFeedback.instance.play(UiSound.select);
                               onChanged(s.value);
                             },
                             child: Center(
@@ -181,7 +181,7 @@ class DisciplineNavigationBar extends StatelessWidget {
                             onTap: () => onSelected(i),
                             child: InkResponse(
                               onTap: () {
-                                HapticFeedback.selectionClick();
+                                UiFeedback.instance.play(UiSound.select);
                                 onSelected(i);
                               },
                               highlightShape: BoxShape.rectangle,
@@ -354,4 +354,127 @@ class _EntranceState extends State<Entrance>
       ),
     );
   }
+}
+
+/// Le schede dell'app una sopra l'altra: quella scelta appare sfumando e
+/// crescendo appena, le altre restano nascoste ma ricordano dove eri.
+class FadeThroughBranches extends StatelessWidget {
+  const FadeThroughBranches({
+    super.key,
+    required this.currentIndex,
+    required this.children,
+  });
+
+  final int currentIndex;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    fit: StackFit.expand,
+    children: [
+      for (final (i, child) in children.indexed)
+        _FadeThroughBranch(active: i == currentIndex, child: child),
+    ],
+  );
+}
+
+class _FadeThroughBranch extends StatefulWidget {
+  const _FadeThroughBranch({required this.active, required this.child});
+
+  final bool active;
+  final Widget child;
+
+  @override
+  State<_FadeThroughBranch> createState() => _FadeThroughBranchState();
+}
+
+class _FadeThroughBranchState extends State<_FadeThroughBranch>
+    with SingleTickerProviderStateMixin {
+  late final _controller = AnimationController(
+    vsync: this,
+    value: widget.active ? 1 : 0,
+  );
+  late final _curve = CurvedAnimation(
+    parent: _controller,
+    curve: DisciplineMotion.decelerate,
+  );
+  late final _scale = Tween(begin: 0.97, end: 1.0).animate(_curve);
+
+  @override
+  void didUpdateWidget(_FadeThroughBranch old) {
+    super.didUpdateWidget(old);
+    if (widget.active == old.active) return;
+    if (!widget.active) {
+      _controller.value = 0;
+      return;
+    }
+    final duration = DisciplineMotion.of(context, DisciplineMotion.medium);
+    if (duration == Duration.zero) {
+      _controller.value = 1;
+    } else {
+      _controller
+        ..duration = duration
+        ..forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _curve.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Offstage(
+    offstage: !widget.active,
+    child: TickerMode(
+      enabled: widget.active,
+      child: FadeTransition(
+        opacity: _curve,
+        child: ScaleTransition(scale: _scale, child: widget.child),
+      ),
+    ),
+  );
+}
+
+/// Un numero che conta fino al suo valore (e scorre quando cambia).
+class CountUp extends StatelessWidget {
+  const CountUp(this.value, {super.key, this.style, this.format});
+
+  final int value;
+  final TextStyle? style;
+
+  /// Testo intorno al numero, es. (n) => '+$n punti'.
+  final String Function(int value)? format;
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: value.toDouble()),
+    duration: DisciplineMotion.of(context, const Duration(milliseconds: 900)),
+    curve: DisciplineMotion.decelerate,
+    builder: (context, v, _) {
+      final n = v.round();
+      return Text(format?.call(n) ?? '$n', style: style);
+    },
+  );
+}
+
+/// Appare crescendo con un piccolo rimbalzo (icone di conferma, medaglie).
+class PopIn extends StatelessWidget {
+  const PopIn({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: 1),
+    duration: DisciplineMotion.of(context, DisciplineMotion.long),
+    curve: Curves.easeOutBack,
+    builder: (context, v, child) => Opacity(
+      opacity: v.clamp(0, 1),
+      child: Transform.scale(scale: 0.5 + 0.5 * v, child: child),
+    ),
+    child: child,
+  );
 }

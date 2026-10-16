@@ -16,6 +16,8 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -23,11 +25,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
 import 'core/data/database.dart';
+import 'core/feedback/feedback_binding.dart';
+import 'core/feedback/feedback_settings.dart';
+import 'core/feedback/ui_feedback.dart';
 import 'core/data/providers.dart';
 import 'core/theme/theme_settings.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // Come WidgetsFlutterBinding, in più fa suonare i tocchi.
+  DisciplineBinding();
   // Il font Figtree è incluso nell'app: aggiungiamo la sua licenza (OFL)
   // all'elenco delle licenze open source mostrato nelle impostazioni.
   LicenseRegistry.addLicense(() async* {
@@ -40,6 +46,11 @@ Future<void> main() async {
   final db = AppDatabase();
   final theme = await loadThemeSettings(db)
       .catchError((Object _) => const ThemeSettings());
+  (await loadFeedbackSettings(db)
+          .catchError((Object _) => const FeedbackSettings()))
+      .apply();
+  UiFeedback.instance.player = DeviceSoundPlayer();
+  unawaited(UiFeedback.instance.player.warmUp());
   runApp(
     ProviderScope(
       overrides: [

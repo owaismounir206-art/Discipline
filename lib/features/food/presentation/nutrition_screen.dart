@@ -16,6 +16,7 @@ import '../data/food_state.dart';
 import '../domain/foods.dart';
 import '../domain/nutrition.dart';
 import '../food_screen.dart';
+import '../../../core/feedback/ui_feedback.dart';
 
 const disclaimer =
     'Valori stimati da peso, altezza, età e attività. Non sostituiscono il '
@@ -381,6 +382,7 @@ class _RecipeCardState extends ConsumerState<_RecipeCard> {
                                 grams: r.grams,
                                 now: ref.read(clockProvider)(),
                               );
+                          UiFeedback.instance.play(UiSound.success);
                           if (!mounted) return;
                           setState(() {
                             _entryId = id;

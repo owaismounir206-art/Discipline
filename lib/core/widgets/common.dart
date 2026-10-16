@@ -2,11 +2,11 @@
 // Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/motion.dart';
 import '../theme/discipline_theme.dart';
+import '../feedback/ui_feedback.dart';
 
 /// Contatore con − e + (ripetizioni, secondi, grammi).
 class ValueStepper extends StatelessWidget {
@@ -63,7 +63,7 @@ class ValueStepper extends StatelessWidget {
             style: buttonStyle,
             onPressed: value - step >= min
                 ? () {
-                    HapticFeedback.selectionClick();
+                    UiFeedback.instance.play(UiSound.select);
                     onChanged(value - step);
                   }
                 : null,
@@ -89,7 +89,7 @@ class ValueStepper extends StatelessWidget {
             style: buttonStyle,
             onPressed: value + step <= max
                 ? () {
-                    HapticFeedback.selectionClick();
+                    UiFeedback.instance.play(UiSound.select);
                     onChanged(value + step);
                   }
                 : null,

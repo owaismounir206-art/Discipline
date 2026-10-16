@@ -15,6 +15,7 @@ import '../data/ai_food.dart';
 import '../data/food_repository.dart';
 import '../data/food_state.dart';
 import '../domain/nutrition.dart';
+import '../../../core/feedback/ui_feedback.dart';
 
 /// Scatta o sceglie una foto, già rimpicciolita (meno dati da inviare).
 /// Nei test si sostituisce.
@@ -105,6 +106,7 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
         }
       });
     } on AiException catch (e) {
+      UiFeedback.instance.play(UiSound.error);
       if (!mounted) return;
       setState(() {
         _busy = false;
@@ -163,6 +165,7 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
         now: now,
       );
     }
+    UiFeedback.instance.play(UiSound.success);
     if (mounted) context.pop();
   }
 

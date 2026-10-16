@@ -549,6 +549,9 @@ class SessionController extends Notifier<SessionState?> {
 
     final profile = await repo.loadProfile();
     if (!ref.mounted) return;
+    if (s.completedSets > 0) {
+      unawaited(_feedback.finished(completed: s.progress >= 0.8 - 1e-9));
+    }
     state = s.copyWith(
       finished: true,
       pointsEarned: points,

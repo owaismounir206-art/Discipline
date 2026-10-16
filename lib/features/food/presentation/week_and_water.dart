@@ -2,7 +2,6 @@
 // Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -14,6 +13,7 @@ import '../data/food_repository.dart';
 import '../data/food_state.dart';
 import '../food_screen.dart';
 import '../domain/nutrition.dart';
+import '../../../core/feedback/ui_feedback.dart';
 
 /// Frecce per passare al giorno prima o dopo (mai oltre oggi).
 class DayBar extends ConsumerWidget {
@@ -98,7 +98,9 @@ class WaterCard extends ConsumerWidget {
     final repo = ref.read(foodRepositoryProvider);
 
     Future<void> set(int value) async {
-      await HapticFeedback.selectionClick();
+      UiFeedback.instance.play(
+        value > drunk ? UiSound.success : UiSound.toggleOff,
+      );
       await repo.setWater(day, value);
     }
 

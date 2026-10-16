@@ -4,10 +4,10 @@
 
 import 'dart:math' as math;
 
-import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../theme/motion.dart';
+import '../feedback/ui_feedback.dart';
 
 /// Festa per un traguardo: coriandoli, medaglia che entra con un piccolo
 /// rimbalzo e punti che salgono. Con "riduci animazioni" resta tutto fermo.
@@ -19,7 +19,7 @@ Future<void> celebrate(
   int points = 0,
   IconData icon = Icons.emoji_events,
 }) {
-  HapticFeedback.heavyImpact();
+  UiFeedback.instance.play(UiSound.celebrate);
   return showGeneralDialog<void>(
     context: context,
     barrierDismissible: true,

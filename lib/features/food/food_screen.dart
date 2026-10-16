@@ -2,12 +2,14 @@
 // Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/feedback/ui_feedback.dart';
 import '../../core/router/routes.dart';
 import '../../core/theme/motion.dart';
 import '../../core/utils/local_date.dart';
@@ -603,8 +605,12 @@ class _MealSheet extends ConsumerWidget {
                   IconButton(
                     tooltip: 'Elimina ${e.food.name}',
                     icon: const Icon(Icons.delete_outline),
-                    onPressed: () =>
+                    onPressed: () {
+                      UiFeedback.instance.play(UiSound.toggleOff);
+                      unawaited(
                         ref.read(foodRepositoryProvider).deleteEntry(e.id),
+                      );
+                    },
                   ),
                 ],
               ),

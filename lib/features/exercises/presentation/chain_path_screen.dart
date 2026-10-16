@@ -2,7 +2,6 @@
 // Copyright (C) 2026 Discipline contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -13,6 +12,7 @@ import '../../profile/data/profile_repository.dart';
 import '../domain/catalog.dart';
 import '../domain/exercise.dart';
 import 'exercise_figure.dart';
+import '../../../core/feedback/ui_feedback.dart';
 
 /// Percorsi a tappe (design "Esercizi e abilità"): ogni catena è una strada
 /// dalla variante più facile alla più difficile. Le famiglie per variare
@@ -56,7 +56,7 @@ class _ChainPathScreenState extends ConsumerState<ChainPathScreen> {
 
   void _select(ChainId chain) {
     if (chain == _chain) return;
-    HapticFeedback.selectionClick();
+    UiFeedback.instance.play(UiSound.select);
     setState(() {
       _chain = chain;
       _open = _position(chain);

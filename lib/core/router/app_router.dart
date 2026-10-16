@@ -19,6 +19,7 @@ import '../../features/workout/domain/workout_plan.dart';
 import '../../features/workout/presentation/session_screen.dart';
 import '../../features/workout/workout_screen.dart';
 import '../widgets/home_shell.dart';
+import '../widgets/motion_widgets.dart';
 import 'extra_routes.dart';
 import 'routes.dart';
 
@@ -69,9 +70,15 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       // Ogni scheda ha la sua pila di schermate e ricorda dove eri rimasto.
-      StatefulShellRoute.indexedStack(
+      // Cambiando scheda la nuova appare con una dissolvenza (fade through).
+      StatefulShellRoute(
         builder: (context, state, navigationShell) =>
             HomeShell(navigationShell: navigationShell),
+        navigatorContainerBuilder: (context, navigationShell, children) =>
+            FadeThroughBranches(
+              currentIndex: navigationShell.currentIndex,
+              children: children,
+            ),
         branches: [
           StatefulShellBranch(
             routes: [_tab(Routes.today, const TodayScreen())],

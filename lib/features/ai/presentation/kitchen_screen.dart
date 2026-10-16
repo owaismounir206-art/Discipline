@@ -10,6 +10,7 @@ import '../../../core/router/routes.dart';
 import '../../../core/widgets/common.dart';
 import '../../food/data/ai_food.dart';
 import '../ai_assistant.dart';
+import '../../../core/feedback/ui_feedback.dart';
 
 /// "Cosa cucino?": l'AI propone una ricetta per i valori che mancano oggi.
 class KitchenScreen extends ConsumerStatefulWidget {
@@ -49,6 +50,7 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
         _busy = false;
       });
     } on AiException catch (e) {
+      UiFeedback.instance.play(UiSound.error);
       if (!mounted) return;
       setState(() {
         _busy = false;

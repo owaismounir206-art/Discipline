@@ -11,6 +11,7 @@ import '../data/food_state.dart';
 import '../data/food_repository.dart';
 import '../domain/foods.dart';
 import '../domain/nutrition.dart';
+import '../../../core/feedback/ui_feedback.dart';
 
 /// Chiede i grammi e il pasto, poi aggiunge l'alimento al diario.
 /// Restituisce true se è stato aggiunto.
@@ -197,6 +198,7 @@ class _FoodAmountSheetState extends ConsumerState<FoodAmountSheet> {
                                 now: ref.read(clockProvider)(),
                               );
                             }
+                            UiFeedback.instance.play(UiSound.success);
                             if (context.mounted) Navigator.pop(context, true);
                           },
                     child: Text(

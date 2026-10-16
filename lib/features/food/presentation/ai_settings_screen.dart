@@ -8,6 +8,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/update/update_card.dart' show openLinkProvider;
 import '../../../core/widgets/motion_widgets.dart';
 import '../data/ai_food.dart';
+import '../../../core/feedback/ui_feedback.dart';
 
 /// Chiave API personale per Groq o Google AI Studio. Resta nel portachiavi
 /// del telefono: non va nei backup e non la vede nessun altro.
@@ -102,6 +103,7 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
         _message = 'Chiave valida: ora puoi scrivere cosa hai mangiato.';
       });
     } on AiException catch (e) {
+      UiFeedback.instance.play(UiSound.error);
       if (!mounted) return;
       setState(() {
         _busy = false;

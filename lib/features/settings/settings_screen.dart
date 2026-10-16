@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/data/providers.dart';
+import '../../core/feedback/feedback_settings.dart';
 import '../../core/router/routes.dart';
 import '../../core/theme/discipline_theme.dart';
 import '../../core/theme/theme_settings.dart';
@@ -54,6 +55,8 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(themeSettingsProvider);
     final notifier = ref.read(themeSettingsProvider.notifier);
+    final feedback = ref.watch(feedbackSettingsProvider);
+    final feedbackNotifier = ref.read(feedbackSettingsProvider.notifier);
     final profile = ref.watch(athleteProfileProvider).value;
     final theme = Theme.of(context);
 
@@ -159,6 +162,28 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 value: settings.useDynamicColor,
                 onChanged: notifier.setUseDynamicColor,
+              ),
+            ],
+          ),
+          const _SectionTitle('Suoni e vibrazione'),
+          _Group(
+            children: [
+              SwitchListTile(
+                secondary: const Icon(Icons.volume_up_outlined),
+                title: const Text('Suoni'),
+                subtitle: const Text(
+                  'Un suono leggero a ogni tocco e azione. Non ferma la tua '
+                  'musica e tace con il telefono in silenzioso. Il timer '
+                  'suona comunque.',
+                ),
+                value: feedback.sounds,
+                onChanged: feedbackNotifier.setSounds,
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.vibration),
+                title: const Text('Vibrazione'),
+                value: feedback.haptics,
+                onChanged: feedbackNotifier.setHaptics,
               ),
             ],
           ),
