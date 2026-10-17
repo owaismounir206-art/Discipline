@@ -246,30 +246,38 @@ class _SummaryCard extends StatelessWidget {
                       ),
                       child: child,
                     ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          TweenAnimationBuilder<double>(
-                            tween: Tween(end: left.abs()),
-                            duration: DisciplineMotion.of(
-                              context,
-                              DisciplineMotion.long,
-                            ),
-                            curve: DisciplineMotion.decelerate,
-                            builder: (context, v, _) => Text(
-                              thousands(v),
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w800,
+                    // Dentro l'anello: il testo si rimpicciolisce invece di
+                    // toccare il bordo o andare a capo.
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TweenAnimationBuilder<double>(
+                                tween: Tween(end: left.abs()),
+                                duration: DisciplineMotion.of(
+                                  context,
+                                  DisciplineMotion.long,
+                                ),
+                                curve: DisciplineMotion.decelerate,
+                                builder: (context, v, _) => Text(
+                                  thousands(v),
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
                               ),
-                            ),
+                              Text(
+                                left >= 0 ? 'rimanenti' : 'in più',
+                                style: TextStyle(fontSize: 12, color: muted),
+                              ),
+                            ],
                           ),
-                          Text(
-                            left >= 0 ? 'rimanenti' : 'in più',
-                            style: TextStyle(fontSize: 12, color: muted),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -459,10 +467,7 @@ class _MealsSection extends ConsumerWidget {
               child: FilledButton.tonalIcon(
                 onPressed: () => context.push(Routes.foodSearch, extra: next),
                 icon: const Icon(Icons.add),
-                label: Text(
-                  'Aggiungi ${next.withArticle}',
-                  overflow: TextOverflow.ellipsis,
-                ),
+                label: Text('Aggiungi ${next.withArticle}'),
               ),
             ),
           ],
@@ -488,9 +493,7 @@ class _MealRow extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: scheme.surfaceContainerHigh),
-          ),
+          border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
         ),
         child: Row(
           spacing: 12,
@@ -554,79 +557,86 @@ class _MealSheet extends ConsumerWidget {
       for (final e in ref.watch(dayDiaryProvider).value ?? const <DiaryEntry>[])
         if (e.meal == meal) e,
     ];
+    // Scorre: con il testo grande può superare l'altezza dello schermo.
     return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(meal.label, style: theme.textTheme.titleLarge),
-                Text(
-                  'Tocca un alimento per cambiare i grammi',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          for (final e in entries)
-            ListTile(
-              onTap: () =>
-                  showFoodAmountSheet(context, e.food, meal: e.meal, entry: e),
-              title: Text(e.food.name),
-              subtitle: Text(
-                '${e.grams.round()} g · ${e.nutrients.macrosLabel}',
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('${e.nutrients.kcal.round()} kcal'),
-                  IconButton(
-                    tooltip: 'Aggiungi ai preferiti',
-                    icon: const Icon(Icons.star_outline),
-                    onPressed: () async {
-                      await ref
-                          .read(foodRepositoryProvider)
-                          .addFavorite(e.food, e.grams);
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('«${e.food.name}» nei preferiti'),
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                  IconButton(
-                    tooltip: 'Elimina ${e.food.name}',
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: () {
-                      UiFeedback.instance.play(UiSound.toggleOff);
-                      unawaited(
-                        ref.read(foodRepositoryProvider).deleteEntry(e.id),
-                      );
-                    },
+                  Text(meal.label, style: theme.textTheme.titleLarge),
+                  Text(
+                    'Tocca un alimento per cambiare i grammi',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: FilledButton.tonalIcon(
-              onPressed: () {
-                Navigator.pop(context);
-                context.push(Routes.foodSearch, extra: meal);
-              },
-              icon: const Icon(Icons.add),
-              label: Text('Aggiungi ${meal.toMeal}'),
+            for (final e in entries)
+              ListTile(
+                onTap: () => showFoodAmountSheet(
+                  context,
+                  e.food,
+                  meal: e.meal,
+                  entry: e,
+                ),
+                title: Text(e.food.name),
+                subtitle: Text(
+                  '${e.grams.round()} g · ${e.nutrients.macrosLabel}',
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('${e.nutrients.kcal.round()} kcal'),
+                    IconButton(
+                      tooltip: 'Aggiungi ai preferiti',
+                      icon: const Icon(Icons.star_outline),
+                      onPressed: () async {
+                        await ref
+                            .read(foodRepositoryProvider)
+                            .addFavorite(e.food, e.grams);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('«${e.food.name}» nei preferiti'),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    IconButton(
+                      tooltip: 'Elimina ${e.food.name}',
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () {
+                        UiFeedback.instance.play(UiSound.toggleOff);
+                        unawaited(
+                          ref.read(foodRepositoryProvider).deleteEntry(e.id),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: FilledButton.tonalIcon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  context.push(Routes.foodSearch, extra: meal);
+                },
+                icon: const Icon(Icons.add),
+                label: Text('Aggiungi ${meal.toMeal}'),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -238,54 +238,69 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
                                 ),
                                 child: SizedBox.square(
                                   dimension: side,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      if (exercise != null)
-                                        ExerciseFigure(
-                                          key: ValueKey(exercise.id),
-                                          motion: motionFor(exercise),
-                                          size: Size(side * .34, side * .24),
-                                          color: c ?? color,
-                                        ),
-                                      Semantics(
-                                        liveRegion: pos.remaining <= 3,
-                                        label:
-                                            '${step.label}, mancano '
-                                            '${pos.remaining} secondi',
-                                        child: ExcludeSemantics(
-                                          child: Text(
-                                            clock(pos.remaining),
-                                            // Già grande quanto il cerchio:
-                                            // non si ingrandisce di nuovo.
-                                            textScaler: TextScaler.noScaling,
-                                            style: theme.textTheme.displayLarge
-                                                ?.copyWith(
-                                                  fontSize: side * .24,
-                                                  fontWeight: FontWeight.w800,
-                                                  fontFeatures: const [
-                                                    FontFeature.tabularFigures(),
-                                                  ],
-                                                ),
+                                  // Con il testo grande il contenuto si stringe nel cerchio.
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    child: SizedBox(
+                                      width: side,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          if (exercise != null)
+                                            ExerciseFigure(
+                                              key: ValueKey(exercise.id),
+                                              motion: motionFor(exercise),
+                                              size: Size(
+                                                side * .34,
+                                                side * .24,
+                                              ),
+                                              color: c ?? color,
+                                            ),
+                                          Semantics(
+                                            liveRegion: pos.remaining <= 3,
+                                            label:
+                                                '${step.label}, mancano '
+                                                '${pos.remaining} secondi',
+                                            child: ExcludeSemantics(
+                                              child: Text(
+                                                clock(pos.remaining),
+                                                // Già grande quanto il cerchio:
+                                                // non si ingrandisce di nuovo.
+                                                textScaler:
+                                                    TextScaler.noScaling,
+                                                style: theme
+                                                    .textTheme
+                                                    .displayLarge
+                                                    ?.copyWith(
+                                                      fontSize: side * .24,
+                                                      fontWeight:
+                                                          FontWeight.w800,
+                                                      fontFeatures: const [
+                                                        FontFeature.tabularFigures(),
+                                                      ],
+                                                    ),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 28,
-                                        ),
-                                        child: AnimatedSwitcher(
-                                          duration: duration,
-                                          child: Text(
-                                            step.label,
-                                            key: ValueKey(pos.index),
-                                            textAlign: TextAlign.center,
-                                            maxLines: 2,
-                                            style: theme.textTheme.titleLarge,
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 28,
+                                            ),
+                                            child: AnimatedSwitcher(
+                                              duration: duration,
+                                              child: Text(
+                                                step.label,
+                                                key: ValueKey(pos.index),
+                                                textAlign: TextAlign.center,
+                                                style:
+                                                    theme.textTheme.titleLarge,
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),

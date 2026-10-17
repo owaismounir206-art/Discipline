@@ -75,7 +75,6 @@ class _FriendChallengeScreenState extends ConsumerState<FriendChallengeScreen> {
               decoration: InputDecoration(
                 labelText: 'Codice della sfida',
                 hintText: 'Es. 0H2K-5Z9A-…',
-                border: const OutlineInputBorder(),
                 errorText: _touched && decoded == null
                     ? 'Codice non valido: controlla di averlo copiato tutto'
                     : null,
@@ -85,7 +84,6 @@ class _FriendChallengeScreenState extends ConsumerState<FriendChallengeScreen> {
               const SizedBox(height: 12),
               DisciplineCard(
                 color: scheme.secondaryContainer,
-                radius: 24,
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,28 +170,26 @@ class _ModeRow extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     return DisciplineCard(
-      radius: 24,
       padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
-      child: Row(
+      child: Wrap(
         spacing: 12,
+        runSpacing: 8,
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2,
-              children: [
-                Text(mode.label, style: theme.textTheme.titleMedium),
-                Text(
-                  best == null
-                      ? 'Nessun record ancora'
-                      : 'Il tuo record: ${scoreText(mode, best!)}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 2,
+            children: [
+              Text(mode.label, style: theme.textTheme.titleMedium),
+              Text(
+                best == null
+                    ? 'Nessun record ancora'
+                    : 'Il tuo record: ${scoreText(mode, best!)}',
+                style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant),
+              ),
+            ],
           ),
           if (onShare != null)
             FilledButton.icon(

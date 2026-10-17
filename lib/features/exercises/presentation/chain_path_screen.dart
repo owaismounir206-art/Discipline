@@ -8,6 +8,8 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/router/routes.dart';
 import '../../../core/theme/motion.dart';
+import '../../../core/theme/styles/app_style.dart';
+import '../../../core/widgets/common.dart';
 import '../../profile/data/profile_repository.dart';
 import '../domain/catalog.dart';
 import '../domain/exercise.dart';
@@ -184,6 +186,13 @@ class _ChainChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final duration = DisciplineMotion.of(context, DisciplineMotion.medium);
+    final appStyle = AppStyle.of(context);
+    // Area di tocco di almeno 48 px: l'altezza cresce con il testo grande.
+    final radius = BorderRadius.circular(
+      selected
+          ? appStyle.buttonRadius.clamp(0, 24)
+          : appStyle.smallRadius.clamp(0, 16),
+    );
     return Center(
       child: Semantics(
         button: true,
@@ -191,20 +200,22 @@ class _ChainChip extends StatelessWidget {
         child: AnimatedContainer(
           duration: duration,
           curve: DisciplineMotion.decelerate,
-          height: 44,
+          constraints: const BoxConstraints(minHeight: 48),
           decoration: BoxDecoration(
             color: selected ? scheme.primary : Colors.transparent,
-            borderRadius: BorderRadius.circular(selected ? 22 : 12),
+            borderRadius: radius,
             border: Border.all(
               color: selected ? scheme.primary : scheme.outline,
             ),
           ),
           child: InkWell(
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: radius,
             onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
+              // heightFactor: il testo sta al centro dell'altezza minima.
               child: Center(
+                heightFactor: 1,
                 child: AnimatedDefaultTextStyle(
                   duration: duration,
                   style: TextStyle(
@@ -288,81 +299,68 @@ class _Step extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 56, bottom: 10),
-          child: AnimatedContainer(
-            duration: duration,
-            curve: DisciplineMotion.decelerate,
-            decoration: BoxDecoration(
-              color: open
-                  ? scheme.primaryContainer
-                  : current
-                  ? scheme.surfaceContainer
-                  : scheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Material(
-              type: MaterialType.transparency,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: onTap,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
+          child: DisciplineCard(
+            color: open
+                ? scheme.primaryContainer
+                : current
+                ? scheme.surfaceContainer
+                : scheme.surfaceContainerLow,
+            padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
+            onTap: onTap,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  exercise.name,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    color: state == _StepState.locked
-                                        ? scheme.onSurfaceVariant
-                                        : scheme.onSurface,
-                                  ),
-                                ),
-                                Text(
-                                  sub,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: scheme.onSurfaceVariant,
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            exercise.name,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: state == _StepState.locked
+                                  ? scheme.onSurfaceVariant
+                                  : scheme.onSurface,
                             ),
                           ),
-                          AnimatedRotation(
-                            turns: open ? 0.5 : 0,
-                            duration: duration,
-                            curve: DisciplineMotion.decelerate,
-                            child: Icon(
-                              Icons.expand_more,
+                          Text(
+                            sub,
+                            style: TextStyle(
+                              fontSize: 13,
                               color: scheme.onSurfaceVariant,
                             ),
                           ),
                         ],
                       ),
-                      // AnimatedSize con durata zero (animazioni spente)
-                      // dà errori di layout: in quel caso niente animazione.
-                      if (duration == Duration.zero)
-                        open
-                            ? _Details(exercise: exercise)
-                            : const SizedBox(width: double.infinity)
-                      else
-                        AnimatedSize(
-                          duration: duration,
-                          curve: DisciplineMotion.decelerate,
-                          alignment: Alignment.topCenter,
-                          child: open
-                              ? _Details(exercise: exercise)
-                              : const SizedBox(width: double.infinity),
-                        ),
-                    ],
-                  ),
+                    ),
+                    AnimatedRotation(
+                      turns: open ? 0.5 : 0,
+                      duration: duration,
+                      curve: DisciplineMotion.decelerate,
+                      child: Icon(
+                        Icons.expand_more,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
+                // AnimatedSize con durata zero (animazioni spente)
+                // dà errori di layout: in quel caso niente animazione.
+                if (duration == Duration.zero)
+                  open
+                      ? _Details(exercise: exercise)
+                      : const SizedBox(width: double.infinity)
+                else
+                  AnimatedSize(
+                    duration: duration,
+                    curve: DisciplineMotion.decelerate,
+                    alignment: Alignment.topCenter,
+                    child: open
+                        ? _Details(exercise: exercise)
+                        : const SizedBox(width: double.infinity),
+                  ),
+              ],
             ),
           ),
         ),
@@ -449,7 +447,9 @@ class _Details extends StatelessWidget {
                 height: 78,
                 decoration: BoxDecoration(
                   color: scheme.surface,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(
+                    AppStyle.of(context).smallRadius.clamp(0, 16),
+                  ),
                 ),
                 padding: const EdgeInsets.all(6),
                 child: ExerciseFigure(

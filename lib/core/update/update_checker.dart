@@ -4,6 +4,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart' show TargetPlatform;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +21,12 @@ const appVersion = '1.3.0';
 const repoUrl = 'https://github.com/owaismounir206-art/Discipline';
 const _latestApi =
     'https://api.github.com/repos/owaismounir206-art/Discipline/releases/latest';
+
+/// Il controllo non è arrivato a GitHub (niente rete): non vuol dire che la
+/// versione installata sia già l'ultima.
+class UpdateCheckException implements Exception {
+  const UpdateCheckException();
+}
 
 /// Una versione pubblicata su GitHub.
 @immutable
@@ -114,8 +121,9 @@ class GitHubReleases implements ReleaseSource {
 
   @override
   Future<Release?> latest() async {
+    final http.Response res;
     try {
-      final res = await _client
+      res = await _client
           .get(
             Uri.parse(_latestApi),
             headers: {
@@ -124,10 +132,18 @@ class GitHubReleases implements ReleaseSource {
             },
           )
           .timeout(const Duration(seconds: 10));
+    } on TimeoutException {
+      throw const UpdateCheckException();
+    } on http.ClientException {
+      throw const UpdateCheckException();
+    } on IOException {
+      throw const UpdateCheckException();
+    }
+    try {
       if (res.statusCode != 200) return null;
       return Release.fromGitHub(jsonDecode(res.body) as Map<String, Object?>);
     } on Object {
-      // Niente rete o risposta strana: si riprova domani.
+      // Risposta strana: non c'è una versione da proporre.
       return null;
     }
   }
@@ -222,7 +238,13 @@ class UpdateRepository {
     final fresh =
         s.lastCheck != null && now.difference(s.lastCheck!).inHours < 24;
     if (force || !fresh) {
-      final fetched = await _source.latest();
+      Release? fetched;
+      try {
+        fetched = await _source.latest();
+      } on UpdateCheckException {
+        // Offline: a mano si avvisa, in automatico resta la copia salvata.
+        if (force) rethrow;
+      }
       latest = fetched ?? latest;
       await _write(
         UpdateSettings(

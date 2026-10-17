@@ -80,10 +80,22 @@ class ProfileRepository {
         if (!changedLevel) return null;
 
         final placement = computePlacement(profile);
-        await saveChains({
-          for (final e in placement.positions.entries)
-            e.key: ChainProgress(chain: e.key, position: e.value, since: today),
-        });
+        // Con un profilo già salvato una catena non torna indietro: vale la
+        // posizione più alta tra quella salvata e quella del test.
+        final saved = previous == null
+            ? <ChainId, ChainProgress>{}
+            : await loadChains();
+        final chains = {...saved};
+        for (final e in placement.positions.entries) {
+          final current = saved[e.key];
+          if (current != null && current.position >= e.value) continue;
+          chains[e.key] = ChainProgress(
+            chain: e.key,
+            position: e.value,
+            since: today,
+          );
+        }
+        await saveChains(chains);
         return placement;
       });
 

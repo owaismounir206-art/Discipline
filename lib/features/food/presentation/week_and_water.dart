@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/theme/motion.dart';
+import '../../../core/theme/styles/app_style.dart';
 import '../../../core/widgets/common.dart';
 import '../../profile/domain/athlete_profile.dart';
 import '../../workout/data/today_plan.dart';
@@ -164,6 +165,16 @@ class WaterCard extends ConsumerWidget {
   }
 }
 
+/// Colore dell'acqua: si accorda a ogni stile.
+Color waterColor(AppStyle style, ColorScheme scheme) => switch (style.id) {
+  StyleId.material ||
+  StyleId.fluent => Color.lerp(scheme.primary, const Color(0xFF2F7FC1), 0.7)!,
+  StyleId.gameboy => scheme.onSurface,
+  StyleId.cyber => scheme.primary,
+  StyleId.zen || StyleId.kanji => scheme.secondary,
+  _ => scheme.primary,
+};
+
 class _Glass extends StatelessWidget {
   const _Glass({required this.full, required this.extra});
 
@@ -174,8 +185,7 @@ class _Glass extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final duration = DisciplineMotion.of(context, DisciplineMotion.medium);
-    // Blu acqua, accordato ai colori del tema.
-    final water = Color.lerp(scheme.primary, const Color(0xFF2F7FC1), 0.7)!;
+    final water = waterColor(AppStyle.of(context), scheme);
     final color = extra ? scheme.tertiary : water;
     return Container(
       width: 26,
@@ -227,6 +237,8 @@ class WeekCard extends ConsumerWidget {
         .length;
     final notifier = ref.read(foodDayNotifierProvider.notifier);
     const barMax = 90.0;
+    // Area delle barre: alta quanto la barra del 130% dell'obiettivo.
+    const barArea = barMax + 4;
 
     return DisciplineCard(
       radius: 24,
@@ -239,93 +251,99 @@ class WeekCard extends ConsumerWidget {
             monday == today.startOfWeek ? 'Questa settimana' : 'Settimana',
             style: theme.textTheme.titleMedium,
           ),
-          SizedBox(
-            height: barMax + 34,
-            child: Stack(
-              children: [
-                // Linea dell'obiettivo (100%).
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 26 + 4 + barMax / 1.3,
-                  child: Container(height: 1.5, color: scheme.outline),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  spacing: 8,
-                  children: [
-                    for (var i = 0; i < 7; i++)
-                      () {
-                        final d = monday.addDays(i);
-                        final kcal = totals[d]?.kcal ?? 0;
-                        final ratio = (kcal / target.kcal).clamp(0.0, 1.3);
-                        final future = d.isAfter(today);
-                        final selected = d == day;
-                        final over = kcal > target.kcal * 1.1;
-                        return Expanded(
-                          child: Semantics(
-                            button: !future,
-                            selected: selected,
-                            label:
-                                '${weekdayNames[d.weekday - 1]}: '
-                                '${kcal.round()} kcal',
-                            excludeSemantics: true,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(10),
-                              onTap: future
-                                  ? null
-                                  : () => notifier.show(d, today),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                spacing: 6,
-                                children: [
-                                  TweenAnimationBuilder<double>(
-                                    tween: Tween(end: ratio),
-                                    duration: DisciplineMotion.of(
-                                      context,
-                                      DisciplineMotion.long,
-                                    ),
-                                    curve: DisciplineMotion.decelerate,
-                                    builder: (context, r, _) => Container(
-                                      height: 4 + r / 1.3 * barMax,
-                                      decoration: BoxDecoration(
-                                        color: kcal == 0
-                                            ? scheme.surfaceContainerHighest
-                                            : over
-                                            ? scheme.tertiary
-                                            : selected
-                                            ? scheme.primary
-                                            : Color.lerp(
-                                                scheme.primaryContainer,
-                                                scheme.primary,
-                                                0.45,
-                                              ),
-                                        borderRadius: BorderRadius.circular(8),
+          // Le barre hanno altezza in pixel, le etichette la loro: così col
+          // testo grande il grafico cresce e la linea resta sul 100%.
+          Stack(
+            children: [
+              // Linea dell'obiettivo (100%), appena sopra la barra del 100%.
+              Positioned(
+                left: 0,
+                right: 0,
+                top: barArea - (4 + barMax / 1.3) - 1.5,
+                child: Container(height: 1.5, color: scheme.outline),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                spacing: 8,
+                children: [
+                  for (var i = 0; i < 7; i++)
+                    () {
+                      final d = monday.addDays(i);
+                      final kcal = totals[d]?.kcal ?? 0;
+                      final ratio = (kcal / target.kcal).clamp(0.0, 1.3);
+                      final future = d.isAfter(today);
+                      final selected = d == day;
+                      final over = kcal > target.kcal * 1.1;
+                      return Expanded(
+                        child: Semantics(
+                          button: !future,
+                          selected: selected,
+                          label:
+                              '${weekdayNames[d.weekday - 1]}: '
+                              '${kcal.round()} kcal',
+                          excludeSemantics: true,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(10),
+                            onTap: future
+                                ? null
+                                : () => notifier.show(d, today),
+                            child: Column(
+                              spacing: 6,
+                              children: [
+                                SizedBox(
+                                  height: barArea,
+                                  child: Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: TweenAnimationBuilder<double>(
+                                      tween: Tween(end: ratio),
+                                      duration: DisciplineMotion.of(
+                                        context,
+                                        DisciplineMotion.long,
+                                      ),
+                                      curve: DisciplineMotion.decelerate,
+                                      builder: (context, r, _) => Container(
+                                        height: 4 + r / 1.3 * barMax,
+                                        decoration: BoxDecoration(
+                                          color: kcal == 0
+                                              ? scheme.surfaceContainerHighest
+                                              : over
+                                              ? scheme.tertiary
+                                              : selected
+                                              ? scheme.primary
+                                              : Color.lerp(
+                                                  scheme.primaryContainer,
+                                                  scheme.primary,
+                                                  0.45,
+                                                ),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),
-                                  Text(
-                                    weekdayLetters[d.weekday - 1],
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: selected
-                                          ? FontWeight.w800
-                                          : FontWeight.w500,
-                                      color: selected
-                                          ? scheme.primary
-                                          : scheme.onSurfaceVariant,
-                                    ),
+                                ),
+                                Text(
+                                  weekdayLetters[d.weekday - 1],
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: selected
+                                        ? FontWeight.w800
+                                        : FontWeight.w500,
+                                    color: selected
+                                        ? scheme.primary
+                                        : scheme.onSurfaceVariant,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      }(),
-                  ],
-                ),
-              ],
-            ),
+                        ),
+                      );
+                    }(),
+                ],
+              ),
+            ],
           ),
           Text(
             logged.isEmpty

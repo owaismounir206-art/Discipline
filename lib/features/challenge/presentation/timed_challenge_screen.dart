@@ -13,6 +13,8 @@ import '../../../core/data/providers.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/services/share.dart';
 import '../../../core/theme/motion.dart';
+import '../../../core/theme/styles/app_style.dart';
+import '../../../core/theme/styles/style_border.dart';
 import '../../../core/theme/discipline_theme.dart';
 import '../../../core/utils/local_date.dart';
 import '../../../core/widgets/celebration.dart';
@@ -236,14 +238,31 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
                 child: invalidCode
                     ? _InvalidCode(onClose: () => context.pop())
                     : _result != null
-                    ? _ResultView(
-                        result: _result!,
-                        friend: _friend,
-                        friendCode: widget.friendCode,
-                        previousBest: _previousBest,
-                        points: _points,
+                    ? LayoutBuilder(
+                        builder: (context, box) => SingleChildScrollView(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: box.maxHeight,
+                            ),
+                            child: _ResultView(
+                              result: _result!,
+                              friend: _friend,
+                              friendCode: widget.friendCode,
+                              previousBest: _previousBest,
+                              points: _points,
+                            ),
+                          ),
+                        ),
                       )
-                    : _buildRun(context, dark.colorScheme),
+                    : LayoutBuilder(
+                        builder: (context, box) => SingleChildScrollView(
+                          child: _buildRun(
+                            context,
+                            dark.colorScheme,
+                            box.maxHeight,
+                          ),
+                        ),
+                      ),
               ),
             ),
           ),
@@ -252,7 +271,7 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
     );
   }
 
-  Widget _buildRun(BuildContext context, ColorScheme scheme) {
+  Widget _buildRun(BuildContext context, ColorScheme scheme, double maxHeight) {
     final now = _clock();
     final phase = _run.phaseAt(now);
     final target = _target;
@@ -260,13 +279,19 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
     final vsLabel = _friend != null
         ? (friendName!.isEmpty ? 'Il tuo amico' : friendName)
         : 'Il tuo record';
+    // Le parti fisse a scala 1 (intestazione, timer, pulsanti) occupano circa
+    // 346-400 px: il resto va alle tile, tra 140 e 320 px.
+    final tileHeight = (maxHeight - (_mode.goal == null ? 346 : 400)).clamp(
+      140.0,
+      320.0,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 16,
       children: [
-        SizedBox(
-          height: 64,
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 64),
           child: Row(
             spacing: 8,
             children: [
@@ -308,18 +333,24 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
           ),
         ),
         if (phase == TimedPhase.ready)
-          Expanded(
-            child: _ReadyView(
-              mode: _mode,
-              vsLabel: target == null ? null : vsLabel,
-              target: target,
-              onStart: _start,
+          ConstrainedBox(
+            // Sotto l'intestazione, centrato in verticale.
+            constraints: BoxConstraints(
+              minHeight: (maxHeight - 80).clamp(0.0, double.infinity),
+            ),
+            child: Center(
+              child: _ReadyView(
+                mode: _mode,
+                vsLabel: target == null ? null : vsLabel,
+                target: target,
+                onStart: _start,
+              ),
             ),
           )
         else ...[
           _TimerView(run: _run, now: now, phase: phase),
           SizedBox(
-            height: 250,
+            height: tileHeight,
             child: Row(
               spacing: 10,
               children: [
@@ -364,7 +395,6 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
                 : null,
             onTap: () => _addRep(manual: true),
           ),
-          const Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: 16,
@@ -469,9 +499,6 @@ class _ReadyView extends StatelessWidget {
             minimumSize: const Size.fromHeight(72),
             textStyle: Theme.of(context).textTheme.labelLarge
                 ?.copyWith(fontSize: 22, fontWeight: FontWeight.w800),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(DisciplineRadii.cardLarge),
-            ),
           ),
           onPressed: onStart,
           child: const Text('Via!'),
@@ -554,20 +581,22 @@ class _CountTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    // Forma della card dello stile, con il bordo colorato di 3 px (anche se
+    // trasparente, così il contenuto non si sposta).
+    final shape = StyleBorder.card(AppStyle.of(context), scheme).copyWith(
+      side: BorderSide(
+        color: highlighted ? color : Colors.transparent,
+        width: 3,
+      ),
+    );
     return Semantics(
       label: '$name: $value',
       liveRegion: true,
       excludeSemantics: true,
-      child: Container(
+      child: Material(
         clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(DisciplineRadii.cardLarge),
-          border: Border.all(
-            color: highlighted ? color : Colors.transparent,
-            width: 3,
-          ),
-        ),
+        color: scheme.surfaceContainerHigh,
+        shape: shape,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -673,7 +702,7 @@ class _GoalBar extends StatelessWidget {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w700,
-            color: scheme.onPrimaryContainer,
+            color: scheme.onSurface,
           ),
         ),
       ],
@@ -713,9 +742,6 @@ class _RepButton extends StatelessWidget {
               alpha: countdown != null ? 1 : 0.4,
             ),
             disabledForegroundColor: scheme.onPrimary,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(DisciplineRadii.cardLarge),
-            ),
           ),
           onPressed: enabled ? onTap : null,
           child: Column(
@@ -738,7 +764,7 @@ class _RepButton extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: scheme.primaryContainer,
+                  color: scheme.onPrimary.withValues(alpha: 0.8),
                 ),
               ),
             ],

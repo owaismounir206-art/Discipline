@@ -272,7 +272,13 @@ class _RunningView extends ConsumerWidget {
                                   exercise.position > 0
                               ? () => controller.changeVariant(-1)
                               : null,
-                          child: const Text('Più facile'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                          ),
+                          child: const FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text('Più facile'),
+                          ),
                         ),
                       ),
                       Expanded(
@@ -283,7 +289,13 @@ class _RunningView extends ConsumerWidget {
                                       Catalog.lastPosition(exercise.chain)
                               ? () => controller.changeVariant(1)
                               : null,
-                          child: const Text('Più difficile'),
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                          ),
+                          child: const FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text('Più difficile'),
+                          ),
                         ),
                       ),
                     ],
@@ -741,16 +753,25 @@ class _Stat extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+            // Con il testo grande etichetta e valore si stringono nella card.
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                label,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
-            if (count case final n?)
-              CountUp(n, style: theme.textTheme.headlineSmall)
-            else
-              Text(value ?? '', style: theme.textTheme.headlineSmall),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: switch (count) {
+                final n? => CountUp(n, style: theme.textTheme.headlineSmall),
+                null => Text(value ?? '', style: theme.textTheme.headlineSmall),
+              },
+            ),
           ],
         ),
       ),

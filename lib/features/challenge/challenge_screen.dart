@@ -13,6 +13,8 @@ import '../../core/router/routes.dart';
 import '../../core/theme/motion.dart';
 import '../../core/theme/discipline_theme.dart';
 import '../../core/theme/theme_settings.dart';
+import '../../core/theme/styles/app_style.dart';
+import '../../core/theme/styles/style_border.dart';
 import '../../core/utils/italian_date.dart';
 import '../../core/widgets/celebration.dart';
 import '../../core/widgets/common.dart';
@@ -37,6 +39,7 @@ class ChallengeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
     final balance = ref.watch(balanceProvider);
     final challenges = ref.watch(activeChallengesProvider);
 
@@ -52,14 +55,14 @@ class ChallengeScreen extends ConsumerWidget {
         const SectionTitle('A tempo'),
         for (final mode in TimedMode.values) _TimedCard(mode: mode),
         DisciplineCard(
-          color: Theme.of(context).colorScheme.secondaryContainer,
+          color: scheme.secondaryContainer,
           radius: 24,
           padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
           onTap: () => context.push(Routes.friendChallenge),
-          child: const Row(
+          child: Row(
             spacing: 12,
             children: [
-              IconBadge(icon: Icons.groups_outlined),
+              const IconBadge(icon: Icons.groups_outlined),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,16 +72,20 @@ class ChallengeScreen extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
+                        color: scheme.onSecondaryContainer,
                       ),
                     ),
                     Text(
                       'Con un codice, senza account né internet',
-                      style: TextStyle(fontSize: 13),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: scheme.onSecondaryContainer,
+                      ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right),
+              Icon(Icons.chevron_right, color: scheme.onSecondaryContainer),
             ],
           ),
         ),
@@ -100,15 +107,16 @@ class _PointsPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final style = AppStyle.of(context);
     return Semantics(
       label: '$points punti',
       excludeSemantics: true,
       child: Container(
-        height: 40,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+        constraints: const BoxConstraints(minHeight: 40),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: scheme.tertiaryContainer,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(style.buttonRadius.clamp(0, 20)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -181,7 +189,7 @@ class _RankCard extends ConsumerWidget {
           AnimatedProgressBar(
             value: info.progress,
             color: scheme.primary,
-            background: scheme.surface.withValues(alpha: 0.7),
+            background: scheme.surfaceContainerHighest,
           ),
           Text(
             next == null
@@ -279,11 +287,17 @@ class _GeneratedCard extends ConsumerWidget {
                   ),
                 ),
               ),
-              Text(
-                p.cameraBonus
-                    ? '$points punti · bonus fotocamera'
-                    : '$points punti',
-                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+              Flexible(
+                child: Text(
+                  p.cameraBonus
+                      ? '$points punti · bonus fotocamera'
+                      : '$points punti',
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
               ),
             ],
           ),
@@ -297,14 +311,15 @@ class _GeneratedCard extends ConsumerWidget {
             color: p.completed ? scheme.tertiary : scheme.primary,
             background: scheme.surfaceContainerHighest,
           ),
-          Row(
+          Wrap(
             spacing: 8,
+            runSpacing: 8,
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              Expanded(
-                child: Text(
-                  '${c.amount(p.done)} di ${c.amount(c.target)}',
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
+              Text(
+                '${c.amount(p.done)} di ${c.amount(c.target)}',
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               if (status.claimed)
                 Row(
@@ -358,7 +373,7 @@ class _AddSheetState extends State<_AddSheet> {
     final seconds = c.measure == Measure.seconds;
     final canCount = !seconds && c.exercise.chain == ChainId.push;
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -688,6 +703,7 @@ class _AchievementTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final style = AppStyle.of(context);
     final earned = badge.earned;
     return Semantics(
       label:
@@ -698,9 +714,10 @@ class _AchievementTile extends StatelessWidget {
         duration: DisciplineMotion.of(context, DisciplineMotion.long),
         curve: DisciplineMotion.decelerate,
         padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
+        decoration: ShapeDecoration(
           color: earned ? scheme.tertiaryContainer : scheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(20),
+          shape: StyleBorder.card(style, scheme),
+          shadows: style.softShadows,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

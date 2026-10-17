@@ -125,17 +125,11 @@ class BackupSection extends ConsumerWidget {
               final data = jsonDecode(text);
               if (data is! Map) throw const FormatException();
               await db.importAll(data.cast<String, Object?>());
-              // Promemoria del profilo importato (o nessuno).
-              final profile = await ProfileRepository(db).loadProfile();
-              final reminders = ref.read(remindersProvider);
-              await (profile == null
-                  ? reminders.cancelAll()
-                  : reminders.schedule(profile));
-              if (context.mounted) _snack(context, 'Dati importati');
             } on FormatException {
               if (context.mounted) {
                 _snack(context, 'Questo file non è un backup di Discipline.');
               }
+              return;
             } on Object {
               // Righe mancanti o di tipo sbagliato: l'importazione è
               // annullata e i dati di prima restano.
@@ -145,6 +139,19 @@ class BackupSection extends ConsumerWidget {
                   'Il file è danneggiato: i tuoi dati non sono stati toccati.',
                 );
               }
+              return;
+            }
+            if (context.mounted) _snack(context, 'Dati importati');
+            // Promemoria del profilo importato (o nessuno). I dati sono già al
+            // loro posto: un errore qui non è un errore del file.
+            try {
+              final profile = await ProfileRepository(db).loadProfile();
+              final reminders = ref.read(remindersProvider);
+              await (profile == null
+                  ? reminders.cancelAll()
+                  : reminders.schedule(profile));
+            } on Object {
+              // Solo i promemoria: il backup è già importato.
             }
           },
         ),

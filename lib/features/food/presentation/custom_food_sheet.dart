@@ -138,10 +138,7 @@ class _CustomFoodSheetState extends State<CustomFoodSheet> {
               TextFormField(
                 controller: _name,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Nome',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: const InputDecoration(labelText: 'Nome'),
                 validator: (v) =>
                     (v ?? '').trim().isEmpty ? 'Scrivi un nome' : null,
               ),
@@ -158,7 +155,6 @@ class _CustomFoodSheetState extends State<CustomFoodSheet> {
                   decoration: InputDecoration(
                     labelText: label,
                     suffixText: unit,
-                    border: const OutlineInputBorder(),
                   ),
                   validator: (v) => _check(key, v),
                 ),

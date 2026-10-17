@@ -88,18 +88,18 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
     final kcalLeft = (targets.kcal - totals.kcal).round();
     final onBody = scheme.onPrimaryContainer;
 
-    Widget bodyValue(String label, String value) => Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: scheme.surface.withValues(alpha: 0.7),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label, style: TextStyle(fontSize: 12, color: onBody)),
-            Text(
+    Widget bodyValue(String label, String value) => DisciplineCard(
+      color: scheme.surface.withValues(alpha: 0.7),
+      radius: 16,
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(fontSize: 12, color: onBody)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
               value,
               style: TextStyle(
                 fontSize: 16,
@@ -107,42 +107,35 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
                 color: onBody,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
 
-    Widget need(String label, String value, String sub) => Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainer,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 2,
-          children: [
-            Text(
-              label,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+    Widget need(String label, String value, String sub) => DisciplineCard(
+      color: scheme.surfaceContainer,
+      radius: 16,
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 2,
+        children: [
+          Text(
+            label,
+            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+          ),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-            Text(
-              sub,
-              style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
-            ),
-          ],
-        ),
+          ),
+          Text(
+            sub,
+            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+          ),
+        ],
       ),
     );
 
@@ -159,25 +152,29 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
               semanticsLabel: 'Il tuo corpo',
               child: Column(
                 spacing: 12,
+                // Il Wrap e le celle prendono tutta la larghezza della card.
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Obiettivo',
-                              style: TextStyle(fontSize: 13, color: onBody),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Obiettivo',
+                            style: TextStyle(fontSize: 13, color: onBody),
+                          ),
+                          Text(
+                            body.goal.label,
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              color: onBody,
                             ),
-                            Text(
-                              body.goal.label,
-                              style: theme.textTheme.titleLarge?.copyWith(
-                                color: onBody,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                       FilledButton.tonal(
                         style: FilledButton.styleFrom(
@@ -190,8 +187,7 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
                       ),
                     ],
                   ),
-                  Row(
-                    spacing: 8,
+                  _TwoByTwo(
                     children: [
                       bodyValue('Peso', '${_n(body.weightKg)} kg'),
                       bodyValue('Altezza', '${body.heightCm.round()} cm'),
@@ -205,8 +201,7 @@ class _NutritionScreenState extends ConsumerState<NutritionScreen> {
             const SizedBox(height: 18),
             const SectionTitle('Il tuo fabbisogno giornaliero'),
             const SizedBox(height: 10),
-            Row(
-              spacing: 8,
+            _TwoByTwo(
               children: [
                 need('Calorie', thousands(targets.kcal), 'kcal'),
                 need(
@@ -297,6 +292,35 @@ String _n(double v, [int digits = 1]) {
   return text.replaceAll('.', ',');
 }
 
+/// Celle in griglia 2x2: a 320 px ogni cella resta larga abbastanza per il testo.
+class _TwoByTwo extends StatelessWidget {
+  const _TwoByTwo({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Column(
+    spacing: 8,
+    children: [
+      for (var i = 0; i < children.length; i += 2)
+        IntrinsicHeight(
+          child: Row(
+            spacing: 8,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: children[i]),
+              Expanded(
+                child: i + 1 < children.length
+                    ? children[i + 1]
+                    : const SizedBox(),
+              ),
+            ],
+          ),
+        ),
+    ],
+  );
+}
+
 class _RecipeCard extends ConsumerStatefulWidget {
   const _RecipeCard({super.key, required this.recipe, required this.meal});
 
@@ -320,32 +344,30 @@ class _RecipeCardState extends ConsumerState<_RecipeCard> {
     return DisciplineCard(
       radius: 24,
       padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
-      child: Row(
+      child: Wrap(
         spacing: 12,
+        runSpacing: 8,
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2,
-              children: [
-                Text(
-                  r.tags.first,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: scheme.primary,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 2,
+            children: [
+              Text(
+                r.tags.first,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: scheme.primary,
                 ),
-                Text(r.name, style: theme.textTheme.titleMedium),
-                Text(
-                  r.summary,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
+              ),
+              Text(r.name, style: theme.textTheme.titleMedium),
+              Text(
+                r.summary,
+                style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+              ),
+            ],
           ),
           added
               ? FilledButton(

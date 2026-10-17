@@ -61,9 +61,15 @@ class WelcomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Semantics(
               header: true,
-              child: Text(
-                'Discipline',
-                style: theme.textTheme.headlineMedium?.copyWith(fontSize: 40),
+              // Con il testo grande il titolo si rimpicciolisce invece di
+              // spezzarsi a metà parola.
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  'Discipline',
+                  style: theme.textTheme.headlineMedium?.copyWith(fontSize: 40),
+                ),
               ),
             ),
             Text(

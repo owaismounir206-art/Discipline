@@ -305,10 +305,10 @@ class _PathGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      // Più alte se il testo del telefono è grande (le tre righe sotto la
-      // figura crescono).
+      // Più alte se il testo del telefono è grande (le righe sotto la figura
+      // crescono). Il limite 1.5 tiene il rapporto sopra 0.6.
       childAspectRatio:
-          0.9 / MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.8),
+          0.9 / MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 1.5),
       children: [
         for (final chain in ChainId.values)
           Builder(

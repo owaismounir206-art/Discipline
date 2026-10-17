@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/widgets/common.dart';
 import '../../food/data/ai_food.dart';
+import '../../food/domain/homemade.dart';
 import '../ai_assistant.dart';
 import '../../../core/feedback/ui_feedback.dart';
 
@@ -55,6 +56,13 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
       setState(() {
         _busy = false;
         _error = e.message;
+      });
+    } catch (_) {
+      UiFeedback.instance.play(UiSound.error);
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _error = 'Qualcosa non è andato storto: riprova.';
       });
     }
   }
@@ -186,8 +194,10 @@ class _KitchenScreenState extends ConsumerState<KitchenScreen> {
                 icon: const Icon(Icons.soup_kitchen_outlined),
                 label: const Text('Salva tra le ricette di casa'),
                 // Si apre l'editor già compilato: controlli e salvi tu.
-                onPressed: () =>
-                    context.push(Routes.homemade, extra: recipe.toHomemade()),
+                onPressed: () => context.push(
+                  Routes.homemade,
+                  extra: HomemadeDraft(recipe: recipe.toHomemade()),
+                ),
               ),
               const SizedBox(height: 8),
               Text(

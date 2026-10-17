@@ -52,9 +52,10 @@ class _FoodAmountSheetState extends ConsumerState<FoodAmountSheet> {
   /// Salvataggio in corso: un doppio tocco non aggiunge due volte.
   var _saving = false;
 
-  late int _grams = (widget.entry?.grams ?? widget.food.defaultGrams)
-      .round()
-      .clamp(1, 2000);
+  // Una voce del diario tiene i grammi che aveva, finché non tocchi lo stepper.
+  late int _grams =
+      widget.entry?.grams.round() ??
+      widget.food.defaultGrams.round().clamp(1, 3000);
   late Meal _meal = widget.meal;
 
   @override
@@ -101,7 +102,7 @@ class _FoodAmountSheetState extends ConsumerState<FoodAmountSheet> {
               label: 'Grammi',
               value: _grams,
               min: 5,
-              max: 2000,
+              max: 3000,
               step: 10,
               suffix: ' g',
               onChanged: (v) => setState(() => _grams = v),

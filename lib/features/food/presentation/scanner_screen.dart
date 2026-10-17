@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../../core/widgets/common.dart';
 import '../data/food_repository.dart';
 import '../data/open_food_facts.dart';
 import '../domain/foods.dart';
@@ -62,6 +63,17 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     Navigator.of(context).pop(ScannedFood(item));
   }
 
+  /// Il prodotto già salvato con quel codice. Un errore del database non deve
+  /// bloccare lo scanner: si va avanti come se non ci fosse.
+  Future<FoodItem?> _savedFood(String code) async {
+    try {
+      final all = await ref.read(foodRepositoryProvider).watchFavorites().first;
+      return all.where((f) => f.barcode == code).firstOrNull;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<void> _onDetect(BarcodeCapture capture) async {
     if (_busy || _done) return;
     final code = capture.barcodes
@@ -77,10 +89,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
     }
     // Subito, prima di ogni attesa: blocca le letture che arrivano intanto.
     _busy = true;
-    final saved =
-        (await ref.read(foodRepositoryProvider).watchFavorites().first)
-            .where((f) => f.barcode == code)
-            .firstOrNull;
+    final saved = await _savedFood(code);
     if (!mounted) return;
     // I prodotti creati a mano si usano subito (anche offline). Per quelli di
     // Open Food Facts si chiedono i dati aggiornati, allergeni compresi, e
@@ -118,6 +127,20 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
         _failed = code;
         _failedAt = DateTime.now();
         _message = '${e.message} Riprovo tra qualche secondo.';
+      });
+    } catch (_) {
+      // Errore imprevisto: lo scanner torna pronto, e questo codice si riprova
+      // dopo qualche secondo come gli altri.
+      if (!mounted) return;
+      if (saved != null) {
+        _close(saved);
+        return;
+      }
+      setState(() {
+        _busy = false;
+        _failed = code;
+        _failedAt = DateTime.now();
+        _message = 'Non riesco a leggere il prodotto. Riprovo tra poco.';
       });
     }
   }
@@ -180,12 +203,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen> {
             left: 16,
             right: 16,
             bottom: 32,
-            child: Container(
+            child: DisciplineCard(
+              color: scheme.surface,
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: scheme.surface,
-                borderRadius: BorderRadius.circular(20),
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: 12,

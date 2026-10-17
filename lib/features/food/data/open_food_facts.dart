@@ -4,6 +4,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -35,6 +36,10 @@ class OpenFoodFacts implements FoodCatalog {
   OpenFoodFacts({http.Client? client}) : _client = client ?? http.Client();
 
   final http.Client _client;
+
+  static const _offline = FoodCatalogException(
+    'Sei offline? Puoi usare i piatti italiani e i preferiti.',
+  );
 
   static const _fields =
       'code,product_name,product_name_it,brands,nutriments,allergens_tags';
@@ -73,9 +78,9 @@ class OpenFoodFacts implements FoodCatalog {
     } on FormatException {
       throw const FoodCatalogException('Risposta non valida: riprova.');
     } on http.ClientException {
-      throw const FoodCatalogException(
-        'Sei offline? Puoi usare i piatti italiani e i preferiti.',
-      );
+      throw _offline;
+    } on IOException {
+      throw _offline;
     }
   }
 

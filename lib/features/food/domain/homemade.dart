@@ -111,6 +111,15 @@ class HomemadeRecipe {
   );
 }
 
+/// Bozza di una ricetta nuova (es. da "Cosa cucino?"): l'editor si apre
+/// precompilato e non tocca le ricette già salvate.
+@immutable
+class HomemadeDraft {
+  const HomemadeDraft({required this.recipe});
+
+  final HomemadeRecipe recipe;
+}
+
 Map<String, Object?> foodToJson(FoodItem f) => {
   'name': f.name,
   'kcal': f.per100.kcal,

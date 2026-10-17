@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/router/routes.dart';
+import '../../../core/theme/styles/app_style.dart';
 import '../../food/data/ai_food.dart';
 import '../ai_assistant.dart';
 import '../../../core/feedback/ui_feedback.dart';
@@ -55,9 +56,12 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
     _toBottom();
     try {
       // Solo gli ultimi messaggi: bastano e restano nei limiti gratuiti.
-      final history = _messages.length > 12
+      var history = _messages.length > 12
           ? _messages.sublist(_messages.length - 12)
           : [..._messages];
+      // La storia deve iniziare con una domanda, non con una risposta.
+      final firstUser = history.indexWhere((m) => m.fromUser);
+      if (firstUser > 0) history = history.sublist(firstUser);
       final reply = await askCoach(
         ref.read(aiFoodServiceProvider),
         ref.read(aiContextProvider),
@@ -78,6 +82,15 @@ class _CoachScreenState extends ConsumerState<CoachScreen> {
         _text.text = text;
         _busy = false;
         _error = e.message;
+      });
+    } catch (_) {
+      UiFeedback.instance.play(UiSound.error);
+      if (!mounted) return;
+      setState(() {
+        _messages.removeLast();
+        _text.text = text;
+        _busy = false;
+        _error = 'Qualcosa non è andato storto: riprova.';
       });
     }
     _toBottom();
@@ -204,6 +217,7 @@ class _Bubble extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final mine = message.fromUser;
+    final style = AppStyle.of(context);
     return Align(
       alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -215,10 +229,14 @@ class _Bubble extends StatelessWidget {
         decoration: BoxDecoration(
           color: mine ? scheme.primaryContainer : scheme.surfaceContainerHigh,
           borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(18),
-            topRight: const Radius.circular(18),
-            bottomLeft: Radius.circular(mine ? 18 : 4),
-            bottomRight: Radius.circular(mine ? 4 : 18),
+            topLeft: Radius.circular(style.radius),
+            topRight: Radius.circular(style.radius),
+            bottomLeft: Radius.circular(
+              mine ? style.radius : style.smallRadius,
+            ),
+            bottomRight: Radius.circular(
+              mine ? style.smallRadius : style.radius,
+            ),
           ),
         ),
         child: SelectableText(

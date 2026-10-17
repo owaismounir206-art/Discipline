@@ -238,14 +238,11 @@ class _RoutineCard extends StatelessWidget {
         child: Row(
           spacing: 14,
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: scheme.secondaryContainer,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: scheme.onSecondaryContainer),
+            IconBadge(
+              icon: icon,
+              size: 48,
+              background: scheme.secondaryContainer,
+              foreground: scheme.onSecondaryContainer,
             ),
             Expanded(
               child: Column(

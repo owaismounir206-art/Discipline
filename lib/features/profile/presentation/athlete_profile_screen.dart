@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/data/providers.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/discipline_theme.dart';
+import '../../../core/theme/styles/style_border.dart';
 import '../../../core/utils/local_date.dart';
 import '../../../core/widgets/common.dart';
 import '../../exercises/domain/catalog.dart';
@@ -70,42 +71,51 @@ class _AthleteProfileScreenState extends ConsumerState<AthleteProfileScreen> {
 
   Future<void> _save() async {
     setState(() => _saving = true);
-    final profile = AthleteProfile(
-      name: _name.text.trim(),
-      difficulty: _difficulty,
-      experience: _experience,
-      trainingDays: _days,
-      place: _place,
-      test: InitialTest(
-        maxPushUps: _pushUps,
-        maxPullUps: _pullUps,
-        plankSeconds: _plank,
-      ),
-      // Al primo avvio proponiamo un promemoria alle 18:00, modificabile
-      // nelle impostazioni.
-      reminder: _loaded == null ? const ReminderTime(18, 0) : _loaded!.reminder,
-    );
-    final today = LocalDate.fromDateTime(ref.read(clockProvider)());
-    final placement = await ref
-        .read(profileRepositoryProvider)
-        .saveProfile(profile, today);
-    await ref.read(remindersProvider).schedule(profile);
-    if (!mounted) return;
-    setState(() => _saving = false);
-
-    if (placement != null) {
-      await showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        showDragHandle: true,
-        builder: (_) => _PlacementSheet(placement: placement),
+    try {
+      final profile = AthleteProfile(
+        name: _name.text.trim(),
+        difficulty: _difficulty,
+        experience: _experience,
+        trainingDays: _days,
+        place: _place,
+        test: InitialTest(
+          maxPushUps: _pushUps,
+          maxPullUps: _pullUps,
+          plankSeconds: _plank,
+        ),
+        // Al primo avvio proponiamo un promemoria alle 18:00, modificabile
+        // nelle impostazioni.
+        reminder: _loaded == null
+            ? const ReminderTime(18, 0)
+            : _loaded!.reminder,
       );
+      final today = LocalDate.fromDateTime(ref.read(clockProvider)());
+      final placement = await ref
+          .read(profileRepositoryProvider)
+          .saveProfile(profile, today);
+      try {
+        await ref.read(remindersProvider).schedule(profile);
+      } on Object {
+        // Il promemoria è facoltativo: il profilo è già salvato.
+      }
       if (!mounted) return;
-    }
-    if (widget.onboarding || !context.canPop()) {
-      context.go(Routes.today);
-    } else {
-      context.pop();
+
+      if (placement != null) {
+        await showModalBottomSheet<void>(
+          context: context,
+          isScrollControlled: true,
+          showDragHandle: true,
+          builder: (_) => _PlacementSheet(placement: placement),
+        );
+        if (!mounted) return;
+      }
+      if (widget.onboarding || !context.canPop()) {
+        context.go(Routes.today);
+      } else {
+        context.pop();
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
   }
 
@@ -129,15 +139,9 @@ class _AthleteProfileScreenState extends ConsumerState<AthleteProfileScreen> {
               controller: _name,
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.done,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Come ti chiami?',
                 hintText: 'Il tuo nome (facoltativo)',
-                filled: true,
-                fillColor: scheme.surfaceContainer,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: BorderSide.none,
-                ),
               ),
             ),
             const SizedBox(height: 18),
@@ -314,8 +318,8 @@ class _DifficultyGrid extends StatelessWidget {
         selected: on,
         child: Material(
           color: on ? scheme.primaryContainer : scheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+          shape: StyleBorder(
+            radius: 20,
             side: on
                 ? BorderSide(color: scheme.primary, width: 2)
                 : BorderSide(color: scheme.outlineVariant),
@@ -386,46 +390,42 @@ class _DaysPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    // Sette celle che si dividono la riga: sui telefoni stretti restano dentro
+    // lo schermo, e l'area di tocco è alta 48.
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         for (var d = 1; d <= 7; d++)
-          Semantics(
-            label: weekdayNames[d - 1],
-            selected: days.contains(d),
-            button: true,
-            excludeSemantics: true,
-            child: SizedBox(
-              width: 48,
-              height: 48,
-              child: Center(
-                child: Material(
-                  color: days.contains(d) ? scheme.primary : Colors.transparent,
-                  shape: CircleBorder(
-                    side: days.contains(d)
-                        ? BorderSide.none
-                        : BorderSide(color: scheme.outline),
-                  ),
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: () {
-                      final next = {...days};
-                      if (!next.remove(d)) next.add(d);
-                      if (next.isNotEmpty) onChanged(next);
-                    },
-                    child: SizedBox(
-                      width: 44,
-                      height: 44,
-                      child: Center(
-                        child: Text(
-                          weekdayLetters[d - 1],
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: days.contains(d)
-                                ? scheme.onPrimary
-                                : scheme.onSurfaceVariant,
-                          ),
+          Expanded(
+            child: Semantics(
+              label: weekdayNames[d - 1],
+              selected: days.contains(d),
+              button: true,
+              excludeSemantics: true,
+              child: Material(
+                color: days.contains(d) ? scheme.primary : Colors.transparent,
+                shape: CircleBorder(
+                  side: days.contains(d)
+                      ? BorderSide.none
+                      : BorderSide(color: scheme.outline),
+                ),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () {
+                    final next = {...days};
+                    if (!next.remove(d)) next.add(d);
+                    if (next.isNotEmpty) onChanged(next);
+                  },
+                  child: SizedBox(
+                    height: 48,
+                    child: Center(
+                      child: Text(
+                        weekdayLetters[d - 1],
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: days.contains(d)
+                              ? scheme.onPrimary
+                              : scheme.onSurfaceVariant,
                         ),
                       ),
                     ),

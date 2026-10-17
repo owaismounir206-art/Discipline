@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/services/share.dart';
 import '../../core/theme/discipline_theme.dart';
+import '../../core/theme/styles/app_style.dart';
 import '../../core/utils/local_date.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/motion_widgets.dart';
@@ -156,8 +157,11 @@ class ProgressScreen extends ConsumerWidget {
                   ),
                   if (trend != null)
                     Container(
-                      height: 28,
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      constraints: const BoxConstraints(minHeight: 28),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: scheme.tertiaryContainer,
                         borderRadius: BorderRadius.circular(14),
@@ -332,9 +336,10 @@ class _BarChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    final style = AppStyle.of(context);
     if (bars.every((b) => b.value == 0)) {
-      return SizedBox(
-        height: 160,
+      return ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 160),
         child: Center(
           child: Text(
             'Ancora nessuna ripetizione in questo periodo.',
@@ -352,8 +357,8 @@ class _BarChart extends StatelessWidget {
     return Semantics(
       label: 'Ripetizioni: $description',
       excludeSemantics: true,
-      child: SizedBox(
-        height: 160,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 160),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           spacing: bars.length > 8 ? 4 : 6,
@@ -368,21 +373,26 @@ class _BarChart extends StatelessWidget {
                       height: b.value == 0 ? 4 : 4 + 126 * b.value / max,
                       decoration: BoxDecoration(
                         color: b.current ? light : scheme.primary,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(
+                          style.smallRadius.clamp(0, 8),
+                        ),
                       ),
                     ),
-                    Text(
-                      b.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.clip,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: b.current
-                            ? FontWeight.w700
-                            : FontWeight.w600,
-                        color: b.current
-                            ? scheme.primary
-                            : scheme.onSurfaceVariant,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        b.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.clip,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: b.current
+                              ? FontWeight.w700
+                              : FontWeight.w600,
+                          color: b.current
+                              ? scheme.primary
+                              : scheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   ],

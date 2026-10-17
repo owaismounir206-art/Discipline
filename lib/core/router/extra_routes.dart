@@ -69,6 +69,9 @@ List<RouteBase> extraRoutes(GlobalKey<NavigatorState> root) => [
       recipe: state.extra is HomemadeRecipe
           ? state.extra! as HomemadeRecipe
           : null,
+      prefill: state.extra is HomemadeDraft
+          ? (state.extra! as HomemadeDraft).recipe
+          : null,
     ),
   ),
   _page(root, Routes.nutrition, (_) => const NutritionScreen()),

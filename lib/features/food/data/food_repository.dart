@@ -335,26 +335,28 @@ class FoodRepository {
   Future<void> saveHomemade(HomemadeRecipe recipe, {String? previousName}) =>
       _db.transaction(() async {
         final name = recipe.name.trim();
+        final previous = previousName?.trim();
         final others = [
           for (final r in _recipes(await _db.readJson(homemadeKey)))
-            if (r.name != name && r.name != previousName) r,
+            if (r.name.trim() != name && r.name.trim() != previous) r,
         ];
         await _db.writeJson(homemadeKey, [
-          for (final r in [...others, recipe]) r.toJson(),
+          for (final r in [...others, recipe.copyWith(name: name)]) r.toJson(),
         ]);
-        if (previousName != null && previousName != name) {
-          await removeFavorite(previousName);
+        if (previous != null && previous != name) {
+          await removeFavorite(previous);
         }
         final food = recipe.toFood();
         await addFavorite(food, food.defaultGrams);
       });
 
   Future<void> deleteHomemade(String name) => _db.transaction(() async {
+    final target = name.trim();
     await _db.writeJson(homemadeKey, [
       for (final r in _recipes(await _db.readJson(homemadeKey)))
-        if (r.name != name) r.toJson(),
+        if (r.name.trim() != target) r.toJson(),
     ]);
-    await removeFavorite(name);
+    await removeFavorite(target);
   });
 
   Future<void> removeFavorite(String name) =>

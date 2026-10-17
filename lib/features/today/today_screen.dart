@@ -499,15 +499,18 @@ class _TodayWorkoutCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 4,
             children: [
-              Row(
+              // Wrap: con il testo grande il pulsante scende sotto invece di
+              // stringere l'overline.
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
                 children: [
-                  Expanded(
-                    child: Text(
-                      overline,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: muted,
-                      ),
+                  Text(
+                    overline,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: muted,
                     ),
                   ),
                   // Dove ti alleni: in alto a destra, si cambia con un tocco.

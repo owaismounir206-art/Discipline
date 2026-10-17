@@ -4,6 +4,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -134,6 +135,9 @@ class AiFoodService {
   final http.Client _client;
 
   static const settingsKey = 'ai';
+  static const _offline = AiException(
+    'Sei offline? Serve internet per usare l\'AI.',
+  );
   static String _secretName(AiProvider p) => 'ai_key_${p.name}';
 
   Stream<AiSettings> watchSettings() =>
@@ -147,15 +151,47 @@ class AiFoodService {
 
   Future<String?> key(AiProvider p) => _secrets.read(_secretName(p));
 
-  Future<void> saveKey(AiProvider p, String? key) => _secrets.write(
-    _secretName(p),
-    key == null || key.trim().isEmpty ? null : key.trim(),
-  );
+  Future<void> saveKey(AiProvider p, String? key) async {
+    try {
+      await _secrets.write(
+        _secretName(p),
+        key == null || key.trim().isEmpty ? null : key.trim(),
+      );
+    } on Object {
+      throw const AiException(
+        'Non riesco a salvare la chiave su questo telefono: riprova.',
+      );
+    }
+  }
 
   Future<bool> isReady() async {
     final s = await settings();
     final p = s.provider;
     return p != null && (await key(p)) != null;
+  }
+
+  AiException _keyError(int code) => AiException(
+    'La chiave non è valida o non ha accesso a questo modello ($code). '
+    'Controllala nelle impostazioni.',
+  );
+
+  /// Con un 400 lo stato non basta: è il corpo a dire se la chiave non va.
+  bool _isKeyError(http.Response res) {
+    final body = res.body.toUpperCase();
+    return body.contains('API_KEY_INVALID') ||
+        body.contains('API KEY NOT VALID');
+  }
+
+  /// Qualunque errore nel leggere la risposta vuol dire che il servizio ha
+  /// risposto in un modo che non conosciamo.
+  static T _guard<T>(T Function() read) {
+    try {
+      return read();
+    } on AiException {
+      rethrow;
+    } catch (_) {
+      throw const AiException('Risposta inattesa: riprova.');
+    }
   }
 
   Future<http.Response> _send(Future<http.Response> request) async {
@@ -164,11 +200,14 @@ class AiFoodService {
       switch (res.statusCode) {
         case 200:
           return res;
-        case 400 || 401 || 403:
-          throw AiException(
-            'La chiave non è valida o non ha accesso a questo modello '
-            '(${res.statusCode}). Controllala nelle impostazioni.',
-          );
+        case 400:
+          throw _isKeyError(res)
+              ? _keyError(400)
+              : const AiException(
+                  'La richiesta non è stata accettata: riprova tra poco.',
+                );
+        case 401 || 403:
+          throw _keyError(res.statusCode);
         case 404:
           throw const AiException(
             'Modello non trovato: in Impostazioni tocca "Prova la chiave" per '
@@ -184,7 +223,9 @@ class AiFoodService {
     } on TimeoutException {
       throw const AiException('Il servizio ci mette troppo: riprova.');
     } on http.ClientException {
-      throw const AiException('Sei offline? Serve internet per usare l\'AI.');
+      throw _offline;
+    } on IOException {
+      throw _offline;
     }
   }
 
@@ -208,13 +249,15 @@ class AiFoodService {
             headers: _groqHeaders(key),
           ),
         );
-        final data = (jsonDecode(res.body) as Map)['data'] as List? ?? [];
-        return [
-          for (final m in data)
-            if ((m as Map)['id'] is String &&
-                !(m['id'] as String).contains(RegExp('whisper|tts|guard')))
-              m['id'] as String,
-        ]..sort();
+        return _guard<List<String>>(() {
+          final data = (jsonDecode(res.body) as Map)['data'] as List? ?? [];
+          return [
+            for (final m in data)
+              if ((m as Map)['id'] is String &&
+                  !(m['id'] as String).contains(RegExp('whisper|tts|guard')))
+                m['id'] as String,
+          ]..sort();
+        });
       case AiProvider.gemini:
         final res = await _send(
           _client.get(
@@ -225,14 +268,16 @@ class AiFoodService {
             headers: _geminiHeaders(key),
           ),
         );
-        final data = (jsonDecode(res.body) as Map)['models'] as List? ?? [];
-        return [
-          for (final m in data)
-            if (((m as Map)['supportedGenerationMethods'] as List? ?? [])
-                    .contains('generateContent') &&
-                '${m['name']}'.contains('gemini'))
-              '${m['name']}'.replaceFirst('models/', ''),
-        ]..sort();
+        return _guard<List<String>>(() {
+          final data = (jsonDecode(res.body) as Map)['models'] as List? ?? [];
+          return [
+            for (final m in data)
+              if (((m as Map)['supportedGenerationMethods'] as List? ?? [])
+                      .contains('generateContent') &&
+                  '${m['name']}'.contains('gemini'))
+                '${m['name']}'.replaceFirst('models/', ''),
+          ]..sort();
+        });
     }
   }
 
@@ -322,9 +367,11 @@ class AiFoodService {
             }),
           ),
         );
-        final choices =
-            (jsonDecode(utf8.decode(res.bodyBytes)) as Map)['choices'];
-        return '${(((choices as List).first as Map)['message'] as Map)['content']}';
+        return _guard<String>(() {
+          final choices =
+              (jsonDecode(utf8.decode(res.bodyBytes)) as Map)['choices'];
+          return '${(((choices as List).first as Map)['message'] as Map)['content']}';
+        });
       case AiProvider.gemini:
         final res = await _send(
           _client.post(
@@ -362,14 +409,18 @@ class AiFoodService {
             }),
           ),
         );
-        final candidates =
-            (jsonDecode(utf8.decode(res.bodyBytes)) as Map)['candidates'];
-        if (candidates is! List || candidates.isEmpty) {
-          throw const AiException('L\'AI non ha risposto: riprova.');
-        }
-        final content = (candidates.first as Map)['content'];
-        final parts = content is Map ? content['parts'] as List? : null;
-        return (parts ?? const []).map((e) => (e as Map)['text'] ?? '').join();
+        return _guard<String>(() {
+          final candidates =
+              (jsonDecode(utf8.decode(res.bodyBytes)) as Map)['candidates'];
+          if (candidates is! List || candidates.isEmpty) {
+            throw const AiException('L\'AI non ha risposto: riprova.');
+          }
+          final content = (candidates.first as Map)['content'];
+          final parts = content is Map ? content['parts'] as List? : null;
+          return (parts ?? const [])
+              .map((e) => (e as Map)['text'] ?? '')
+              .join();
+        });
     }
   }
 

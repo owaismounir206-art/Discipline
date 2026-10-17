@@ -71,14 +71,12 @@ class _Card extends ConsumerWidget {
             Row(
               spacing: 12,
               children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: scheme.primary,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Icon(Icons.system_update, color: scheme.onPrimary),
+                IconBadge(
+                  icon: Icons.system_update,
+                  size: 44,
+                  radius: 14,
+                  background: scheme.primary,
+                  foreground: scheme.onPrimary,
                 ),
                 Expanded(
                   child: Column(
@@ -156,7 +154,23 @@ class _UpdateSettingsTilesState extends ConsumerState<UpdateSettingsTiles> {
 
   Future<void> _checkNow() async {
     setState(() => _checking = true);
-    final release = await ref.read(updateRepositoryProvider).check(force: true);
+    Release? release;
+    try {
+      release = await ref.read(updateRepositoryProvider).check(force: true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _checking = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e is UpdateCheckException
+                ? 'Non riesco a controllare: sei offline?'
+                : 'Non riesco a controllare: riprova tra poco.',
+          ),
+        ),
+      );
+      return;
+    }
     if (!mounted) return;
     setState(() => _checking = false);
     ref.invalidate(availableUpdateProvider);

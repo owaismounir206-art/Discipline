@@ -70,8 +70,8 @@ class _TrainingCalendarState extends ConsumerState<TrainingCalendar>
       // Salvato: stesso colore di "fatto" ma più chiaro (prima era quasi
       // uguale).
       DayStatus.protected ||
-      DayStatus.recovered => scheme.primary.withValues(alpha: 0.4),
-      DayStatus.missed => scheme.error.withValues(alpha: 0.35),
+      DayStatus.recovered => scheme.primary.withValues(alpha: 0.6),
+      DayStatus.missed => scheme.error.withValues(alpha: 0.5),
       DayStatus.today || DayStatus.scheduled => scheme.primaryContainer,
       _ => scheme.surfaceContainerHighest,
     };
@@ -118,11 +118,14 @@ class _TrainingCalendarState extends ConsumerState<TrainingCalendar>
                             SizedBox(
                               width: labelWidth,
                               height: cell + gap,
-                              child: Text(
-                                d,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: scheme.onSurfaceVariant,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  d,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: scheme.onSurfaceVariant,
+                                  ),
                                 ),
                               ),
                             ),
@@ -159,12 +162,14 @@ class _TrainingCalendarState extends ConsumerState<TrainingCalendar>
               _Legend(color: scheme.primary, label: 'Fatto'),
               _Legend(color: scheme.tertiary, label: 'Extra'),
               _Legend(
-                color: scheme.primary.withValues(alpha: 0.4),
+                color: scheme.primary.withValues(alpha: 0.6),
                 label: 'Salvato',
+                icon: Icons.shield,
               ),
               _Legend(
-                color: scheme.error.withValues(alpha: 0.35),
+                color: scheme.error.withValues(alpha: 0.5),
                 label: 'Saltato',
+                icon: Icons.close,
               ),
             ],
           ),
@@ -189,6 +194,8 @@ class _TrainingCalendarState extends ConsumerState<TrainingCalendar>
       ((_wave.value - from) / 0.4).clamp(0.0, 1.0),
     );
     final scheme = Theme.of(context).colorScheme;
+    // Salvato e saltato si riconoscono anche senza colore.
+    final icon = future ? null : _iconOf(statuses[day]);
     return Padding(
       padding: EdgeInsets.only(bottom: gap),
       child: Transform.scale(
@@ -202,9 +209,12 @@ class _TrainingCalendarState extends ConsumerState<TrainingCalendar>
               color: future ? Colors.transparent : colorOf(statuses[day]),
               borderRadius: BorderRadius.circular(size / 4),
               border: day == today
-                  ? Border.all(color: scheme.primary, width: 2)
+                  ? Border.all(color: scheme.onSurface, width: 2)
                   : null,
             ),
+            child: icon == null
+                ? null
+                : Icon(icon, size: size * 0.7, color: scheme.onSurface),
           ),
         ),
       ),
@@ -212,11 +222,19 @@ class _TrainingCalendarState extends ConsumerState<TrainingCalendar>
   }
 }
 
+/// Icona delle giornate salvate o saltate, da mostrare anche nella legenda.
+IconData? _iconOf(DayStatus? s) => switch (s) {
+  DayStatus.protected || DayStatus.recovered => Icons.shield,
+  DayStatus.missed => Icons.close,
+  _ => null,
+};
+
 class _Legend extends StatelessWidget {
-  const _Legend({required this.color, required this.label});
+  const _Legend({required this.color, required this.label, this.icon});
 
   final Color color;
   final String label;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -224,12 +242,20 @@ class _Legend extends StatelessWidget {
     spacing: 6,
     children: [
       Container(
-        width: 10,
-        height: 10,
+        width: 14,
+        height: 14,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(3),
         ),
+        child: switch (icon) {
+          final i? => Icon(
+            i,
+            size: 10,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          _ => null,
+        },
       ),
       Text(
         label,
@@ -387,7 +413,7 @@ Future<void> showWeightSheet(
       builder: (context, setState) {
         final theme = Theme.of(context);
         return SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
             child: Column(
               mainAxisSize: MainAxisSize.min,

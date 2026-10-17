@@ -28,28 +28,32 @@ Future<void> showPlaceSheet(BuildContext context, WidgetRef ref) async {
   final picked = await showModalBottomSheet<TrainingPlace>(
     context: context,
     showDragHandle: true,
+    // Con il testo grande il foglio può salire e la lista scorre.
+    isScrollControlled: true,
     builder: (context) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
-            child: Text(
-              'Dove ti alleni?',
-              style: Theme.of(context).textTheme.titleLarge,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+              child: Text(
+                'Dove ti alleni?',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
             ),
-          ),
-          for (final p in TrainingPlace.values)
-            ListTile(
-              leading: Icon(placeIcon(p)),
-              title: Text(p.label),
-              subtitle: Text(p.hint),
-              trailing: p == profile.place ? const Icon(Icons.check) : null,
-              onTap: () => Navigator.pop(context, p),
-            ),
-          const SizedBox(height: 8),
-        ],
+            for (final p in TrainingPlace.values)
+              ListTile(
+                leading: Icon(placeIcon(p)),
+                title: Text(p.label),
+                subtitle: Text(p.hint),
+                trailing: p == profile.place ? const Icon(Icons.check) : null,
+                onTap: () => Navigator.pop(context, p),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     ),
   );

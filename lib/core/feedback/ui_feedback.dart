@@ -73,18 +73,32 @@ class DeviceSoundPlayer implements UiSoundPlayer {
 
   Future<List<AudioPlayer>> _ring(UiSound sound) => _rings[sound] ??= () async {
     final size = sound == UiSound.tap || sound == UiSound.select ? 3 : 2;
-    return [for (var i = 0; i < size; i++) await _player(sound)];
+    final ring = <AudioPlayer>[];
+    try {
+      for (var i = 0; i < size; i++) {
+        ring.add(await _player(sound));
+      }
+      return ring;
+    } on Object {
+      await _release(ring);
+      rethrow;
+    }
   }();
 
   Future<AudioPlayer> _player(UiSound sound) async {
     final player = AudioPlayer();
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      await player.setPlayerMode(PlayerMode.lowLatency);
+    try {
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        await player.setPlayerMode(PlayerMode.lowLatency);
+      }
+      await player.setAudioContext(_context);
+      await player.setReleaseMode(ReleaseMode.stop);
+      await player.setSource(AssetSource('sounds/${sound.file}'));
+      return player;
+    } on Object {
+      await _release([player]);
+      rethrow;
     }
-    await player.setAudioContext(_context);
-    await player.setReleaseMode(ReleaseMode.stop);
-    await player.setSource(AssetSource('sounds/${sound.file}'));
-    return player;
   }
 
   @override
@@ -103,15 +117,40 @@ class DeviceSoundPlayer implements UiSoundPlayer {
 
   @override
   Future<void> play(UiSound sound) async {
+    final pending = _ring(sound);
     try {
-      final ring = await _ring(sound);
+      final ring = await pending;
       final i = _next[sound] = ((_next[sound] ?? -1) + 1) % ring.length;
       final player = ring[i];
       await player.stop();
       await player.resume();
     } on Object {
-      // Si riprova a preparare il suono la prossima volta.
-      _rings.remove(sound)?.ignore();
+      // La prossima volta si preparano lettori nuovi. Il gruppo guasto si
+      // libera una sola volta, e solo se nel frattempo non è stato sostituito.
+      if (identical(_rings[sound], pending)) {
+        final dropped = _rings.remove(sound);
+        if (dropped != null) unawaited(_releaseRing(dropped));
+      }
+    }
+  }
+
+  /// Libera i lettori: uno che non si chiude non blocca gli altri.
+  static Future<void> _release(Iterable<AudioPlayer> players) async {
+    for (final p in players) {
+      try {
+        await p.dispose();
+      } on Object {
+        // Niente da liberare.
+      }
+    }
+  }
+
+  /// Libera un gruppo scartato. Se non si era mai creato, non ha lettori.
+  static Future<void> _releaseRing(Future<List<AudioPlayer>> ring) async {
+    try {
+      await _release(await ring);
+    } on Object {
+      // I lettori di un gruppo fallito sono già stati liberati.
     }
   }
 }

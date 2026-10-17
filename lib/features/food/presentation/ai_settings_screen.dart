@@ -109,14 +109,27 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
         _busy = false;
         _message = e.message;
       });
+    } catch (_) {
+      UiFeedback.instance.play(UiSound.error);
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _message = 'Non riesco a provare la chiave: riprova.';
+      });
     }
   }
 
   Future<void> _remove() async {
-    await _service.saveKey(_provider, null);
-    final s = await _service.settings();
-    if (s.provider == _provider) {
-      await _service.saveSettings(const AiSettings());
+    try {
+      await _service.saveKey(_provider, null);
+      final s = await _service.settings();
+      if (s.provider == _provider) {
+        await _service.saveSettings(const AiSettings());
+      }
+    } on AiException catch (e) {
+      if (!mounted) return;
+      setState(() => _message = e.message);
+      return;
     }
     if (!mounted) return;
     setState(() {

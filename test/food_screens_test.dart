@@ -97,6 +97,8 @@ void main() {
     expect(find.text('Massa muscolare'), findsOneWidget);
     expect(find.text('Per cena'), findsOneWidget);
     expect(find.text('Aggiungi'), findsWidgets);
+    await tester.ensureVisible(find.text('Aggiungi').first);
+    await settle(tester);
     await tester.tap(find.text('Aggiungi').first);
     await settle(tester);
     expect(find.text('Aggiunto'), findsOneWidget);

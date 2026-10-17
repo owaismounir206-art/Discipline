@@ -161,6 +161,13 @@ Future<AiRecipe> suggestRecipe(
   return parseAiRecipe(reply);
 }
 
+/// I passi: una lista, oppure un solo testo. Altro vuol dire nessun passo.
+List<Object?> _steps(Object? raw) => switch (raw) {
+  final List<Object?> l => l,
+  final String s => [s],
+  _ => const [],
+};
+
 /// Legge la ricetta. Gli ingredienti con valori impossibili si scartano.
 AiRecipe parseAiRecipe(String reply) {
   final start = reply.indexOf('{');
@@ -188,7 +195,7 @@ AiRecipe parseAiRecipe(String reply) {
     minutes: minutes is num && minutes > 0 ? minutes.round() : null,
     ingredients: [for (final f in foods) Ingredient(f.food, f.grams)],
     steps: [
-      for (final s in (json['steps'] as List?) ?? const [])
+      for (final s in _steps(json['steps']))
         if ('$s'.trim().isNotEmpty) '$s'.trim(),
     ],
     why: why is String && why.trim().isNotEmpty ? why.trim() : null,

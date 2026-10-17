@@ -20,6 +20,7 @@ import '../domain/nutrition.dart';
 import '../food_screen.dart';
 import 'custom_food_sheet.dart';
 import 'food_amount_sheet.dart';
+import 'scanner_screen.dart';
 
 /// Cerca un alimento: preferiti, piatti italiani e Open Food Facts.
 class FoodSearchScreen extends ConsumerStatefulWidget {
@@ -92,6 +93,12 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
         _error = e.message;
         _loading = false;
       });
+    } catch (_) {
+      if (!mounted || id != _request) return;
+      setState(() {
+        _error = 'Non riesco a cercare: riprova.';
+        _loading = false;
+      });
     }
   }
 
@@ -102,6 +109,13 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
     }
     final added = await showFoodAmountSheet(context, food, meal: widget.meal);
     if (added && mounted) context.pop();
+  }
+
+  /// Scanner in modalità scelta: il prodotto torna all'ingrediente, senza
+  /// entrare nel diario.
+  Future<void> _scanPick() async {
+    final result = await context.push<Object?>(Routes.foodScanner);
+    if (result is ScannedFood && mounted) context.pop(result.item);
   }
 
   @override
@@ -170,18 +184,14 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
                   suffixIcon: IconButton(
                     tooltip: 'Scansiona',
                     icon: const Icon(Icons.qr_code_scanner),
-                    onPressed: () => scanAndAdd(context, widget.meal),
-                  ),
-                  filled: true,
-                  fillColor: scheme.surfaceContainer,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(28),
-                    borderSide: BorderSide.none,
+                    onPressed: widget.pickOnly
+                        ? _scanPick
+                        : () => scanAndAdd(context, widget.meal),
                   ),
                 ),
               ),
             ),
-            if (query.isEmpty)
+            if (query.isEmpty && !widget.pickOnly)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: OutlinedButton.icon(
@@ -191,13 +201,28 @@ class _FoodSearchScreenState extends ConsumerState<FoodSearchScreen> {
                       ? null
                       : () async {
                           setState(() => _repeating = true);
-                          final count = await ref
-                              .read(foodRepositoryProvider)
-                              .repeatYesterday(
-                                widget.meal,
-                                ref.read(foodDayProvider),
-                                ref.read(clockProvider)(),
-                              );
+                          final int count;
+                          try {
+                            count = await ref
+                                .read(foodRepositoryProvider)
+                                .repeatYesterday(
+                                  widget.meal,
+                                  ref.read(foodDayProvider),
+                                  ref.read(clockProvider)(),
+                                );
+                          } catch (_) {
+                            if (!context.mounted) return;
+                            setState(() => _repeating = false);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Non riesco a copiare '
+                                  '${widget.meal.withArticle}: riprova.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
                           if (!context.mounted) return;
                           setState(() => _repeating = false);
                           if (count == 0) {

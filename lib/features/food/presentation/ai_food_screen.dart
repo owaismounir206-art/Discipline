@@ -10,6 +10,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../core/data/providers.dart';
 import '../../../core/router/routes.dart';
+import '../../../core/theme/styles/app_style.dart';
 import '../../../core/widgets/common.dart';
 import '../data/ai_food.dart';
 import '../data/food_repository.dart';
@@ -112,6 +113,13 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
         _busy = false;
         _error = e.message;
       });
+    } catch (_) {
+      UiFeedback.instance.play(UiSound.error);
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _error = 'Qualcosa non è andato storto: riprova.';
+      });
     }
   }
 
@@ -156,14 +164,24 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
     final repo = ref.read(foodRepositoryProvider);
     final day = ref.read(foodDayProvider);
     final now = ref.read(clockProvider)();
-    for (final i in _selected.toList()..sort()) {
-      await repo.addEntry(
-        date: day,
-        meal: _meal,
-        food: items[i].food,
-        grams: items[i].grams,
-        now: now,
-      );
+    try {
+      for (final i in _selected.toList()..sort()) {
+        await repo.addEntry(
+          date: day,
+          meal: _meal,
+          food: items[i].food,
+          grams: items[i].grams,
+          now: now,
+        );
+      }
+    } catch (_) {
+      // Qualche voce può essere già entrata: meglio dirlo che rifare tutto.
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _error = 'Non riesco a salvare tutto: controlla il diario.';
+      });
+      return;
     }
     UiFeedback.instance.play(UiSound.success);
     if (mounted) context.pop();
@@ -203,7 +221,9 @@ class _AiFoodScreenState extends ConsumerState<AiFoodScreen> {
                 child: Stack(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(
+                        AppStyle.of(context).radius.clamp(0, 28).toDouble(),
+                      ),
                       child: Image.memory(
                         _photo!,
                         height: 180,

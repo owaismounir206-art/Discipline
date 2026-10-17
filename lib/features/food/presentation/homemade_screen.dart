@@ -16,10 +16,14 @@ import '../domain/homemade.dart';
 /// Ricetta fatta in casa: ingredienti con i grammi, peso finale e porzioni.
 /// Diventa un alimento tra i preferiti, con le calorie per porzione.
 class HomemadeScreen extends ConsumerStatefulWidget {
-  const HomemadeScreen({super.key, this.recipe});
+  const HomemadeScreen({super.key, this.recipe, this.prefill});
 
   /// Ricetta da modificare (null = nuova).
   final HomemadeRecipe? recipe;
+
+  /// Bozza di una ricetta nuova (es. da "Cosa cucino?"): si rivede e si salva
+  /// come nuova, senza elimina.
+  final HomemadeRecipe? prefill;
 
   @override
   ConsumerState<HomemadeScreen> createState() => _HomemadeScreenState();
@@ -32,12 +36,15 @@ String _n(double v) => v >= 10
     : v.toStringAsFixed(1).replaceAll('.', ',').replaceFirst(',0', '');
 
 class _HomemadeScreenState extends ConsumerState<HomemadeScreen> {
-  late final _name = TextEditingController(text: widget.recipe?.name ?? '');
+  /// Da dove si parte: la ricetta da modificare o la bozza.
+  HomemadeRecipe? get _start => widget.recipe ?? widget.prefill;
+
+  late final _name = TextEditingController(text: _start?.name ?? '');
   late final _cooked = TextEditingController(
-    text: widget.recipe?.cookedGrams?.round().toString() ?? '',
+    text: _start?.cookedGrams?.round().toString() ?? '',
   );
-  late var _ingredients = [...?widget.recipe?.ingredients];
-  late var _portions = widget.recipe?.portions ?? 1;
+  late var _ingredients = [...?_start?.ingredients];
+  late var _portions = _start?.portions ?? 1;
   var _saving = false;
 
   @override
@@ -48,7 +55,7 @@ class _HomemadeScreenState extends ConsumerState<HomemadeScreen> {
   }
 
   HomemadeRecipe get _recipe => HomemadeRecipe(
-    name: _name.text,
+    name: _name.text.trim(),
     ingredients: _ingredients,
     cookedGrams: double.tryParse(_cooked.text.trim().replaceAll(',', '.')),
     portions: _portions,

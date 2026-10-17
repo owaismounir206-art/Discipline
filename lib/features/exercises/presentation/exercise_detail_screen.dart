@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../core/data/providers.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/discipline_theme.dart';
+import '../../../core/theme/styles/app_style.dart';
 import '../../../core/utils/local_date.dart';
 import '../../../core/widgets/common.dart';
 import '../../profile/data/profile_repository.dart';
@@ -257,7 +258,9 @@ class _Tag extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: scheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(DisciplineRadii.chip),
+        borderRadius: BorderRadius.circular(
+          AppStyle.of(context).smallRadius.clamp(0, 16),
+        ),
       ),
       child: Text(
         text,
