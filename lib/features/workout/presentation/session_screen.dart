@@ -267,7 +267,9 @@ class _RunningView extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: exercise.position > 0
+                          onPressed:
+                              exercise.chain.isProgression &&
+                                  exercise.position > 0
                               ? () => controller.changeVariant(-1)
                               : null,
                           child: const Text('Più facile'),
@@ -276,8 +278,9 @@ class _RunningView extends ConsumerWidget {
                       Expanded(
                         child: FilledButton.tonal(
                           onPressed:
-                              exercise.position <
-                                  Catalog.lastPosition(exercise.chain)
+                              exercise.chain.isProgression &&
+                                  exercise.position <
+                                      Catalog.lastPosition(exercise.chain)
                               ? () => controller.changeVariant(1)
                               : null,
                           child: const Text('Più difficile'),
@@ -297,7 +300,9 @@ class _RunningView extends ConsumerWidget {
                     fontSize: 17,
                   ),
                 ),
-                onPressed: state.mode == TimerMode.hold
+                // Una tenuta di 0 secondi non è una serie: prima la tenuta.
+                onPressed:
+                    state.mode == TimerMode.hold || (isHold && state.value == 0)
                     ? null
                     : controller.completeSet,
                 icon: const Icon(Icons.check),

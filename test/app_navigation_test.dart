@@ -102,7 +102,9 @@ void main() {
     expect(find.text('Impostazioni'), findsOneWidget);
     expect(find.byType(DisciplineNavigationBar), findsNothing);
 
-    await tester.scrollUntilVisible(find.text('Scuro'), 200);
+    // Il selettore degli stili sta sopra: il tema va portato davvero a vista.
+    await tester.ensureVisible(find.text('Scuro'));
+    await settle(tester);
     await tester.tap(find.text('Scuro'));
     await settle(tester);
     final context = tester.element(find.text('Impostazioni'));

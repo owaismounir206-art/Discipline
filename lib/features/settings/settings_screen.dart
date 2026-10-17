@@ -13,11 +13,13 @@ import '../../core/theme/discipline_theme.dart';
 import '../../core/theme/theme_settings.dart';
 import '../../core/utils/local_date.dart';
 import '../../core/widgets/motion_widgets.dart';
+import '../food/data/ai_food.dart';
 import '../../core/update/update_card.dart';
 import '../profile/data/profile_repository.dart';
 import '../profile/domain/athlete_profile.dart';
 import '../streak/data/reminders.dart';
 import 'backup.dart';
+import 'style_picker.dart';
 
 /// Impostazioni e profilo.
 class SettingsScreen extends ConsumerWidget {
@@ -139,30 +141,52 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text('Tema', style: theme.textTheme.titleMedium),
+                child: Text('Stile', style: theme.textTheme.titleMedium),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: SlidingSegmented<ThemeMode>(
-                  semanticsLabel: 'Tema',
-                  segments: const [
-                    (value: ThemeMode.system, label: 'Sistema'),
-                    (value: ThemeMode.light, label: 'Chiaro'),
-                    (value: ThemeMode.dark, label: 'Scuro'),
-                  ],
-                  selected: settings.mode,
-                  onChanged: notifier.setMode,
+              const Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: StylePicker(),
+              ),
+              // Chiaro/scuro e colori dello sfondo valgono per Material You:
+              // gli altri stili hanno colori fissi.
+              if (settings.style == 'material') ...[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Text('Tema', style: theme.textTheme.titleMedium),
                 ),
-              ),
-              SwitchListTile(
-                title: const Text('Colori dal tuo sfondo'),
-                subtitle: const Text(
-                  'Usa i colori del telefono invece del corallo di Discipline. '
-                  'Solo su Android 12 o successivi.',
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: SlidingSegmented<ThemeMode>(
+                    semanticsLabel: 'Tema',
+                    segments: const [
+                      (value: ThemeMode.system, label: 'Sistema'),
+                      (value: ThemeMode.light, label: 'Chiaro'),
+                      (value: ThemeMode.dark, label: 'Scuro'),
+                    ],
+                    selected: settings.mode,
+                    onChanged: notifier.setMode,
+                  ),
                 ),
-                value: settings.useDynamicColor,
-                onChanged: notifier.setUseDynamicColor,
-              ),
+                SwitchListTile(
+                  title: const Text('Colori dal tuo sfondo'),
+                  subtitle: const Text(
+                    'Usa i colori del telefono invece del corallo di '
+                    'Discipline. Solo su Android 12 o successivi.',
+                  ),
+                  value: settings.useDynamicColor,
+                  onChanged: notifier.setUseDynamicColor,
+                ),
+              ] else
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Text(
+                    'Questo stile ha i suoi colori: chiaro, scuro e palette '
+                    'valgono per lo stile Discipline.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
             ],
           ),
           const _SectionTitle('Suoni e vibrazione'),
@@ -289,6 +313,16 @@ class SettingsScreen extends ConsumerWidget {
     );
     if (ok ?? false) {
       await ref.read(databaseProvider).wipe();
+      // Le chiavi dell'AI stanno nel portachiavi del telefono, non nel
+      // database: vanno cancellate a parte.
+      final ai = ref.read(aiFoodServiceProvider);
+      for (final p in AiProvider.values) {
+        try {
+          await ai.saveKey(p, null);
+        } on Object {
+          // Se il portachiavi non risponde, la chiave resta: non blocca.
+        }
+      }
       // Senza profilo non devono più arrivare promemoria.
       await ref.read(remindersProvider).cancelAll();
       if (context.mounted) context.go(Routes.welcome);

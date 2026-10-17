@@ -61,3 +61,21 @@ final streakProvider = Provider<StreakResult>((ref) {
     protectedDays: ref.watch(protectedDaysProvider).value ?? const {},
   );
 });
+
+/// Il giorno saltato da proteggere con un giorno jolly, solo se serve
+/// davvero: se proteggerlo non allunga la serie (era già a zero, o c'è un
+/// altro giorno saltato prima) il jolly andrebbe sprecato.
+final usefulFreezeDayProvider = Provider<LocalDate?>((ref) {
+  final streak = ref.watch(streakProvider);
+  final today = ref.watch(todayProvider);
+  final missed = freezableDay(streak, today);
+  if (missed == null) return null;
+  final protected = ref.watch(protectedDaysProvider).value ?? const {};
+  final after = computeStreak(
+    schedule: ref.watch(scheduleProvider).value ?? const [],
+    completions: ref.watch(completionsProvider).value ?? const {},
+    today: today,
+    protectedDays: {...protected, missed},
+  );
+  return after.current > streak.current ? missed : null;
+});

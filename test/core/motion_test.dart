@@ -106,6 +106,7 @@ void main() {
           ? 1
           : tester.widget<Opacity>(found.first).opacity;
     }
+
     expect(opacity('Prima'), greaterThan(opacity('Quinta')));
     await tester.pumpAndSettle();
     expect(opacity('Quinta'), 1);

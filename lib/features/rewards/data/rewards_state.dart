@@ -104,6 +104,7 @@ final activeChallengesProvider = Provider<List<ChallengeStatus>>((ref) {
       today: today,
       positions: positions,
       difficulty: profile.difficulty,
+      place: profile.place,
     ))
       (
         challenge: c,
@@ -121,15 +122,17 @@ final badgesProvider = Provider<List<Achievement>>((ref) {
       ref.watch(challengeEntriesProvider).value ?? const <ChallengeEntry>[];
   final timed =
       ref.watch(timedResultsProvider).value ?? const <SavedTimedResult>[];
-  var friendWins = 0;
+  // Amici battuti: lo stesso codice rigiocato più volte conta una volta.
+  final beaten = <String>{};
   for (final t in timed) {
     final mine = t.result.score;
     if (t.friendScore != null &&
         mine != null &&
         isBetterScore(t.result.mode, mine, t.friendScore!)) {
-      friendWins++;
+      beaten.add('${t.friendName}|${t.result.mode.name}|${t.friendScore}');
     }
   }
+  final friendWins = beaten.length;
   return achievementsFor(
     BadgeStats(
       workouts: sessions.where((s) => s.finished).length,

@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/utils/local_date.dart';
 import '../../exercises/domain/catalog.dart';
+import '../../exercises/domain/equipment.dart';
 import '../../exercises/domain/exercise.dart';
 import '../../profile/domain/athlete_profile.dart';
 
@@ -177,7 +178,14 @@ List<GeneratedChallenge> generateChallenges({
   required LocalDate today,
   required Map<ChainId, int> positions,
   required Difficulty difficulty,
+  TrainingPlace place = TrainingPlace.park,
 }) {
+  // Solo catene che si possono fare dove ti alleni (a casa niente dip
+  // alle parallele).
+  final chains = [
+    for (final c in _chains)
+      if (!c.isProgression || canDo(Catalog.at(c, positions[c] ?? 0), place)) c,
+  ];
   final monday = today.startOfWeek;
   // Giorni di calendario (senza ore): il cambio dell'ora legale non fa
   // ripetere la stessa sfida due giorni di fila.
@@ -186,18 +194,24 @@ List<GeneratedChallenge> generateChallenges({
   final weekSeed = monday.daysSince(epoch) ~/ 7;
   // La sfida della settimana resta la stessa per tutta la settimana; se
   // coincide con quella del giorno, è quella del giorno a spostarsi.
-  final weekChain = _chains[(weekSeed * 3 + 1) % _chains.length];
-  var dayChain = _chains[daySeed % _chains.length];
+  // 7 non ha divisori in comune con il numero di catene (5 o 6): così
+  // la sfida della settimana gira su tutte le catene.
+  final weekChain = chains[(weekSeed * 7 + 1) % chains.length];
+  var dayChain = chains[daySeed % chains.length];
   if (dayChain == weekChain) {
-    dayChain = _chains[(_chains.indexOf(dayChain) + 1) % _chains.length];
+    dayChain = chains[(chains.indexOf(dayChain) + 1) % chains.length];
   }
   final mult = _multiplier(difficulty);
 
   GeneratedChallenge make(ChallengePeriod period, ChainId chain) {
     final seed = period == ChallengePeriod.day ? daySeed : weekSeed;
+    // Quante volte è già toccata a questa catena: l'esercizio cambia ogni
+    // volta e prima o poi escono tutti.
+    final turn = seed ~/ chains.length;
+    final pool = _variety(chain);
     final exercise = chain.isProgression
         ? Catalog.at(chain, positions[chain] ?? 0)
-        : _variety(chain)[(seed * 7) % _variety(chain).length];
+        : pool[(turn * 7 + seed) % pool.length];
     final perDay = exercise.range.max * mult;
     final total = period == ChallengePeriod.day ? perDay : perDay * 4;
     return GeneratedChallenge(

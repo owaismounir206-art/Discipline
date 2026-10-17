@@ -564,10 +564,7 @@ class _FreezeHint extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final owned = ref.watch(freezesOwnedProvider);
-    final missed = freezableDay(
-      ref.watch(streakProvider),
-      ref.watch(todayProvider),
-    );
+    final missed = ref.watch(usefulFreezeDayProvider);
     if (owned <= 0 || missed == null) return const SizedBox.shrink();
     final scheme = Theme.of(context).colorScheme;
     return DisciplineCard(
@@ -587,8 +584,17 @@ class _FreezeHint extends ConsumerWidget {
           ),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size(0, 48)),
-            onPressed: () =>
-                ref.read(rewardsRepositoryProvider).useFreeze(missed),
+            onPressed: () async {
+              // Due tocchi veloci: il secondo trova il jolly già usato.
+              try {
+                await ref.read(rewardsRepositoryProvider).useFreeze(missed);
+              } on RewardsException catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text(e.message)));
+                }
+              }
+            },
             child: const Text('Usa'),
           ),
         ],

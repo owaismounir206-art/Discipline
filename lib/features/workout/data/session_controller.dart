@@ -181,6 +181,10 @@ class SessionController extends Notifier<SessionState?> {
   DateTime? _pausedAt;
   AppLifecycleListener? _lifecycle;
 
+  /// Lo schermo è tenuto acceso da questa sessione (va spento una volta
+  /// sola: dopo, un'altra schermata può averlo riacceso per sé).
+  bool _screenOn = false;
+
   SessionFeedback get _feedback => ref.read(sessionFeedbackProvider);
   WorkoutRepository get _repo => ref.read(workoutRepositoryProvider);
   DateTime _now() => ref.read(clockProvider)();
@@ -191,20 +195,31 @@ class SessionController extends Notifier<SessionState?> {
     ref.onDispose(() {
       _ticker?.cancel();
       _lifecycle?.dispose();
-      feedback.keepScreenOn(false);
+      if (_screenOn) unawaited(feedback.keepScreenOn(false));
     });
     return null;
   }
 
   void _watchLifecycle() {
     _lifecycle?.dispose();
+    // In background il timer si ferma: al ritorno si recupera il tempo
+    // passato una volta sola (prima veniva contato due volte se Android
+    // teneva viva l'app).
     _lifecycle = AppLifecycleListener(
-      onHide: () => _pausedAt = DateTime.now(),
+      onHide: () {
+        _pausedAt = DateTime.now();
+        _ticker?.cancel();
+        _ticker = null;
+      },
       onShow: () {
         final at = _pausedAt;
         _pausedAt = null;
         if (at == null) return;
+        final s = state;
+        if (s == null || s.finished) return;
         advance(DateTime.now().difference(at).inSeconds);
+        _ticker?.cancel();
+        _ticker = Timer.periodic(const Duration(seconds: 1), (_) => tick());
       },
     );
   }
@@ -257,7 +272,10 @@ class SessionController extends Notifier<SessionState?> {
       return;
     }
     state = state?.copyWith(sessionId: id);
+    _screenOn = true;
     await _feedback.keepScreenOn(true);
+    // Uscito dalla schermata durante l'attesa: niente timer orfani.
+    if (!ref.mounted) return;
     _ticker?.cancel();
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) => tick());
     _watchLifecycle();
@@ -329,6 +347,9 @@ class SessionController extends Notifier<SessionState?> {
     final s = state;
     if (s == null) return;
     final current = s.current;
+    // I sostituti (es. rematore sotto il tavolo) stanno in liste di
+    // esercizi vari, non in una progressione: niente "più facile".
+    if (!current.exercise.chain.isProgression) return;
     final position = current.exercise.position + delta;
     if (position < 0 ||
         position > Catalog.lastPosition(current.exercise.chain)) {
@@ -337,7 +358,15 @@ class SessionController extends Notifier<SessionState?> {
     final exercise = Catalog.at(current.exercise.chain, position);
     final exercises = [...s.exercises];
     exercises[s.index] = current.copyWith(exercise: exercise);
-    state = s.copyWith(exercises: exercises, value: defaultValue(exercise));
+    // Se cambi variante durante una tenuta, la tenuta si ferma (la nuova
+    // variante può essere a ripetizioni).
+    final holding = s.mode == TimerMode.hold;
+    state = s.copyWith(
+      exercises: exercises,
+      value: defaultValue(exercise),
+      mode: holding ? TimerMode.ready : null,
+      timerSeconds: holding ? 0 : null,
+    );
 
     if (!current.planned.isVolume) {
       final repo = ref.read(profileRepositoryProvider);
@@ -513,6 +542,7 @@ class SessionController extends Notifier<SessionState?> {
     _ticker?.cancel();
     _lifecycle?.dispose();
     _lifecycle = null;
+    _screenOn = false;
     await _feedback.keepScreenOn(false);
     final now = _now();
     // Il giorno dell'allenamento è quello in cui è iniziato (anche se finisce

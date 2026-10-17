@@ -136,7 +136,7 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
     final beat =
         score != null && target != null && isBetterScore(_mode, score, target);
     final repo = ref.read(rewardsRepositoryProvider);
-    final id = await repo.saveTimed(
+    await repo.saveTimed(
       result,
       at: now,
       friendName: _friend?.name,
@@ -151,7 +151,11 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
       PointKind.timed,
       points,
       at: now,
-      ref: 'tempo-$id',
+      // Una volta al giorno per modalità (e una volta per ogni amico
+      // battuto): ripetere la sfida all'infinito non fa accumulare punti.
+      ref: beat && _friend != null
+          ? 'tempo-amico-${widget.friendCode}'
+          : 'tempo-${_mode.name}-${LocalDate.fromDateTime(now).key}',
       note: _mode.label,
     );
     if (!mounted) return;
@@ -235,6 +239,7 @@ class _TimedChallengeScreenState extends ConsumerState<TimedChallengeScreen> {
                     ? _ResultView(
                         result: _result!,
                         friend: _friend,
+                        friendCode: widget.friendCode,
                         previousBest: _previousBest,
                         points: _points,
                       )
@@ -748,12 +753,16 @@ class _ResultView extends ConsumerWidget {
   const _ResultView({
     required this.result,
     required this.friend,
+    required this.friendCode,
     required this.previousBest,
     required this.points,
   });
 
   final TimedResult result;
   final FriendChallenge? friend;
+
+  /// Per la rivincita contro lo stesso amico.
+  final String? friendCode;
   final int? previousBest;
   final int points;
 
@@ -873,7 +882,9 @@ class _ResultView extends ConsumerWidget {
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(56),
           ),
-          onPressed: () => context.pushReplacement(Routes.timed(mode.name)),
+          onPressed: () => context.pushReplacement(
+            Routes.timed(mode.name, code: friend == null ? null : friendCode),
+          ),
           child: const Text('Ancora una volta'),
         ),
         TextButton(onPressed: () => context.pop(), child: const Text('Chiudi')),

@@ -8,6 +8,8 @@ import 'package:material_ui/material_ui.dart';
 
 import '../theme/motion.dart';
 import '../feedback/ui_feedback.dart';
+import '../theme/styles/app_style.dart';
+import 'common.dart';
 
 /// Festa per un traguardo: coriandoli, medaglia che entra con un piccolo
 /// rimbalzo e punti che salgono. Con "riduci animazioni" resta tutto fermo.
@@ -103,7 +105,7 @@ class _CelebrationState extends State<_Celebration>
       scheme.secondary,
       scheme.primaryContainer,
       scheme.tertiaryContainer,
-      const Color(0xFF81C784),
+      scheme.secondaryContainer,
     ];
 
     return SafeArea(
@@ -137,100 +139,111 @@ class _CelebrationState extends State<_Celebration>
                       ),
                     ),
                   ),
+                // Il contenuto sta su una card dello stile (si legge su
+                // qualunque sfondo) e scorre se lo schermo è piccolo o il
+                // testo è grande.
                 Center(
-                  child: Padding(
+                  child: SingleChildScrollView(
                     padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 16,
-                      children: [
-                        Transform.scale(
-                          scale: 0.2 + 0.8 * medal,
-                          child: Transform.rotate(
-                            angle: -0.4 * (1 - medal),
-                            child: Opacity(
-                              opacity: medal.clamp(0.0, 1.0),
-                              child: Container(
-                                width: 128,
-                                height: 128,
-                                decoration: BoxDecoration(
-                                  color: scheme.tertiaryContainer,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  widget.icon,
-                                  size: 68,
-                                  color: scheme.onTertiaryContainer,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        rise(
-                          0,
-                          Column(
-                            spacing: 4,
-                            children: [
-                              Text(
-                                widget.kicker.toUpperCase(),
-                                style: theme.textTheme.labelLarge?.copyWith(
-                                  color: scheme.tertiaryContainer,
-                                  letterSpacing: 1.5,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              Text(
-                                widget.title,
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.headlineMedium?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              if (widget.subtitle != null)
-                                Text(
-                                  widget.subtitle!,
-                                  textAlign: TextAlign.center,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    color: Colors.white70,
+                    child: DisciplineCard(
+                      color:
+                          theme.dialogTheme.backgroundColor ??
+                          scheme.surfaceContainerHigh,
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 16,
+                        children: [
+                          Transform.scale(
+                            scale: 0.2 + 0.8 * medal,
+                            child: Transform.rotate(
+                              angle: -0.4 * (1 - medal),
+                              child: Opacity(
+                                opacity: medal.clamp(0.0, 1.0),
+                                child: Container(
+                                  width: 128,
+                                  height: 128,
+                                  decoration: BoxDecoration(
+                                    color: scheme.tertiaryContainer,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    widget.icon,
+                                    size: 68,
+                                    color: scheme.onTertiaryContainer,
                                   ),
                                 ),
-                            ],
-                          ),
-                        ),
-                        if (widget.points > 0)
-                          rise(
-                            1,
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 22,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: scheme.tertiaryContainer,
-                                borderRadius: BorderRadius.circular(28),
-                              ),
-                              child: Text(
-                                // I punti salgono veloci e rallentano.
-                                '+${(widget.points * _part(0.25, 0.85)).round()} punti',
-                                style: theme.textTheme.titleLarge?.copyWith(
-                                  color: scheme.onTertiaryContainer,
-                                  fontWeight: FontWeight.w800,
-                                  fontFeatures: const [
-                                    FontFeature.tabularFigures(),
-                                  ],
-                                ),
                               ),
                             ),
                           ),
-                        rise(
-                          2,
-                          FilledButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            child: const Text('Continua'),
+                          rise(
+                            0,
+                            Column(
+                              spacing: 4,
+                              children: [
+                                Text(
+                                  widget.kicker.toUpperCase(),
+                                  style: theme.textTheme.labelLarge?.copyWith(
+                                    color: scheme.primary,
+                                    letterSpacing: 1.5,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                Text(
+                                  widget.title,
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.headlineMedium
+                                      ?.copyWith(color: scheme.onSurface),
+                                ),
+                                if (widget.subtitle != null)
+                                  Text(
+                                    widget.subtitle!,
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                          color: scheme.onSurfaceVariant,
+                                        ),
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                          if (widget.points > 0)
+                            rise(
+                              1,
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 22,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: scheme.tertiaryContainer,
+                                  borderRadius: BorderRadius.circular(
+                                    AppStyle.of(context).buttonRadius
+                                        .clamp(0, 28),
+                                  ),
+                                ),
+                                child: Text(
+                                  // I punti salgono veloci e rallentano.
+                                  '+${(widget.points * _part(0.25, 0.85)).round()} punti',
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    color: scheme.onTertiaryContainer,
+                                    fontWeight: FontWeight.w800,
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          rise(
+                            2,
+                            FilledButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Continua'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

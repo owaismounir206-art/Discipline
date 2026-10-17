@@ -108,7 +108,12 @@ String encodeFriendChallenge(FriendChallenge c) {
 
 /// Legge un codice; null se non è valido (errore di battitura o altro).
 FriendChallenge? decodeFriendChallenge(String code) {
-  final clean = code
+  // Se hai incollato tutto il messaggio, il codice è l'ultimo gruppo
+  // "XXXX-XXXX-..." (si salta "push-up" e simili prima).
+  final match = RegExp(r'[0-9A-Za-z]{4}(?:-[0-9A-Za-z]{1,4}){2,}')
+      .allMatches(code)
+      .lastOrNull;
+  final clean = (match?.group(0) ?? code)
       .toUpperCase()
       .replaceAll(RegExp(r'[\s-]'), '')
       .replaceAll('O', '0')
