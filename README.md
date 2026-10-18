@@ -81,6 +81,10 @@ fotocamera su un push-up vero e regolare le soglie se serve
   prima di salvarli. Funziona anche con la **foto del piatto**. Usa una
   tua chiave gratuita di Groq o Google AI Studio, conservata nel
   portachiavi del telefono.
+- **Dodici stili grafici**: Material You (Discipline), Liquid Glass, Fluent,
+  Cartoon, Svizzero, Neo-brutale, Game Boy, Clay, Cyber HUD, Sport, Zen e
+  Kanji, ognuno con colori, caratteri (liberi, inclusi nell'app), forme,
+  animazioni e sfondo propri. Si scelgono in Impostazioni.
 - **Suoni e vibrazioni**: un suono leggero a ogni tocco e azione (serie
   fatta, allenamento finito, nuovo grado), creato apposta per l'app da
   `tool/make_sounds.py`. Non ferma la musica e si spegne in Impostazioni.

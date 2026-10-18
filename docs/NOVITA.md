@@ -1,9 +1,9 @@
-## Discipline 1.3
+## Discipline 1.4
 
-- Suoni leggeri a ogni tocco e azione: serie fatta, allenamento finito, cibo aggiunto, nuovo grado
-- I suoni non fermano la tua musica e tacciono con il telefono in silenzioso; si spengono in Impostazioni
-- Cambio di scheda con una dissolvenza morbida
-- Numeri che contano fino al risultato e spunte che "saltano" quando completi una serie
+- 12 stili grafici da scegliere in Impostazioni: Discipline, Liquid Glass, Fluent, Cartoon, Svizzero, Neo-brutale, Game Boy, Clay, Cyber HUD, Sport, Zen e Kanji
+- Ogni stile ha i suoi colori, caratteri, forme, animazioni e sfondo
+- Testi più leggibili e schermate che non si rompono con i caratteri grandi
+- Corretti molti bug: tempo del recupero contato due volte, progressi persi cambiando profilo, schermate bloccate senza internet, sfide settimanali ripetitive
 
 Su Android si installa sopra la versione precedente senza perdere i dati.
 
