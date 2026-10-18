@@ -32,7 +32,9 @@ Future<void> loadFonts() async {
   }
   await figtree.load();
   // I caratteri degli stili: una cartella per famiglia.
-  for (final dir in Directory('assets/fonts').listSync().whereType<Directory>()) {
+  for (final dir in Directory(
+    'assets/fonts',
+  ).listSync().whereType<Directory>()) {
     final family = dir.uri.pathSegments.where((s) => s.isNotEmpty).last;
     if (family == 'licenses') continue;
     final loader = FontLoader(family);
@@ -73,9 +75,8 @@ void main() {
     await tester.runAsync(() async {
       await seedHistory(db);
       await seedFood(db, now: DateTime(2026, 10, 13, 13));
-      await RewardsRepository(
-        db,
-      ).award(PointKind.workout, 700, at: testNow, ref: 'x');
+      await RewardsRepository(db)
+          .award(PointKind.workout, 700, at: testNow, ref: 'x');
       await db.writeJson('theme', {'mode': 'system', 'style': style});
     });
     // Animazioni ferme: gli sfondi che si muovono non finirebbero mai.
@@ -131,9 +132,8 @@ void main() {
         testWidgets('$id $name', (tester) async {
           final db = await open(tester, id, height);
           unawaited(
-            GoRouter.of(
-              tester.element(find.byType(DisciplineNavigationBar)),
-            ).push(route, extra: extra),
+            GoRouter.of(tester.element(find.byType(DisciplineNavigationBar)))
+                .push(route, extra: extra),
           );
           await wait(tester);
           await shoot('$id-$name');
