@@ -47,9 +47,11 @@ void main() {
         difficulty: Difficulty.intermediate,
       );
       expect(plan.title, 'Push-up, dip e pike push-up');
-      expect(plan.minutes, 35);
+      // Percorsi + complementari: più lungo dei 35 minuti di base.
+      expect(plan.minutes % 5, 0);
+      expect(plan.minutes, inInclusiveRange(35, 90));
       expect(plan.exercises.first.exercise.name, 'Push-up classici');
-      expect(plan.summary, startsWith('35 min · '));
+      expect(plan.summary, startsWith('${plan.minutes} min · '));
       expect(plan.summary, endsWith('esercizi'));
     });
 
@@ -64,7 +66,8 @@ void main() {
         positions: {...positions, ChainId.skills: 0},
         difficulty: Difficulty.elite,
       );
-      expect(beginner.exercises, hasLength(3));
+      // 3 dei percorsi + 2 complementari.
+      expect(beginner.exercises, hasLength(5));
       expect(elite.exercises.length, greaterThan(beginner.exercises.length));
       for (final plan in [beginner, elite]) {
         for (final e in plan.exercises) {

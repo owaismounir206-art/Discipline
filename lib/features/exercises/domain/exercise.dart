@@ -4,6 +4,8 @@
 
 import 'package:meta/meta.dart';
 
+import 'equipment.dart';
+
 /// Gruppo muscolare principale di un esercizio.
 enum MuscleGroup {
   chest('Petto e tricipiti'),
@@ -30,7 +32,12 @@ enum ChainId {
   skills('Skill', isMain: false),
   cardio('Cardio', isMain: false, isProgression: false),
   mobility('Mobilità', isMain: false, isProgression: false),
-  accessory('Complementari', isMain: false, isProgression: false);
+  accessory('Complementari', isMain: false, isProgression: false),
+  arms('Braccia', isMain: false, isProgression: false),
+  grip('Avambracci e presa', isMain: false, isProgression: false),
+  posture('Schiena e postura', isMain: false, isProgression: false),
+  plyo('Esplosività', isMain: false, isProgression: false),
+  skillDrills('Propedeutici skill', isMain: false, isProgression: false);
 
   const ChainId(this.label, {required this.isMain, this.isProgression = true});
 
@@ -43,6 +50,28 @@ enum ChainId {
   /// (cardio, mobilità, complementari) servono per variare, scaldarsi e
   /// allungarsi.
   final bool isProgression;
+}
+
+/// Zona allenata, per gli allenamenti specifici (core, bicipiti...).
+enum Focus {
+  chest('Petto'),
+  back('Schiena'),
+  shoulders('Spalle'),
+  biceps('Bicipiti'),
+  triceps('Tricipiti'),
+  forearms('Avambracci e presa'),
+  core('Addome'),
+  obliques('Obliqui'),
+  legs('Gambe'),
+  glutes('Glutei'),
+  calves('Polpacci'),
+  cardio('Fiato'),
+  mobility('Mobilità'),
+  skills('Skill');
+
+  const Focus(this.label);
+
+  final String label;
 }
 
 /// Come si misura una serie.
@@ -81,6 +110,10 @@ class Exercise {
     required this.instructions,
     required this.mistakes,
     this.perSide = false,
+    this.focus = const {},
+    this.level,
+    this.equipment = const {},
+    this.figure,
   });
 
   final String id;
@@ -102,6 +135,45 @@ class Exercise {
 
   /// Vero se le ripetizioni si contano per lato (es. affondi, arciere).
   final bool perSide;
+
+  /// Zone allenate. Se manca si ricava dal gruppo muscolare.
+  final Set<Focus> focus;
+
+  /// Difficoltà da 1 (base) a 4 (élite). Se manca si ricava dalla
+  /// posizione nella catena.
+  final int? level;
+
+  /// Attrezzi necessari (oltre a quelli indicati in `needs`).
+  final Set<Equipment> equipment;
+
+  /// Nome del movimento della figurina (vedi `motions.dart`).
+  final String? figure;
+
+  /// Zone allenate, ricavate dal gruppo muscolare se non indicate.
+  Set<Focus> get focusAreas {
+    if (focus.isNotEmpty) return focus;
+    return switch (chain) {
+      ChainId.cardio || ChainId.plyo => {Focus.cardio, Focus.legs},
+      ChainId.mobility => {Focus.mobility},
+      ChainId.skills || ChainId.skillDrills => {Focus.skills},
+      ChainId.grip => {Focus.forearms},
+      ChainId.pull => {Focus.back, Focus.biceps, Focus.forearms},
+      ChainId.dip => {Focus.chest, Focus.triceps},
+      ChainId.push => {Focus.chest, Focus.triceps, Focus.shoulders},
+      _ => switch (muscleGroup) {
+        MuscleGroup.chest => {Focus.chest, Focus.triceps},
+        MuscleGroup.back => {Focus.back, Focus.biceps},
+        MuscleGroup.shoulders => {Focus.shoulders},
+        MuscleGroup.legs => {Focus.legs, Focus.glutes},
+        MuscleGroup.core => {Focus.core},
+        MuscleGroup.fullBody => {Focus.cardio},
+      },
+    };
+  }
+
+  /// Difficoltà da 1 a 4.
+  int get difficulty =>
+      level ?? (chain.isProgression ? (1 + position ~/ 2).clamp(1, 4) : 1);
 
   /// Tempo stimato di una serie, per calcolare la durata della sessione.
   int get estimatedSetSeconds => switch (measure) {

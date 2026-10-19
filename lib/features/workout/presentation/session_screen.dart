@@ -25,9 +25,18 @@ import 'suggestions_card.dart';
 
 /// Allenamento in corso (design "Allenamento").
 class SessionScreen extends ConsumerStatefulWidget {
-  const SessionScreen({super.key, required this.template});
+  const SessionScreen({
+    super.key,
+    required this.template,
+    this.custom,
+    this.title,
+  });
 
   final WorkoutTemplate template;
+
+  /// Sessione già pronta (es. un giorno della tua scheda).
+  final WorkoutPlan? custom;
+  final String? title;
 
   @override
   ConsumerState<SessionScreen> createState() => _SessionScreenState();
@@ -38,7 +47,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
   void initState() {
     super.initState();
     Future.microtask(
-      () => ref.read(sessionControllerProvider.notifier).start(widget.template),
+      () => ref
+          .read(sessionControllerProvider.notifier)
+          .start(widget.template, custom: widget.custom, title: widget.title),
     );
   }
 
@@ -123,7 +134,7 @@ class _RunningView extends ConsumerWidget {
           children: [
             // Una riga sola: con il testo grande non esce dalla barra.
             Text(
-              '${state.template.label} · ${state.difficulty.label}',
+              '${state.label} · ${state.difficulty.label}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.titleLarge?.copyWith(fontSize: 20),
@@ -628,7 +639,7 @@ class _SummaryView extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(state.template.label),
+        title: Text(state.label),
       ),
       body: SafeArea(
         top: false,

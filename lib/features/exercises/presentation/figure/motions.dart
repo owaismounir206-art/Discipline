@@ -5,14 +5,21 @@
 import 'dart:ui';
 
 import '../../domain/exercise.dart';
+import 'motions_more.dart';
 import 'skeleton.dart';
 
 // Le pose chiave di ogni movimento. Pavimento a y = 0, caviglia a -0.03,
-// mani appoggiate a -0.01; la figurina guarda a destra.
+// mani appoggiate a -0.01; la figurina guarda a destra. In piedi il bacino
+// è a -0.47, le spalle a -0.76; braccia e gambe sono lunghe 0.29 e 0.44.
+//
+// Il petto guarda sempre dalla parte di `low + 90°`: a pancia in giù la
+// testa è a destra, sdraiati sulla schiena (ponte, crunch, hollow) la testa
+// è a sinistra, a testa in giù (verticale) il petto guarda a sinistra. Così
+// gomiti e ginocchia si piegano dal verso giusto da soli.
 
 const _feet = To(0, -0.03);
-const _armsDown = Ang(84, 88);
-const _armsForward = Ang(2, 0);
+const _armsDown = Ang(94, 82);
+const _armsForward = Ang(0, -4);
 
 // ---- Spinta ----------------------------------------------------------------
 
@@ -21,24 +28,25 @@ const wallPushUp = Motion(
   [
     (
       Pose(
-        hip: Offset(0.16, -0.44),
-        low: -68.7,
-        arm: To(0.55, -0.68),
+        hip: Offset(0.184, -0.429),
+        low: -65.2,
+        arm: To(0.585, -0.72),
         leg: _feet,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.25, -0.39),
-        low: -55.2,
-        arm: To(0.55, -0.68),
+        hip: Offset(0.25, -0.392),
+        low: -55.4,
+        neck: -50,
+        arm: To(0.585, -0.72),
         leg: _feet,
       ),
       1,
     ),
   ],
-  props: [Bar(0.57, 0, 0.57, -1.0, thick: true)],
+  props: [Bar(0.625, 0, 0.625, -1.05, thick: true)],
 );
 
 const inclinePushUp = Motion(
@@ -46,44 +54,48 @@ const inclinePushUp = Motion(
   [
     (
       Pose(
-        hip: Offset(0.261, -0.341),
-        low: -45,
-        arm: To(0.48, -0.29),
-        leg: To(-0.05, -0.03),
+        hip: Offset(0.333, -0.318),
+        low: -40.8,
+        neck: -38,
+        arm: To(0.73, -0.295),
+        leg: _feet,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.338, -0.237),
-        low: -28,
+        hip: Offset(0.381, -0.25),
+        low: -30,
         neck: -24,
-        arm: To(0.48, -0.29),
-        leg: To(-0.05, -0.03),
+        arm: To(0.73, -0.295),
+        leg: _feet,
       ),
       1,
     ),
   ],
-  props: [Block(0.36, -0.28, 0.62, 0)],
+  props: [Block(0.60, -0.28, 0.86, 0)],
 );
 
 const kneePushUp = Motion('kneePushUp', [
   (
     Pose(
-      hip: Offset(0.187, -0.147),
-      low: -32,
+      hip: Offset(0.189, -0.142),
+      low: -30.7,
+      neck: -28,
       arm: To(0.44, -0.01),
-      leg: To(-0.207, -0.105),
+      leg: To(-0.143, -0.197),
+      toe: 200,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0.219, -0.053),
-      low: -6,
-      neck: -4,
+      hip: Offset(0.217, -0.069),
+      low: -10.2,
+      neck: -10,
       arm: To(0.44, -0.01),
-      leg: To(-0.207, -0.105),
+      leg: To(-0.06, -0.24),
+      toe: 220,
     ),
     1,
   ),
@@ -92,67 +104,70 @@ const kneePushUp = Motion('kneePushUp', [
 const pushUp = Motion('pushUp', [
   (
     Pose(
-      hip: Offset(0.409, -0.193),
-      low: -21.7,
-      neck: -26,
-      arm: To(0.68, -0.01),
+      hip: Offset(0.411, -0.187),
+      low: -20.9,
+      neck: -22,
+      arm: To(0.69, -0.01),
       leg: _feet,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0.439, -0.07),
-      low: -3.9,
-      neck: -8,
-      arm: To(0.68, -0.01),
+      hip: Offset(0.437, -0.084),
+      low: -7.1,
+      neck: -10,
+      arm: To(0.69, -0.01),
       leg: _feet,
     ),
     1,
   ),
 ]);
 
+/// Dal cane a testa in giù, tuffo in avanti radente, fino al cane a testa
+/// in su; poi di nuovo indietro.
 const hinduPushUp = Motion(
   'hinduPushUp',
   [
     (
       Pose(
-        hip: Offset(0.27, -0.38),
-        low: 46,
-        neck: 62,
-        arm: To(0.62, -0.01),
+        hip: Offset(0.259, -0.379),
+        low: 40,
+        neck: 100,
+        arm: To(0.70, -0.01),
         leg: _feet,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.36, -0.13),
-        low: 2,
-        neck: 8,
-        arm: To(0.62, -0.01),
+        hip: Offset(0.42, -0.155),
+        low: 10,
+        high: 4,
+        neck: -10,
+        arm: To(0.70, -0.01),
         leg: _feet,
       ),
       0.8,
     ),
     (
       Pose(
-        hip: Offset(0.40, -0.06),
-        low: -18,
-        high: -55,
-        neck: -72,
-        arm: To(0.60, -0.01),
+        hip: Offset(0.43, -0.10),
+        low: -28,
+        high: -45,
+        neck: -62,
+        arm: To(0.70, -0.01),
         leg: _feet,
       ),
       0.6,
     ),
     (
       Pose(
-        hip: Offset(0.40, -0.06),
-        low: -18,
-        high: -55,
-        neck: -72,
-        arm: To(0.60, -0.01),
+        hip: Offset(0.43, -0.10),
+        low: -28,
+        high: -45,
+        neck: -62,
+        arm: To(0.70, -0.01),
         leg: _feet,
       ),
       1,
@@ -165,78 +180,79 @@ const hinduPushUp = Motion(
 const pikePushUp = Motion('pikePushUp', [
   (
     Pose(
-      hip: Offset(0.22, -0.41),
-      low: 50,
-      neck: 72,
-      arm: To(0.56, -0.01),
+      hip: Offset(0.126, -0.446),
+      low: 49.4,
+      neck: 100,
+      arm: To(0.50, -0.01),
       leg: _feet,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0.27, -0.36),
-      low: 76,
-      neck: 92,
-      arm: To(0.56, -0.01),
+      hip: Offset(0.22, -0.38),
+      low: 39.3,
+      neck: 95,
+      arm: To(0.50, -0.01),
       leg: _feet,
     ),
     1,
   ),
-], armBend: -1);
+]);
 
 const elevatedPike = Motion(
   'elevatedPike',
   [
     (
       Pose(
-        hip: Offset(0.30, -0.62),
-        low: 76,
-        neck: 90,
-        arm: To(0.45, -0.01),
+        hip: Offset(0.346, -0.574),
+        low: 78.6,
+        neck: 110,
+        arm: To(0.46, -0.01),
         leg: To(0, -0.31),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.36, -0.55),
-        low: 86,
-        neck: 98,
-        arm: To(0.45, -0.01),
+        hip: Offset(0.38, -0.476),
+        low: 72,
+        neck: 100,
+        arm: To(0.46, -0.01),
         leg: To(0, -0.31),
       ),
       1,
     ),
   ],
-  props: [Block(-0.16, -0.28, 0.08, 0)],
-  armBend: -1,
+  props: [Block(-0.14, -0.28, 0.10, 0)],
 );
 
+// A testa in giù il petto guarda a sinistra, verso il muro.
 const wallHandstandPushUp = Motion(
   'wallHspu',
   [
     (
       Pose(
-        hip: Offset(0, -0.59),
-        low: 90,
-        arm: To(0.02, -0.01),
-        leg: To(-0.07, -1.02),
+        hip: Offset(0.0, -0.575),
+        low: 92,
+        neck: 100,
+        arm: To(0.03, -0.01),
+        leg: To(-0.09, -1.0),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(-0.01, -0.42),
-        low: 92,
-        neck: 95,
-        arm: To(0.02, -0.01),
-        leg: To(-0.08, -0.85),
+        hip: Offset(-0.005, -0.47),
+        low: 88,
+        neck: 100,
+        arm: To(0.03, -0.01),
+        leg: To(-0.09, -0.90),
       ),
       1,
     ),
   ],
-  props: [Bar(-0.13, 0, -0.13, -1.08, thick: true)],
+  props: [Bar(-0.15, 0, -0.15, -1.2, thick: true)],
   ms: 2200,
 );
 
@@ -245,143 +261,134 @@ const wallHandstand = Motion(
   [
     (
       Pose(
-        hip: Offset(0, -0.59),
-        low: 90,
-        arm: To(0.02, -0.01),
-        leg: To(-0.07, -1.02),
+        hip: Offset(0.0, -0.575),
+        low: 92,
+        neck: 100,
+        arm: To(0.03, -0.01),
+        leg: To(-0.09, -1.0),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.005, -0.585),
-        low: 89,
-        arm: To(0.02, -0.01),
-        leg: To(-0.065, -1.02),
+        hip: Offset(0.004, -0.575),
+        low: 91,
+        neck: 102,
+        arm: To(0.03, -0.01),
+        leg: To(-0.088, -1.0),
       ),
       1,
     ),
   ],
-  props: [Bar(-0.13, 0, -0.13, -1.08, thick: true)],
+  props: [Bar(-0.15, 0, -0.15, -1.2, thick: true)],
   ms: 2600,
 );
 
 const handstand = Motion('handstand', [
   (
     Pose(
-      hip: Offset(0.012, -0.59),
+      hip: Offset(0.012, -0.575),
       low: 89,
-      arm: To(0, -0.01),
-      leg: To(0.03, -1.03),
+      neck: 104,
+      arm: To(0.0, -0.01),
+      leg: To(0.035, -1.01),
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(-0.012, -0.59),
+      hip: Offset(-0.012, -0.575),
       low: 91,
-      arm: To(0, -0.01),
-      leg: To(-0.03, -1.03),
+      neck: 104,
+      arm: To(0.0, -0.01),
+      leg: To(-0.02, -1.01),
     ),
     1,
   ),
 ], ms: 2600);
 
+/// Corvo: ginocchia appoggiate dietro le braccia, piedi che si staccano.
 const crow = Motion('crow', [
   (
     Pose(
-      hip: Offset(-0.12, -0.36),
-      low: 41.6,
-      neck: 30,
-      arm: To(0, -0.01),
-      leg: To(-0.22, -0.30),
+      hip: Offset(-0.14, -0.28),
+      low: 15,
+      neck: 20,
+      arm: To(0.06, -0.01),
+      leg: To(-0.10, -0.03),
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(-0.10, -0.38),
-      low: 36,
-      neck: 26,
-      arm: To(0, -0.01),
-      leg: To(-0.21, -0.36),
+      hip: Offset(-0.16, -0.36),
+      low: 22.9,
+      neck: 10,
+      arm: To(0.06, -0.01),
+      leg: To(-0.215, -0.26),
+      toe: 170,
     ),
-    1,
+    1.4,
   ),
 ], ms: 2400);
 
+/// Planche raccolta: braccia tese, spalle oltre le mani, ginocchia al petto.
 const tuckPlanche = Motion('tuckPlanche', [
   (
     Pose(
-      hip: Offset(-0.25, -0.29),
-      low: -4,
-      neck: 8,
-      arm: To(0, -0.01),
-      leg: To(-0.20, -0.15),
+      hip: Offset(-0.16, -0.24),
+      low: -6,
+      neck: -4,
+      arm: To(0.05, -0.01),
+      leg: To(-0.14, -0.16),
+      toe: 180,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(-0.25, -0.31),
-      low: -7,
-      neck: 6,
-      arm: To(0, -0.01),
-      leg: To(-0.20, -0.18),
+      hip: Offset(-0.19, -0.27),
+      low: -3,
+      neck: 0,
+      arm: To(0.05, -0.01),
+      leg: To(-0.17, -0.19),
+      toe: 180,
     ),
-    1,
+    1.4,
   ),
 ], ms: 2400);
 
 // ---- Tirata ----------------------------------------------------------------
 
-const _bar = Bar(-0.22, -1.0, 0.22, -1.0, thick: true);
+const _bar = Bar(-0.15, -1.0, 0.19, -1.0, thick: true);
 const _hands = To(0.03, -1.0);
+
+const _hang = Pose(
+  hip: Offset(-0.01, -0.425),
+  low: -88,
+  arm: _hands,
+  leg: To(0.01, 0.01),
+);
+
+const _chinOver = Pose(
+  hip: Offset(-0.06, -0.61),
+  low: -84,
+  high: -88,
+  neck: -78,
+  arm: _hands,
+  leg: To(0.0, -0.21),
+);
 
 const pullUp = Motion(
   'pullUp',
-  [
-    (Pose(hip: Offset(0, -0.42), arm: _hands, leg: To(-0.08, -0.03)), 1),
-    (
-      Pose(
-        hip: Offset(-0.02, -0.67),
-        low: -92,
-        high: -84,
-        arm: _hands,
-        leg: To(-0.12, -0.28),
-      ),
-      1,
-    ),
-  ],
+  [(_hang, 1), (_chinOver, 1)],
   floor: false,
   props: [_bar],
 );
 
 const negativePullUp = Motion(
   'negativePullUp',
-  [
-    (
-      Pose(
-        hip: Offset(-0.02, -0.67),
-        low: -92,
-        high: -84,
-        arm: _hands,
-        leg: To(-0.12, -0.28),
-      ),
-      0.6,
-    ),
-    (
-      Pose(
-        hip: Offset(-0.02, -0.67),
-        low: -92,
-        high: -84,
-        arm: _hands,
-        leg: To(-0.12, -0.28),
-      ),
-      2.4,
-    ),
-    (Pose(hip: Offset(0, -0.42), arm: _hands, leg: To(-0.08, -0.03)), 0.8),
-  ],
+  [(_chinOver, 0.6), (_chinOver, 2.4), (_hang, 0.8)],
   ms: 3600,
   floor: false,
   props: [_bar],
@@ -392,20 +399,23 @@ const lSitPullUp = Motion(
   [
     (
       Pose(
-        hip: Offset(-0.02, -0.42),
-        low: -94,
+        hip: Offset(-0.03, -0.425),
+        low: -86,
         arm: _hands,
-        leg: To(0.42, -0.44),
+        leg: To(0.40, -0.44),
+        toe: -20,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(-0.05, -0.66),
-        low: -98,
-        high: -86,
+        hip: Offset(-0.06, -0.64),
+        low: -82,
+        high: -88,
+        neck: -78,
         arm: _hands,
-        leg: To(0.39, -0.70),
+        leg: To(0.37, -0.68),
+        toe: -20,
       ),
       1,
     ),
@@ -419,24 +429,26 @@ const australianRow = Motion(
   [
     (
       Pose(
-        hip: Offset(0.415, -0.176),
-        low: -19.4,
-        arm: To(0.70, -0.55),
+        hip: Offset(0.422, -0.155),
+        low: -16.5,
+        neck: -14,
+        arm: To(0.72, -0.52),
         leg: _feet,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.366, -0.274),
-        low: -33.7,
-        arm: To(0.70, -0.55),
+        hip: Offset(0.369, -0.27),
+        low: -33,
+        neck: -30,
+        arm: To(0.72, -0.52),
         leg: _feet,
       ),
       1,
     ),
   ],
-  props: [Bar(0.58, -0.55, 0.82, -0.55, thick: true)],
+  props: [Bar(0.62, -0.52, 0.84, -0.52, thick: true)],
 );
 
 /// Rematore sotto il tavolo: come le australiane, al bordo di un tavolo.
@@ -445,67 +457,65 @@ const tableRow = Motion(
   [
     (
       Pose(
-        hip: Offset(0.415, -0.176),
-        low: -19.4,
-        arm: To(0.70, -0.55),
-        leg: To(0, -0.03),
+        hip: Offset(0.422, -0.155),
+        low: -16.5,
+        neck: -14,
+        arm: To(0.72, -0.53),
+        leg: _feet,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.366, -0.274),
-        low: -33.7,
-        arm: To(0.70, -0.55),
-        leg: To(0, -0.03),
+        hip: Offset(0.369, -0.27),
+        low: -33,
+        neck: -30,
+        arm: To(0.72, -0.53),
+        leg: _feet,
       ),
       1,
     ),
   ],
-  props: [Block(0.62, -0.58, 1.02, -0.53), Bar(0.98, -0.53, 0.98, 0)],
+  props: [Block(0.70, -0.57, 1.20, -0.52), Bar(1.14, -0.52, 1.14, 0)],
 );
 
-/// Dip tra due sedie: le parallele sono gli schienali.
+// Dip: bacino sotto le mani, ginocchia piegate e piedi dietro.
+const _dipTop = Pose(
+  hip: Offset(-0.03, -0.62),
+  low: -86,
+  high: -82,
+  arm: To(0.03, -0.62),
+  leg: To(-0.12, -0.24),
+  toe: 120,
+);
+
+const _dipBottom = Pose(
+  hip: Offset(-0.08, -0.47),
+  low: -68,
+  high: -58,
+  neck: -62,
+  arm: To(0.03, -0.62),
+  leg: To(-0.20, -0.12),
+  toe: 130,
+);
+
+/// Dip tra due sedie: le mani sugli schienali.
 const chairDip = Motion(
   'chairDip',
-  [
-    (
-      Pose(
-        hip: Offset(-0.02, -0.62),
-        low: -88,
-        high: -82,
-        arm: To(0.04, -0.62),
-        leg: To(-0.18, -0.30),
-      ),
-      1,
-    ),
-    (
-      Pose(
-        hip: Offset(-0.04, -0.40),
-        low: -80,
-        high: -65,
-        neck: -70,
-        arm: To(0.04, -0.62),
-        leg: To(-0.22, -0.09),
-      ),
-      1,
-    ),
-  ],
+  [(_dipTop, 1), (_dipBottom, 1)],
   props: [
-    Block(-0.05, -0.64, 0.20, -0.60),
-    Bar(0.18, -0.60, 0.18, -0.36),
-    Block(-0.05, -0.38, 0.30, -0.34),
-    Bar(-0.03, -0.34, -0.03, 0),
-    Bar(0.28, -0.34, 0.28, 0),
+    Bar(0.03, -0.6, 0.03, 0),
+    Block(0.03, -0.32, 0.30, -0.28),
+    Bar(0.28, -0.28, 0.28, 0),
   ],
 );
 
 const deadHang = Motion(
   'deadHang',
   [
-    (Pose(hip: Offset(0, -0.42), arm: _hands, leg: To(-0.03, 0)), 1),
+    (_hang, 1),
     (
-      Pose(hip: Offset(0.015, -0.42), low: -89, arm: _hands, leg: To(-0.01, 0)),
+      Pose(hip: Offset(0.0, -0.425), low: -90, arm: _hands, leg: To(0.0, 0.01)),
       1,
     ),
   ],
@@ -517,15 +527,15 @@ const deadHang = Motion(
 const scapPull = Motion(
   'scapPull',
   [
-    (Pose(hip: Offset(0, -0.42), arm: _hands, leg: To(-0.03, 0)), 1),
+    (_hang, 1),
     (
       Pose(
-        hip: Offset(0, -0.47),
-        low: -94,
-        high: -86,
-        neck: -86,
+        hip: Offset(-0.02, -0.47),
+        low: -86,
+        high: -84,
+        neck: -82,
         arm: _hands,
-        leg: To(-0.03, -0.05),
+        leg: To(0.0, -0.03),
       ),
       1,
     ),
@@ -534,33 +544,20 @@ const scapPull = Motion(
   props: [_bar],
 );
 
+// Front lever: corpo orizzontale a pancia in su, piedi verso destra, spalle
+// sotto la sbarra e braccia tese.
+const _lever = Pose(
+  hip: Offset(0.17, -0.76),
+  low: 180,
+  neck: 184,
+  arm: _hands,
+  leg: To(0.605, -0.76),
+  toe: -10,
+);
+
 const frontLever = Motion(
   'frontLever',
-  [
-    (Pose(hip: Offset(0, -0.42), arm: _hands, leg: To(-0.02, 0.02)), 0.8),
-    (
-      Pose(
-        hip: Offset(-0.24, -0.74),
-        low: 0,
-        neck: 2,
-        arm: _hands,
-        leg: To(-0.68, -0.74),
-        toe: 180,
-      ),
-      0.6,
-    ),
-    (
-      Pose(
-        hip: Offset(-0.24, -0.74),
-        low: 0,
-        neck: 2,
-        arm: _hands,
-        leg: To(-0.68, -0.74),
-        toe: 180,
-      ),
-      1.2,
-    ),
-  ],
+  [(_hang, 0.8), (_lever, 0.6), (_lever, 1.2)],
   ms: 3200,
   floor: false,
   props: [_bar],
@@ -570,24 +567,26 @@ const frontLever = Motion(
 const tuckFrontLever = Motion(
   'tuckFrontLever',
   [
-    (Pose(hip: Offset(0, -0.42), arm: _hands, leg: To(-0.02, 0.02)), 0.8),
+    (_hang, 0.8),
     (
       Pose(
-        hip: Offset(-0.24, -0.74),
-        low: 0,
-        neck: 2,
+        hip: Offset(0.14, -0.76),
+        low: 182,
+        neck: 186,
         arm: _hands,
-        leg: To(-0.33, -0.86),
+        leg: To(0.22, -0.89),
+        toe: -60,
       ),
       0.6,
     ),
     (
       Pose(
-        hip: Offset(-0.24, -0.74),
-        low: 0,
-        neck: 2,
+        hip: Offset(0.14, -0.76),
+        low: 182,
+        neck: 186,
         arm: _hands,
-        leg: To(-0.33, -0.86),
+        leg: To(0.22, -0.89),
+        toe: -60,
       ),
       1.2,
     ),
@@ -595,40 +594,30 @@ const tuckFrontLever = Motion(
   ms: 3200,
   floor: false,
   props: [_bar],
-  legBend: 1,
 );
 
 const muscleUp = Motion(
   'muscleUp',
   [
-    (Pose(hip: Offset(0, -0.42), arm: _hands, leg: To(-0.06, -0.02)), 1),
+    (_hang, 1),
+    (_chinOver, 0.6),
     (
       Pose(
-        hip: Offset(-0.06, -0.68),
-        low: -100,
-        high: -80,
+        hip: Offset(-0.03, -0.83),
+        low: -68,
+        high: -40,
+        neck: -30,
         arm: _hands,
-        leg: To(-0.14, -0.25),
+        leg: To(-0.14, -0.40),
       ),
       0.6,
     ),
     (
       Pose(
-        hip: Offset(-0.06, -0.82),
-        low: -70,
-        high: -55,
-        neck: -50,
-        arm: _hands,
-        leg: To(-0.10, -0.40),
-      ),
-      0.6,
-    ),
-    (
-      Pose(
-        hip: Offset(-0.02, -0.98),
-        low: -92,
+        hip: Offset(-0.01, -0.99),
+        low: -88,
         arm: To(0.03, -1.0),
-        leg: To(-0.04, -0.55),
+        leg: To(-0.03, -0.55),
       ),
       1,
     ),
@@ -636,100 +625,89 @@ const muscleUp = Motion(
   ms: 3000,
   floor: false,
   props: [_bar],
-  still: 2,
+  still: 3,
 );
 
 // ---- Dip -------------------------------------------------------------------
 
 const dip = Motion(
   'dip',
-  [
-    (
-      Pose(
-        hip: Offset(-0.02, -0.62),
-        low: -88,
-        high: -82,
-        arm: To(0.04, -0.62),
-        leg: To(-0.18, -0.30),
-      ),
-      1,
-    ),
-    (
-      Pose(
-        hip: Offset(-0.04, -0.40),
-        low: -80,
-        high: -65,
-        neck: -70,
-        arm: To(0.04, -0.62),
-        leg: To(-0.22, -0.09),
-      ),
-      1,
-    ),
+  [(_dipTop, 1), (_dipBottom, 1)],
+  props: [
+    Bar(-0.12, -0.62, 0.20, -0.62, thick: true),
+    Bar(0.16, -0.62, 0.16, 0),
   ],
-  props: [Bar(-0.12, -0.62, 0.24, -0.62, thick: true), Bar(0.2, -0.62, 0.2, 0)],
 );
 
+/// Dip alla panca: mani dietro sul bordo, gambe avanti, il bacino scende.
 const benchDip = Motion(
   'benchDip',
   [
     (
       Pose(
-        hip: Offset(-0.02, -0.25),
-        arm: To(-0.08, -0.25),
-        leg: To(0.36, -0.03),
+        hip: Offset(-0.07, -0.29),
+        low: -95,
+        neck: -88,
+        arm: To(-0.13, -0.295),
+        leg: To(0.25, -0.03),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(-0.01, -0.08),
-        arm: To(-0.08, -0.25),
-        leg: To(0.36, -0.03),
+        hip: Offset(-0.06, -0.15),
+        low: -94,
+        neck: -84,
+        arm: To(-0.13, -0.295),
+        leg: To(0.25, -0.03),
       ),
       1,
     ),
   ],
-  props: [Block(-0.26, -0.24, -0.04, 0)],
-  legBend: -1,
+  props: [Block(-0.36, -0.28, -0.11, 0)],
 );
 
+/// Dip sulla sbarra dritta: sbarra davanti ai fianchi, busto inclinato.
 const barDip = Motion(
   'barDip',
   [
     (
       Pose(
-        hip: Offset(-0.04, -0.62),
-        low: -84,
+        hip: Offset(-0.04, -0.60),
+        low: -82,
         high: -78,
-        arm: To(0.07, -0.62),
-        leg: To(-0.02, -0.20),
+        arm: To(0.04, -0.62),
+        leg: To(-0.05, -0.18),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(-0.10, -0.44),
-        low: -60,
-        high: -48,
-        neck: -50,
-        arm: To(0.07, -0.62),
-        leg: To(-0.02, -0.02),
+        hip: Offset(-0.14, -0.50),
+        low: -45,
+        high: -38,
+        neck: -36,
+        arm: To(0.04, -0.62),
+        leg: To(-0.19, -0.07),
       ),
       1,
     ),
   ],
-  props: [Bar(-0.14, -0.62, 0.24, -0.62, thick: true)],
+  props: [Bar(-0.12, -0.62, 0.22, -0.62, thick: true)],
 );
 
 // ---- Gambe -----------------------------------------------------------------
 
+const _stand = Pose(hip: Offset(0, -0.47), arm: _armsDown, leg: _feet);
+
 const squat = Motion('squat', [
-  (Pose(hip: Offset(-0.02, -0.47), arm: _armsDown, leg: _feet), 1),
+  (_stand, 1),
   (
     Pose(
-      hip: Offset(-0.18, -0.22),
-      low: -55,
-      high: -62,
+      hip: Offset(-0.18, -0.21),
+      low: -58,
+      high: -64,
+      neck: -60,
       arm: _armsForward,
       leg: _feet,
     ),
@@ -740,72 +718,71 @@ const squat = Motion('squat', [
 const deepSquat = Motion('deepSquat', [
   (
     Pose(
-      hip: Offset(-0.12, -0.13),
-      low: -70,
-      high: -78,
-      arm: Ang(30, -40),
-      leg: _feet,
+      hip: Offset(-0.10, -0.13),
+      low: -72,
+      high: -80,
+      arm: Ang(55, -50),
+      leg: To(0.02, -0.03),
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(-0.12, -0.15),
-      low: -74,
-      high: -82,
-      arm: Ang(30, -40),
-      leg: _feet,
+      hip: Offset(-0.10, -0.15),
+      low: -76,
+      high: -84,
+      arm: Ang(58, -48),
+      leg: To(0.02, -0.03),
     ),
     1,
   ),
 ], ms: 3200);
 
-const squatJump = Motion(
-  'squatJump',
-  [
-    (
-      Pose(
-        hip: Offset(-0.18, -0.22),
-        low: -50,
-        high: -58,
-        arm: Ang(130, 125),
-        leg: _feet,
-      ),
-      1,
-    ),
-    (
-      Pose(
-        hip: Offset(0, -0.62),
-        low: -90,
-        arm: Ang(-82, -86),
-        leg: To(0, -0.18),
-        toe: 70,
-      ),
-      0.7,
-    ),
-    (Pose(hip: Offset(-0.02, -0.47), arm: Ang(40, 50), leg: _feet), 0.6),
-  ],
-  ms: 1500,
-  still: 1,
-);
-
-const lunge = Motion('lunge', [
+const squatJump = Motion('squatJump', [
   (
     Pose(
-      hip: Offset(0, -0.43),
-      arm: _armsDown,
-      leg: To(0.25, -0.03),
-      leg2: To(-0.30, -0.03),
+      hip: Offset(-0.18, -0.21),
+      low: -52,
+      high: -58,
+      arm: Ang(130, 115),
+      leg: _feet,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(-0.02, -0.23),
+      hip: Offset(0, -0.60),
+      low: -90,
+      arm: Ang(-78, -84),
+      leg: To(-0.01, -0.165),
+      toe: 75,
+    ),
+    0.7,
+  ),
+  (
+    Pose(hip: Offset(-0.06, -0.40), low: -76, arm: Ang(40, 20), leg: _feet),
+    0.6,
+  ),
+], ms: 1500);
+
+const lunge = Motion('lunge', [
+  (
+    Pose(
+      hip: Offset(-0.03, -0.39),
       arm: _armsDown,
-      leg: To(0.25, -0.03),
-      leg2: To(-0.30, -0.03),
-      toe2: 90,
+      leg: To(0.22, -0.03),
+      leg2: To(-0.29, -0.07),
+      toe2: 45,
+    ),
+    1,
+  ),
+  (
+    Pose(
+      hip: Offset(-0.04, -0.24),
+      arm: _armsDown,
+      leg: To(0.22, -0.03),
+      leg2: To(-0.33, -0.07),
+      toe2: 45,
     ),
     1,
   ),
@@ -816,27 +793,28 @@ const bulgarian = Motion(
   [
     (
       Pose(
-        hip: Offset(-0.02, -0.45),
+        hip: Offset(-0.03, -0.42),
+        low: -86,
         arm: _armsDown,
-        leg: To(0.22, -0.03),
-        leg2: To(-0.36, -0.30),
-        toe2: 170,
+        leg: To(0.14, -0.03),
+        leg2: To(-0.38, -0.29),
+        toe2: 175,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(-0.06, -0.24),
-        low: -80,
+        hip: Offset(-0.08, -0.22),
+        low: -76,
         arm: _armsDown,
-        leg: To(0.22, -0.03),
-        leg2: To(-0.36, -0.30),
-        toe2: 170,
+        leg: To(0.14, -0.03),
+        leg2: To(-0.38, -0.29),
+        toe2: 175,
       ),
       1,
     ),
   ],
-  props: [Block(-0.50, -0.27, -0.30, 0)],
+  props: [Block(-0.56, -0.26, -0.33, 0)],
 );
 
 const stepUp = Motion(
@@ -844,47 +822,47 @@ const stepUp = Motion(
   [
     (
       Pose(
-        hip: Offset(0, -0.47),
+        hip: Offset(0, -0.46),
         arm: _armsDown,
-        leg: To(0.22, -0.31),
+        leg: To(0.24, -0.28),
         leg2: To(-0.02, -0.03),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.2, -0.76),
+        hip: Offset(0.22, -0.71),
         arm: _armsDown,
-        leg: To(0.22, -0.31),
-        leg2: To(0.22, -0.48),
-        toe2: 40,
+        leg: To(0.24, -0.28),
+        leg2: To(0.30, -0.50),
+        toe2: 60,
       ),
       1,
     ),
   ],
-  props: [Block(0.10, -0.28, 0.42, 0)],
+  props: [Block(0.10, -0.25, 0.44, 0)],
   ms: 2000,
 );
 
 const pistol = Motion('pistol', [
   (
     Pose(
-      hip: Offset(-0.02, -0.47),
+      hip: Offset(-0.01, -0.47),
       arm: _armsForward,
       leg: _feet,
-      leg2: To(0.22, -0.22),
-      toe2: -60,
+      leg2: To(0.25, -0.18),
+      toe2: -50,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(-0.20, -0.17),
-      low: -48,
-      high: -58,
+      hip: Offset(-0.16, -0.16),
+      low: -54,
+      high: -62,
       arm: _armsForward,
       leg: _feet,
-      leg2: To(0.24, -0.18),
+      leg2: To(0.27, -0.13),
       toe2: -70,
     ),
     1,
@@ -896,189 +874,199 @@ const assistedPistol = Motion(
   [
     (
       Pose(
-        hip: Offset(-0.02, -0.47),
-        arm: To(0.30, -0.62),
+        hip: Offset(-0.01, -0.47),
+        arm: To(0.25, -0.62),
         leg: _feet,
-        leg2: To(0.22, -0.22),
-        toe2: -60,
+        leg2: To(0.25, -0.18),
+        toe2: -50,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(-0.18, -0.18),
-        low: -52,
-        high: -60,
-        arm: To(0.30, -0.62),
+        hip: Offset(-0.16, -0.16),
+        low: -54,
+        high: -62,
+        arm: To(0.25, -0.45),
         leg: _feet,
-        leg2: To(0.24, -0.18),
+        leg2: To(0.27, -0.13),
         toe2: -70,
       ),
       1,
     ),
   ],
-  props: [Bar(0.32, 0, 0.32, -0.72, thick: true)],
+  props: [Bar(0.29, 0, 0.29, -0.78, thick: true)],
   ms: 2400,
 );
 
+/// Squat del gambero: il ginocchio dietro scende a sfiorare il pavimento.
 const shrimp = Motion('shrimp', [
   (
     Pose(
       hip: Offset(0, -0.47),
+      low: -86,
       arm: _armsForward,
+      arm2: Ang(110, 100),
       leg: _feet,
-      leg2: To(-0.22, -0.30),
-      toe2: 170,
+      leg2: To(-0.22, -0.32),
+      toe2: 180,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(-0.12, -0.24),
-      low: -62,
-      high: -70,
+      hip: Offset(-0.10, -0.22),
+      low: -58,
+      high: -64,
       arm: _armsForward,
+      arm2: Ang(120, 105),
       leg: _feet,
-      leg2: To(-0.30, -0.06),
-      toe2: 175,
+      leg2: To(-0.36, -0.13),
+      toe2: 180,
     ),
     1,
   ),
 ], ms: 2400);
 
 const calfRaise = Motion('calfRaise', [
-  (Pose(hip: Offset(0, -0.47), arm: _armsDown, leg: _feet, toe: 8), 1),
-  (Pose(hip: Offset(0, -0.52), arm: _armsDown, leg: To(0, -0.08), toe: 58), 1),
+  (_stand, 1),
+  (Pose(hip: Offset(0, -0.53), arm: _armsDown, leg: To(0, -0.09), toe: 60), 1),
 ], ms: 1400);
 
 const wallSit = Motion(
   'wallSit',
   [
+    (Pose(hip: Offset(-0.14, -0.25), arm: Ang(60, 8), leg: To(0.08, -0.03)), 1),
     (
-      Pose(hip: Offset(-0.12, -0.25), arm: Ang(70, 30), leg: To(0.12, -0.03)),
-      1,
-    ),
-    (
-      Pose(hip: Offset(-0.12, -0.255), arm: Ang(72, 28), leg: To(0.12, -0.03)),
+      Pose(hip: Offset(-0.14, -0.255), arm: Ang(62, 6), leg: To(0.08, -0.03)),
       1,
     ),
   ],
-  props: [Bar(-0.18, 0, -0.18, -0.90, thick: true)],
+  props: [Bar(-0.20, 0, -0.20, -0.95, thick: true)],
   ms: 3000,
 );
 
+/// Nordic: in ginocchio con le caviglie bloccate, il corpo dritto cade in
+/// avanti piano e le mani frenano a terra.
 const nordic = Motion(
   'nordic',
   [
     (
       Pose(
-        hip: Offset(0.01, -0.25),
-        arm: Ang(80, 70),
-        leg: To(-0.21, -0.05),
+        hip: Offset(0.0, -0.25),
+        arm: To(0.10, -0.36),
+        leg: To(-0.21, -0.04),
         toe: 180,
       ),
       0.6,
     ),
     (
       Pose(
-        hip: Offset(0.15, -0.17),
-        low: -32,
-        arm: Ang(55, 40),
-        leg: To(-0.21, -0.05),
+        hip: Offset(0.151, -0.199),
+        low: -50,
+        arm: To(0.36, -0.30),
+        leg: To(-0.21, -0.04),
         toe: 180,
       ),
       2,
     ),
     (
       Pose(
-        hip: Offset(0.19, -0.13),
-        low: -18,
-        arm: To(0.62, -0.01),
-        leg: To(-0.21, -0.05),
+        hip: Offset(0.217, -0.105),
+        low: -20,
+        neck: -24,
+        arm: To(0.58, -0.01),
+        leg: To(-0.21, -0.04),
         toe: 180,
       ),
-      0.6,
+      0.5,
+    ),
+    (
+      Pose(
+        hip: Offset(0.151, -0.199),
+        low: -50,
+        arm: To(0.36, -0.30),
+        leg: To(-0.21, -0.04),
+        toe: 180,
+      ),
+      0.5,
     ),
   ],
   ms: 3600,
-  props: [Block(-0.30, -0.10, -0.16, -0.06)],
-  still: 1,
+  props: [Block(-0.30, -0.12, -0.14, -0.08)],
 );
 
-const gluteBridge = Motion(
-  'gluteBridge',
-  [
-    (
-      Pose(
-        hip: Offset(0, -0.06),
-        low: 3,
-        neck: 0,
-        arm: To(0.02, -0.02),
-        leg: To(-0.28, -0.03),
-      ),
-      1,
+// Sdraiati sulla schiena: testa a sinistra, piedi a destra.
+const gluteBridge = Motion('gluteBridge', [
+  (
+    Pose(
+      hip: Offset(0, -0.065),
+      low: 180,
+      neck: 192,
+      arm: Ang(-2, -2),
+      leg: To(0.28, -0.03),
     ),
-    (
-      Pose(
-        hip: Offset(0, -0.25),
-        low: 33.7,
-        neck: 10,
-        arm: To(0.02, -0.02),
-        leg: To(-0.28, -0.03),
-      ),
-      1,
+    1,
+  ),
+  (
+    Pose(
+      hip: Offset(-0.03, -0.21),
+      low: 146.3,
+      neck: 196,
+      arm: Ang(-2, -2),
+      leg: To(0.28, -0.03),
     ),
-  ],
-  legBend: 1,
-  armBend: -1,
-);
+    1,
+  ),
+]);
 
 // ---- Core ------------------------------------------------------------------
 
+/// Plank sugli avambracci.
 const plank = Motion('plank', [
   (
     Pose(
-      hip: Offset(0.43, -0.12),
-      low: -12.2,
-      neck: -14,
-      arm: To(0.86, -0.01),
+      hip: Offset(0.432, -0.114),
+      low: -11.1,
+      neck: -12,
+      arm: To(0.856, -0.02),
       leg: _feet,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0.43, -0.13),
-      low: -12.6,
-      neck: -16,
-      arm: To(0.86, -0.01),
+      hip: Offset(0.432, -0.125),
+      low: -10.2,
+      neck: -14,
+      arm: To(0.856, -0.02),
       leg: _feet,
     ),
     1,
   ),
 ], ms: 2800);
 
+/// Plank laterale vista di fronte: un braccio a terra, l'altro in alto.
 const sidePlank = Motion(
   'sidePlank',
   [
     (
       Pose(
-        hip: Offset(0.40, -0.17),
-        low: -14,
-        neck: -16,
-        arm: To(0.66, -0.01),
-        arm2: Ang(-95, -92),
+        hip: Offset(0.411, -0.187),
+        low: -20.9,
+        arm: To(0.682, -0.01),
+        arm2: Ang(-95, -95),
         leg: _feet,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.40, -0.10),
-        low: -6,
-        neck: -8,
-        arm: To(0.66, -0.01),
-        arm2: Ang(-95, -92),
+        hip: Offset(0.42, -0.13),
+        low: -14,
+        neck: -12,
+        arm: To(0.682, -0.01),
+        arm2: Ang(-95, -95),
         leg: _feet,
       ),
       1,
@@ -1088,108 +1076,101 @@ const sidePlank = Motion(
   ms: 2600,
 );
 
+const _plankHigh = Pose(
+  hip: Offset(0.411, -0.187),
+  low: -20.9,
+  neck: -22,
+  arm: To(0.69, -0.01),
+  arm2: To(0.67, -0.01),
+  leg: _feet,
+);
+
 const shoulderTaps = Motion('shoulderTaps', [
+  (_plankHigh, 0.5),
   (
     Pose(
-      hip: Offset(0.409, -0.193),
-      low: -21.7,
-      neck: -26,
-      arm: To(0.68, -0.01),
-      arm2: To(0.66, -0.01),
+      hip: Offset(0.411, -0.187),
+      low: -20.9,
+      neck: -22,
+      arm: To(0.66, -0.23),
+      arm2: To(0.67, -0.01),
       leg: _feet,
     ),
     0.5,
   ),
+  (_plankHigh, 0.5),
   (
     Pose(
-      hip: Offset(0.409, -0.193),
-      low: -21.7,
-      neck: -26,
-      arm: To(0.62, -0.30),
-      arm2: To(0.66, -0.01),
-      leg: _feet,
-    ),
-    0.5,
-  ),
-  (
-    Pose(
-      hip: Offset(0.409, -0.193),
-      low: -21.7,
-      neck: -26,
-      arm: To(0.68, -0.01),
-      arm2: To(0.66, -0.01),
-      leg: _feet,
-    ),
-    0.5,
-  ),
-  (
-    Pose(
-      hip: Offset(0.409, -0.193),
-      low: -21.7,
-      neck: -26,
-      arm: To(0.68, -0.01),
-      arm2: To(0.62, -0.30),
+      hip: Offset(0.411, -0.187),
+      low: -20.9,
+      neck: -22,
+      arm: To(0.69, -0.01),
+      arm2: To(0.66, -0.23),
       leg: _feet,
     ),
     0.5,
   ),
 ], ms: 1600);
 
+// Hollow body: sulla schiena, spalle e gambe staccate, braccia oltre la
+// testa.
 const hollow = Motion('hollow', [
   (
     Pose(
-      hip: Offset(0, -0.04),
-      low: -8,
-      high: -16,
-      neck: -14,
-      arm: Ang(-8, -6),
-      leg: To(-0.43, -0.12),
-      toe: 190,
+      hip: Offset(0, -0.05),
+      low: 192,
+      high: 200,
+      neck: 198,
+      arm: Ang(196, 196),
+      leg: To(0.43, -0.13),
+      toe: -10,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0, -0.04),
-      low: -4,
-      high: -10,
-      neck: -8,
-      arm: Ang(-4, -2),
-      leg: To(-0.43, -0.08),
-      toe: 185,
+      hip: Offset(0, -0.05),
+      low: 188,
+      high: 196,
+      neck: 194,
+      arm: Ang(192, 192),
+      leg: To(0.43, -0.10),
+      toe: -6,
     ),
     1,
   ),
 ], ms: 2400);
+
+const _parallettes = [
+  Bar(-0.06, -0.12, 0.12, -0.12, thick: true),
+  Bar(0.03, -0.12, 0.03, 0),
+];
 
 const lSit = Motion(
   'lSit',
   [
     (
       Pose(
-        hip: Offset(0, -0.12),
-        low: -92,
-        arm: To(0.02, -0.12),
-        leg: To(0.44, -0.05),
-        toe: -40,
+        hip: Offset(-0.04, -0.13),
+        low: -86,
+        arm: To(0.03, -0.135),
+        leg: To(0.395, -0.15),
+        toe: -30,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0, -0.13),
-        low: -94,
-        arm: To(0.02, -0.12),
-        leg: To(0.44, -0.15),
-        toe: -50,
+        hip: Offset(-0.04, -0.14),
+        low: -87,
+        arm: To(0.03, -0.135),
+        leg: To(0.39, -0.20),
+        toe: -40,
       ),
       1,
     ),
   ],
-  props: [
-    Bar(-0.06, -0.12, 0.10, -0.12, thick: true),
-    Bar(0.02, -0.12, 0.02, 0),
-  ],
+  props: _parallettes,
   ms: 2600,
 );
 
@@ -1198,117 +1179,120 @@ const tuckLSit = Motion(
   [
     (
       Pose(
-        hip: Offset(0, -0.12),
-        low: -92,
-        arm: To(0.02, -0.12),
-        leg: To(0.16, -0.10),
+        hip: Offset(-0.04, -0.13),
+        low: -86,
+        arm: To(0.03, -0.135),
+        leg: To(0.12, -0.10),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0, -0.13),
-        low: -94,
-        arm: To(0.02, -0.12),
-        leg: To(0.16, -0.18),
+        hip: Offset(-0.04, -0.14),
+        low: -87,
+        arm: To(0.03, -0.135),
+        leg: To(0.12, -0.16),
       ),
       1,
     ),
   ],
-  props: [
-    Bar(-0.06, -0.12, 0.10, -0.12, thick: true),
-    Bar(0.02, -0.12, 0.02, 0),
-  ],
+  props: _parallettes,
   ms: 2600,
 );
 
+/// Dragon flag: spalle sulla panca, mani dietro la testa che tengono il
+/// bordo, corpo dritto che scende piano.
 const dragonFlag = Motion(
   'dragonFlag',
   [
     (
       Pose(
-        hip: Offset(0.355, -0.311),
-        low: 60,
-        neck: 0,
-        arm: To(0.66, -0.06),
-        leg: To(0.135, -0.692),
-        toe: -120,
+        hip: Offset(-0.30, -0.42),
+        low: 110,
+        neck: 190,
+        arm: To(-0.57, -0.13),
+        leg: To(-0.15, -0.833),
+        toe: -110,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.22, -0.135),
-        low: 15,
-        neck: 0,
-        arm: To(0.66, -0.06),
-        leg: To(-0.20, -0.25),
-        toe: 165,
+        hip: Offset(-0.12, -0.225),
+        low: 165,
+        neck: 190,
+        arm: To(-0.57, -0.13),
+        leg: To(0.305, -0.339),
+        toe: -15,
       ),
-      1,
+      1.6,
     ),
   ],
-  props: [Block(0.18, -0.06, 0.78, 0)],
-  armBend: -1,
+  props: [Block(-0.62, -0.12, 0.10, 0)],
   ms: 3000,
 );
+
+const _tabletopArm = Ang(-90, -88);
+const _tabletopLeg = Ang(-95, -5);
 
 const deadBug = Motion('deadBug', [
   (
     Pose(
-      hip: Offset(0, -0.05),
-      low: 0,
-      arm: Ang(-90, -90),
-      arm2: Ang(-90, -90),
-      leg: Ang(-90, 180),
-      leg2: Ang(-90, 180),
+      hip: Offset(0, -0.065),
+      low: 180,
+      neck: 190,
+      arm: _tabletopArm,
+      leg: _tabletopLeg,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0, -0.05),
-      low: 0,
-      arm: Ang(-10, -8),
-      arm2: Ang(-90, -90),
-      leg: Ang(-90, 180),
-      leg2: To(-0.43, -0.09),
+      hip: Offset(0, -0.065),
+      low: 180,
+      neck: 190,
+      arm: Ang(-168, -168),
+      arm2: _tabletopArm,
+      leg: _tabletopLeg,
+      leg2: Ang(-12, -12),
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0, -0.05),
-      low: 0,
-      arm: Ang(-90, -90),
-      arm2: Ang(-90, -90),
-      leg: Ang(-90, 180),
-      leg2: Ang(-90, 180),
+      hip: Offset(0, -0.065),
+      low: 180,
+      neck: 190,
+      arm: _tabletopArm,
+      leg: _tabletopLeg,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0, -0.05),
-      low: 0,
-      arm: Ang(-90, -90),
-      arm2: Ang(-10, -8),
-      leg: To(-0.43, -0.09),
-      leg2: Ang(-90, 180),
+      hip: Offset(0, -0.065),
+      low: 180,
+      neck: 190,
+      arm: _tabletopArm,
+      arm2: Ang(-168, -168),
+      leg: Ang(-12, -12),
+      leg2: _tabletopLeg,
     ),
     1,
   ),
 ], ms: 3200);
 
-const _knee = To(-0.22, -0.05);
+// Quadrupedia: mani sotto le spalle, ginocchia sotto il bacino.
+const _hand4 = To(0.29, -0.01);
+const _knee = To(-0.21, -0.035);
 
 const birdDog = Motion('birdDog', [
   (
     Pose(
       hip: Offset(0, -0.27),
       low: 0,
-      neck: 10,
-      arm: To(0.30, -0.01),
+      neck: 20,
+      arm: _hand4,
       leg: _knee,
       toe: 180,
     ),
@@ -1316,13 +1300,13 @@ const birdDog = Motion('birdDog', [
   ),
   (
     Pose(
-      hip: Offset(0, -0.28),
+      hip: Offset(0, -0.27),
       low: 0,
       neck: 0,
-      arm: Ang(-4, -2),
-      arm2: To(0.30, -0.01),
+      arm: To(0.575, -0.30),
+      arm2: _hand4,
       leg: _knee,
-      leg2: To(-0.44, -0.30),
+      leg2: To(-0.43, -0.31),
       toe: 180,
       toe2: 180,
     ),
@@ -1332,8 +1316,8 @@ const birdDog = Motion('birdDog', [
     Pose(
       hip: Offset(0, -0.27),
       low: 0,
-      neck: 10,
-      arm: To(0.30, -0.01),
+      neck: 20,
+      arm: _hand4,
       leg: _knee,
       toe: 180,
     ),
@@ -1341,12 +1325,12 @@ const birdDog = Motion('birdDog', [
   ),
   (
     Pose(
-      hip: Offset(0, -0.28),
+      hip: Offset(0, -0.27),
       low: 0,
       neck: 0,
-      arm: To(0.30, -0.01),
-      arm2: Ang(-4, -2),
-      leg: To(-0.44, -0.30),
+      arm: _hand4,
+      arm2: To(0.575, -0.30),
+      leg: To(-0.43, -0.31),
       leg2: _knee,
       toe: 180,
       toe2: 180,
@@ -1358,23 +1342,23 @@ const birdDog = Motion('birdDog', [
 const superman = Motion('superman', [
   (
     Pose(
-      hip: Offset(0, -0.06),
+      hip: Offset(0, -0.055),
       low: 0,
-      neck: 2,
-      arm: To(0.58, -0.03),
-      leg: To(-0.44, -0.03),
-      toe: 175,
+      neck: -4,
+      arm: Ang(0, 0),
+      leg: To(-0.435, -0.04),
+      toe: 180,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0, -0.06),
-      low: -5,
-      high: -16,
-      neck: -18,
-      arm: Ang(-12, -12),
-      leg: To(-0.43, -0.15),
+      hip: Offset(0, -0.055),
+      low: -8,
+      high: -20,
+      neck: -26,
+      arm: Ang(-18, -18),
+      leg: To(-0.425, -0.14),
       toe: 170,
     ),
     1,
@@ -1389,20 +1373,20 @@ const jumpingJack = Motion(
     (
       Pose(
         hip: Offset(0, -0.47),
-        arm: Ang(82, 86),
-        arm2: Ang(98, 94),
-        leg: To(0.04, -0.03),
-        leg2: To(-0.04, -0.03),
+        arm: Ang(80, 86),
+        arm2: Ang(100, 94),
+        leg: To(0.045, -0.03),
+        leg2: To(-0.045, -0.03),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0, -0.46),
-        arm: Ang(-50, -62),
-        arm2: Ang(-130, -118),
-        leg: To(0.19, -0.03),
-        leg2: To(-0.19, -0.03),
+        hip: Offset(0, -0.42),
+        arm: Ang(-40, -55),
+        arm2: Ang(-140, -125),
+        leg: To(0.17, -0.03),
+        leg2: To(-0.17, -0.03),
       ),
       1,
     ),
@@ -1414,72 +1398,88 @@ const jumpingJack = Motion(
 const highKnees = Motion('highKnees', [
   (
     Pose(
-      hip: Offset(0, -0.50),
-      arm: Ang(120, 50),
-      arm2: Ang(55, -35),
-      leg: To(0.12, -0.30),
+      hip: Offset(0, -0.49),
+      low: -88,
+      arm: Ang(125, 45),
+      arm2: Ang(60, -30),
+      leg: To(0.12, -0.27),
       leg2: To(-0.02, -0.06),
+      toe: 60,
+      toe2: 40,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0, -0.50),
-      arm: Ang(55, -35),
-      arm2: Ang(120, 50),
+      hip: Offset(0, -0.49),
+      low: -88,
+      arm: Ang(60, -30),
+      arm2: Ang(125, 45),
       leg: To(-0.02, -0.06),
-      leg2: To(0.12, -0.30),
+      leg2: To(0.12, -0.27),
+      toe: 40,
+      toe2: 60,
     ),
     1,
   ),
 ], ms: 700);
 
+const _climbMid = Pose(
+  hip: Offset(0.38, -0.25),
+  low: -8.4,
+  neck: -14,
+  arm: To(0.69, -0.01),
+  leg: To(0.18, -0.10),
+);
+
 const mountainClimber = Motion('mountainClimber', [
   (
     Pose(
-      hip: Offset(0.38, -0.22),
-      low: -24,
-      neck: -28,
-      arm: To(0.66, -0.01),
-      leg: To(0.30, -0.08),
+      hip: Offset(0.40, -0.19),
+      low: -20.9,
+      neck: -22,
+      arm: To(0.69, -0.01),
+      leg: To(0.36, -0.07),
       leg2: _feet,
     ),
     1,
   ),
+  (_climbMid, 1),
   (
     Pose(
-      hip: Offset(0.38, -0.22),
-      low: -24,
-      neck: -28,
-      arm: To(0.66, -0.01),
+      hip: Offset(0.40, -0.19),
+      low: -20.9,
+      neck: -22,
+      arm: To(0.69, -0.01),
       leg: _feet,
-      leg2: To(0.30, -0.08),
+      leg2: To(0.36, -0.07),
     ),
     1,
   ),
-], ms: 800);
+  (_climbMid, 1),
+], ms: 1000);
 
 const skater = Motion(
   'skater',
   [
     (
       Pose(
-        hip: Offset(0.14, -0.40),
-        low: -80,
-        arm: Ang(160, 150),
-        arm2: Ang(150, 140),
+        hip: Offset(0.12, -0.38),
+        low: -78,
+        arm: Ang(150, 160),
+        arm2: Ang(160, 170),
         leg: To(0.18, -0.03),
-        leg2: To(0.0, -0.12),
+        leg2: To(0.06, -0.12),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(-0.14, -0.40),
-        low: -100,
-        arm: Ang(30, 40),
-        arm2: Ang(20, 30),
-        leg: To(0.0, -0.12),
+        hip: Offset(-0.12, -0.38),
+        low: -102,
+        arm: Ang(30, 20),
+        arm2: Ang(20, 10),
+        leg: To(-0.06, -0.12),
         leg2: To(-0.18, -0.03),
       ),
       1,
@@ -1489,64 +1489,65 @@ const skater = Motion(
   ms: 1300,
 );
 
+const _burpeeSquat = Pose(
+  hip: Offset(-0.10, -0.22),
+  low: -20,
+  high: 0,
+  neck: -6,
+  arm: To(0.24, -0.01),
+  leg: _feet,
+);
+
+// A metà del salto indietro (e in avanti) il bacino si alza.
+const _burpeeHop = Pose(
+  hip: Offset(-0.07, -0.26),
+  low: -2,
+  neck: -10,
+  arm: To(0.24, -0.01),
+  leg: To(-0.24, -0.09),
+);
+
 const burpee = Motion(
   'burpee',
   [
-    (Pose(hip: Offset(0, -0.47), arm: _armsDown, leg: _feet), 0.6),
+    (_stand, 0.6),
+    (_burpeeSquat, 0.3),
+    (_burpeeHop, 0.3),
     (
       Pose(
-        hip: Offset(-0.06, -0.20),
-        low: -40,
-        high: -30,
-        neck: -20,
-        arm: To(0.22, -0.01),
-        leg: _feet,
-      ),
-      0.5,
-    ),
-    (
-      Pose(
-        hip: Offset(-0.042, -0.195),
-        low: -22,
-        neck: -26,
-        arm: To(0.22, -0.01),
+        hip: Offset(-0.039, -0.187),
+        low: -20.9,
+        neck: -22,
+        arm: To(0.24, -0.01),
         leg: To(-0.45, -0.03),
       ),
-      0.6,
+      0.3,
     ),
+    (_burpeeHop, 0.3),
+    (_burpeeSquat, 0.5),
     (
       Pose(
-        hip: Offset(-0.06, -0.20),
-        low: -40,
-        high: -30,
-        neck: -20,
-        arm: To(0.22, -0.01),
-        leg: _feet,
-      ),
-      0.5,
-    ),
-    (
-      Pose(
-        hip: Offset(0, -0.62),
-        arm: Ang(-80, -86),
-        leg: To(0, -0.17),
-        toe: 70,
+        hip: Offset(0, -0.60),
+        arm: Ang(-62, -72),
+        leg: To(-0.01, -0.165),
+        toe: 75,
       ),
       0.6,
     ),
   ],
   ms: 2600,
-  still: 2,
+  still: 3,
 );
 
+/// Orso: a quattro zampe con le ginocchia staccate, passi alternati.
 const bearCrawl = Motion('bearCrawl', [
   (
     Pose(
-      hip: Offset(0, -0.31),
-      low: -4,
-      neck: 10,
-      arm: To(0.38, -0.01),
-      arm2: To(0.28, -0.01),
+      hip: Offset(0, -0.28),
+      low: 0,
+      neck: 20,
+      arm: To(0.34, -0.01),
+      arm2: To(0.24, -0.01),
       leg: To(-0.02, -0.03),
       leg2: To(-0.14, -0.03),
     ),
@@ -1554,11 +1555,11 @@ const bearCrawl = Motion('bearCrawl', [
   ),
   (
     Pose(
-      hip: Offset(0, -0.31),
-      low: -4,
-      neck: 10,
-      arm: To(0.28, -0.01),
-      arm2: To(0.38, -0.01),
+      hip: Offset(0, -0.28),
+      low: 0,
+      neck: 20,
+      arm: To(0.24, -0.01),
+      arm2: To(0.34, -0.01),
       leg: To(-0.14, -0.03),
       leg2: To(-0.02, -0.03),
     ),
@@ -1569,88 +1570,60 @@ const bearCrawl = Motion('bearCrawl', [
 // ---- Mobilità --------------------------------------------------------------
 
 const armCircles = Motion('armCircles', [
-  (
-    Pose(
-      hip: Offset(0, -0.47),
-      arm: Ang(90, 90),
-      leg: To(0, -0.03),
-      leg2: To(-0.02, -0.03),
-    ),
-    1,
-  ),
-  (
-    Pose(
-      hip: Offset(0, -0.47),
-      arm: Ang(0, 0),
-      leg: To(0, -0.03),
-      leg2: To(-0.02, -0.03),
-    ),
-    1,
-  ),
-  (
-    Pose(
-      hip: Offset(0, -0.47),
-      arm: Ang(-90, -90),
-      leg: To(0, -0.03),
-      leg2: To(-0.02, -0.03),
-    ),
-    1,
-  ),
-  (
-    Pose(
-      hip: Offset(0, -0.47),
-      arm: Ang(180, 180),
-      leg: To(0, -0.03),
-      leg2: To(-0.02, -0.03),
-    ),
-    1,
-  ),
+  (Pose(hip: Offset(0, -0.47), arm: Ang(90, 90), leg: _feet), 1),
+  (Pose(hip: Offset(0, -0.47), arm: Ang(0, 0), leg: _feet), 1),
+  (Pose(hip: Offset(0, -0.47), arm: Ang(-90, -90), leg: _feet), 1),
+  (Pose(hip: Offset(0, -0.47), arm: Ang(180, 180), leg: _feet), 1),
 ], ms: 2000);
+
+// Vista di fronte: mani sui fianchi, il bacino disegna un cerchio.
+const _handsOnHips = Ang(60, 128);
+const _handsOnHips2 = Ang(120, 52);
 
 const hipCircles = Motion(
   'hipCircles',
   [
     (
       Pose(
-        hip: Offset(0.05, -0.46),
-        low: -95,
-        arm: Ang(130, 30),
-        arm2: Ang(50, 150),
-        leg: To(0.12, -0.03),
-        leg2: To(-0.12, -0.03),
+        hip: Offset(0.04, -0.44),
+        low: -96,
+        arm: _handsOnHips,
+        arm2: _handsOnHips2,
+        leg: To(0.10, -0.03),
+        leg2: To(-0.10, -0.03),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0, -0.44),
+        hip: Offset(0, -0.425),
         low: -90,
-        arm: Ang(130, 30),
-        arm2: Ang(50, 150),
-        leg: To(0.12, -0.03),
-        leg2: To(-0.12, -0.03),
+        arm: _handsOnHips,
+        arm2: _handsOnHips2,
+        leg: To(0.10, -0.03),
+        leg2: To(-0.10, -0.03),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(-0.05, -0.46),
-        low: -85,
-        arm: Ang(130, 30),
-        arm2: Ang(50, 150),
-        leg: To(0.12, -0.03),
-        leg2: To(-0.12, -0.03),
+        hip: Offset(-0.04, -0.44),
+        low: -84,
+        arm: _handsOnHips,
+        arm2: _handsOnHips2,
+        leg: To(0.10, -0.03),
+        leg2: To(-0.10, -0.03),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0, -0.48),
+        hip: Offset(0, -0.455),
         low: -90,
-        arm: Ang(130, 30),
-        arm2: Ang(50, 150),
-        leg: To(0.12, -0.03),
-        leg2: To(-0.12, -0.03),
+        arm: _handsOnHips,
+        arm2: _handsOnHips2,
+        leg: To(0.10, -0.03),
+        leg2: To(-0.10, -0.03),
       ),
       1,
     ),
@@ -1665,8 +1638,8 @@ const thoracic = Motion(
     (
       Pose(
         hip: Offset(0, -0.47),
-        arm: Ang(-20, -20),
-        arm2: Ang(160, 160),
+        arm: Ang(-25, -25),
+        arm2: Ang(165, 165),
         leg: To(0.10, -0.03),
         leg2: To(-0.10, -0.03),
       ),
@@ -1675,8 +1648,8 @@ const thoracic = Motion(
     (
       Pose(
         hip: Offset(0, -0.47),
-        arm: Ang(20, 20),
-        arm2: Ang(200, 200),
+        arm: Ang(15, 15),
+        arm2: Ang(205, 205),
         leg: To(0.10, -0.03),
         leg2: To(-0.10, -0.03),
       ),
@@ -1691,10 +1664,10 @@ const catCow = Motion('catCow', [
   (
     Pose(
       hip: Offset(0, -0.27),
-      low: -24,
-      high: 22,
-      neck: 70,
-      arm: To(0.30, -0.01),
+      low: -26,
+      high: 26,
+      neck: 75,
+      arm: _hand4,
       leg: _knee,
       toe: 180,
     ),
@@ -1703,10 +1676,10 @@ const catCow = Motion('catCow', [
   (
     Pose(
       hip: Offset(0, -0.27),
-      low: 16,
-      high: -16,
+      low: 14,
+      high: -14,
       neck: -40,
-      arm: To(0.30, -0.01),
+      arm: _hand4,
       leg: _knee,
       toe: 180,
     ),
@@ -1714,204 +1687,187 @@ const catCow = Motion('catCow', [
   ),
 ], ms: 3200);
 
-const childPose = Motion(
-  'childPose',
-  [
-    (
-      Pose(
-        hip: Offset(-0.02, -0.10),
-        low: -26,
-        high: 6,
-        neck: 48,
-        arm: To(0.58, -0.01),
-        leg: Ang(15, 175),
-        toe: 180,
-      ),
-      1,
+const childPose = Motion('childPose', [
+  (
+    Pose(
+      hip: Offset(-0.06, -0.09),
+      low: -15,
+      high: 15,
+      neck: 12,
+      arm: To(0.49, -0.02),
+      leg: Ang(15, 178),
+      toe: 180,
     ),
-    (
-      Pose(
-        hip: Offset(-0.02, -0.11),
-        low: -32,
-        high: 2,
-        neck: 44,
-        arm: To(0.56, -0.01),
-        leg: Ang(15, 175),
-        toe: 180,
-      ),
-      1,
+    1,
+  ),
+  (
+    Pose(
+      hip: Offset(-0.06, -0.10),
+      low: -20,
+      high: 12,
+      neck: 12,
+      arm: To(0.49, -0.02),
+      leg: Ang(17, 178),
+      toe: 180,
     ),
-  ],
-  ms: 3600,
-  armBend: -1,
-);
+    1,
+  ),
+], ms: 3600);
 
 const cobra = Motion('cobra', [
   (
     Pose(
       hip: Offset(0, -0.05),
       low: 0,
-      neck: 4,
-      arm: To(0.30, -0.01),
-      leg: To(-0.44, -0.03),
-      toe: 175,
+      neck: -4,
+      arm: To(0.24, -0.01),
+      leg: To(-0.435, -0.04),
+      toe: 180,
     ),
     1,
   ),
   (
     Pose(
       hip: Offset(0, -0.05),
-      low: -16,
-      high: -52,
-      neck: -64,
-      arm: To(0.30, -0.01),
-      leg: To(-0.44, -0.03),
-      toe: 175,
+      low: -20,
+      high: -55,
+      neck: -65,
+      arm: To(0.24, -0.01),
+      leg: To(-0.435, -0.04),
+      toe: 180,
     ),
     1,
   ),
 ], ms: 3200);
 
-const pikeStretch = Motion(
-  'pikeStretch',
-  [
-    (
-      Pose(
-        hip: Offset(0, -0.06),
-        low: -78,
-        high: -86,
-        arm: Ang(-50, -60),
-        leg: To(0.44, -0.03),
-        toe: -70,
-      ),
-      1,
+/// Seduti a gambe tese, il busto si piega sulle gambe e le mani vanno ai
+/// piedi.
+const pikeStretch = Motion('pikeStretch', [
+  (
+    Pose(
+      hip: Offset(0, -0.065),
+      low: -86,
+      arm: To(0.14, -0.10),
+      leg: To(0.435, -0.04),
+      toe: -80,
     ),
-    (
-      Pose(
-        hip: Offset(0, -0.06),
-        low: -30,
-        high: -8,
-        neck: 6,
-        arm: To(0.44, -0.06),
-        leg: To(0.44, -0.03),
-        toe: -70,
-      ),
-      1,
+    1,
+  ),
+  (
+    Pose(
+      hip: Offset(0, -0.065),
+      low: -30,
+      high: -12,
+      neck: 2,
+      arm: To(0.47, -0.08),
+      leg: To(0.435, -0.04),
+      toe: -80,
     ),
-  ],
-  ms: 3600,
-  armBend: -1,
-);
+    1,
+  ),
+], ms: 3600);
 
+/// Couch stretch: ginocchio dietro a terra contro il muro, tibia sul muro.
 const couchStretch = Motion(
   'couchStretch',
   [
     (
       Pose(
-        hip: Offset(0, -0.25),
-        arm: Ang(110, 60),
+        hip: Offset(-0.06, -0.18),
+        low: -90,
+        arm: To(0.14, -0.26),
         leg: To(0.24, -0.03),
-        leg2: To(-0.20, -0.26),
-        toe2: -90,
+        leg2: To(-0.25, -0.25),
+        toe2: -100,
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.05, -0.23),
+        hip: Offset(-0.03, -0.17),
         low: -96,
-        arm: Ang(110, 60),
+        arm: To(0.14, -0.26),
         leg: To(0.24, -0.03),
-        leg2: To(-0.20, -0.26),
-        toe2: -90,
+        leg2: To(-0.25, -0.25),
+        toe2: -100,
       ),
       1,
     ),
   ],
-  props: [Bar(-0.27, 0, -0.27, -0.45, thick: true)],
+  props: [Bar(-0.30, 0, -0.30, -0.55, thick: true)],
   ms: 3200,
 );
 
 // ---- Esercizi aggiunti nella 1.2 -------------------------------------------
 
 /// Crunch: sdraiato, ginocchia piegate, le spalle si staccano da terra.
-const crunch = Motion(
-  'crunch',
-  [
-    (
-      Pose(
-        hip: Offset(0, -0.06),
-        low: 2,
-        neck: 0,
-        arm: Ang(-170, -175),
-        leg: To(-0.28, -0.03),
-      ),
-      1,
+const crunch = Motion('crunch', [
+  (
+    Pose(
+      hip: Offset(0, -0.065),
+      low: 180,
+      neck: 192,
+      arm: To(-0.36, -0.13),
+      leg: To(0.28, -0.03),
     ),
-    (
-      Pose(
-        hip: Offset(0, -0.06),
-        low: -8,
-        high: -38,
-        neck: -45,
-        arm: Ang(-165, -170),
-        leg: To(-0.28, -0.03),
-      ),
-      1,
+    1,
+  ),
+  (
+    Pose(
+      hip: Offset(0, -0.065),
+      low: 186,
+      high: 214,
+      neck: 222,
+      arm: To(-0.31, -0.25),
+      leg: To(0.28, -0.03),
     ),
-  ],
-  legBend: 1,
-  ms: 1800,
-);
+    1,
+  ),
+]);
 
 /// Crunch inverso: le ginocchia vengono al petto e il bacino si stacca.
-const reverseCrunch = Motion(
-  'reverseCrunch',
-  [
-    (
-      Pose(
-        hip: Offset(0, -0.06),
-        low: 2,
-        neck: 0,
-        arm: To(0.30, -0.02),
-        leg: Ang(-95, 180),
-      ),
-      1,
+const reverseCrunch = Motion('reverseCrunch', [
+  (
+    Pose(
+      hip: Offset(0, -0.065),
+      low: 180,
+      neck: 192,
+      arm: Ang(-2, -2),
+      leg: Ang(-95, -5),
     ),
-    (
-      Pose(
-        hip: Offset(0, -0.11),
-        low: 9,
-        neck: 4,
-        arm: To(0.30, -0.02),
-        leg: Ang(-55, -140),
-      ),
-      1,
+    1,
+  ),
+  (
+    Pose(
+      hip: Offset(0.0, -0.11),
+      low: 170,
+      neck: 190,
+      arm: Ang(4, 0),
+      leg: Ang(-140, -40),
     ),
-  ],
-  armBend: -1,
-  ms: 1800,
-);
+    1,
+  ),
+]);
 
-/// Torsioni russe, viste di fronte: busto inclinato, mani da un lato
-/// all'altro.
+/// Torsioni russe: seduti a V con i piedi staccati, le mani vanno da un
+/// fianco all'altro.
 const russianTwist = Motion('russianTwist', [
   (
     Pose(
-      hip: Offset(0, -0.06),
-      low: -120,
-      neck: -105,
-      arm: To(0.10, -0.20),
+      hip: Offset(0, -0.065),
+      low: -125,
+      neck: -110,
+      arm: To(0.04, -0.30),
       leg: To(0.30, -0.14),
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0, -0.06),
+      hip: Offset(0, -0.065),
       low: -122,
-      neck: -110,
-      arm: To(-0.01, -0.06),
+      neck: -112,
+      arm: To(-0.04, -0.08),
       leg: To(0.30, -0.14),
     ),
     1,
@@ -1924,46 +1880,46 @@ const declinePushUp = Motion(
   [
     (
       Pose(
-        hip: Offset(0.44, -0.31),
-        low: 0,
-        neck: -2,
-        arm: To(0.72, -0.01),
+        hip: Offset(0.44, -0.298),
+        low: 1.6,
+        neck: -4,
+        arm: To(0.74, -0.01),
         leg: To(0, -0.31),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.425, -0.196),
-        low: 15,
-        neck: 18,
-        arm: To(0.72, -0.01),
+        hip: Offset(0.423, -0.189),
+        low: 15.9,
+        neck: 6,
+        arm: To(0.74, -0.01),
         leg: To(0, -0.31),
       ),
       1,
     ),
   ],
-  props: [Block(-0.16, -0.28, 0.08, 0)],
+  props: [Block(-0.14, -0.28, 0.10, 0)],
 );
 
-/// Pseudo-planche: spalle oltre le mani.
+/// Pseudo-planche: spalle ben oltre le mani, che restano vicino ai fianchi.
 const pseudoPlanche = Motion('pseudoPlanche', [
   (
     Pose(
-      hip: Offset(0.40, -0.17),
-      low: -16,
+      hip: Offset(0.42, -0.17),
+      low: -18,
       neck: -20,
-      arm: To(0.56, -0.01),
+      arm: To(0.58, -0.01),
       leg: _feet,
     ),
     1,
   ),
   (
     Pose(
-      hip: Offset(0.43, -0.07),
-      low: -4,
-      neck: -8,
-      arm: To(0.56, -0.01),
+      hip: Offset(0.437, -0.084),
+      low: -7.1,
+      neck: -10,
+      arm: To(0.58, -0.01),
       leg: _feet,
     ),
     1,
@@ -1971,35 +1927,30 @@ const pseudoPlanche = Motion('pseudoPlanche', [
 ]);
 
 /// Ponte su una gamba: l'altra gamba resta tesa in alto.
-const singleLegBridge = Motion(
-  'singleLegBridge',
-  [
-    (
-      Pose(
-        hip: Offset(0, -0.06),
-        low: 3,
-        neck: 0,
-        arm: To(0.02, -0.02),
-        leg: To(-0.28, -0.03),
-        leg2: Ang(-150, -150),
-      ),
-      1,
+const singleLegBridge = Motion('singleLegBridge', [
+  (
+    Pose(
+      hip: Offset(0, -0.065),
+      low: 180,
+      neck: 192,
+      arm: Ang(-2, -2),
+      leg: To(0.28, -0.03),
+      leg2: Ang(-50, -50),
     ),
-    (
-      Pose(
-        hip: Offset(0, -0.25),
-        low: 33.7,
-        neck: 10,
-        arm: To(0.02, -0.02),
-        leg: To(-0.28, -0.03),
-        leg2: Ang(-146, -146),
-      ),
-      1,
+    1,
+  ),
+  (
+    Pose(
+      hip: Offset(-0.03, -0.21),
+      low: 146.3,
+      neck: 196,
+      arm: Ang(-2, -2),
+      leg: To(0.28, -0.03),
+      leg2: Ang(-34, -34),
     ),
-  ],
-  legBend: 1,
-  armBend: -1,
-);
+    1,
+  ),
+]);
 
 /// Affondo laterale, visto di fronte: il peso va da una parte.
 const lateralLunge = Motion(
@@ -2007,22 +1958,22 @@ const lateralLunge = Motion(
   [
     (
       Pose(
-        hip: Offset(0, -0.44),
-        arm: Ang(82, 86),
-        arm2: Ang(98, 94),
-        leg: To(0.26, -0.03),
-        leg2: To(-0.26, -0.03),
+        hip: Offset(0, -0.40),
+        arm: Ang(80, 86),
+        arm2: Ang(100, 94),
+        leg: To(0.22, -0.03),
+        leg2: To(-0.22, -0.03),
       ),
       1,
     ),
     (
       Pose(
-        hip: Offset(0.14, -0.27),
-        low: -84,
-        arm: Ang(78, 70),
-        arm2: Ang(102, 110),
-        leg: To(0.26, -0.03),
-        leg2: To(-0.26, -0.03),
+        hip: Offset(0.12, -0.25),
+        low: -82,
+        arm: Ang(70, 40),
+        arm2: Ang(110, 140),
+        leg: To(0.22, -0.03),
+        leg2: To(-0.22, -0.03),
       ),
       1,
     ),
@@ -2035,13 +1986,14 @@ const lateralLunge = Motion(
 const hangingKneeRaise = Motion(
   'hangingKneeRaise',
   [
-    (Pose(hip: Offset(0, -0.42), arm: _hands, leg: To(-0.02, 0.02)), 1),
+    (_hang, 1),
     (
       Pose(
-        hip: Offset(0.02, -0.45),
+        hip: Offset(0.0, -0.45),
         low: -96,
         arm: _hands,
-        leg: To(0.20, -0.24),
+        leg: To(0.12, -0.36),
+        toe: 60,
       ),
       1,
     ),
@@ -2051,25 +2003,20 @@ const hangingKneeRaise = Motion(
 );
 
 /// Allungamento in piedi: busto giù verso i piedi.
-const standingFold = Motion(
-  'standingFold',
-  [
-    (Pose(hip: Offset(0, -0.47), arm: _armsDown, leg: _feet), 1),
-    (
-      Pose(
-        hip: Offset(-0.08, -0.46),
-        low: 25,
-        high: 50,
-        neck: 68,
-        arm: To(0.10, -0.14),
-        leg: _feet,
-      ),
-      1.4,
+const standingFold = Motion('standingFold', [
+  (_stand, 1),
+  (
+    Pose(
+      hip: Offset(-0.07, -0.465),
+      low: 60,
+      high: 80,
+      neck: 95,
+      arm: To(0.12, -0.08),
+      leg: _feet,
     ),
-  ],
-  ms: 3600,
-  still: 1,
-);
+    1.4,
+  ),
+], ms: 3600);
 
 /// Polsi: in quadrupedia, il peso va avanti e indietro.
 const wristPrep = Motion('wristPrep', [
@@ -2077,8 +2024,8 @@ const wristPrep = Motion('wristPrep', [
     Pose(
       hip: Offset(-0.03, -0.27),
       low: -2,
-      neck: 10,
-      arm: To(0.30, -0.01),
+      neck: 20,
+      arm: _hand4,
       leg: _knee,
       toe: 180,
     ),
@@ -2086,11 +2033,11 @@ const wristPrep = Motion('wristPrep', [
   ),
   (
     Pose(
-      hip: Offset(0.07, -0.25),
-      low: 6,
-      neck: 16,
-      arm: To(0.30, -0.01),
-      leg: To(-0.16, -0.05),
+      hip: Offset(0.06, -0.25),
+      low: 4,
+      neck: 24,
+      arm: _hand4,
+      leg: _knee,
       toe: 180,
     ),
     1,
@@ -2099,9 +2046,9 @@ const wristPrep = Motion('wristPrep', [
 
 /// Corda immaginaria: piccoli salti sulle punte, polsi che girano.
 const jumpRope = Motion('jumpRope', [
-  (Pose(hip: Offset(0, -0.47), arm: Ang(100, 30), leg: _feet, toe: 30), 1),
+  (Pose(hip: Offset(0, -0.48), arm: Ang(100, 20), leg: _feet, toe: 30), 1),
   (
-    Pose(hip: Offset(0, -0.53), arm: Ang(100, 10), leg: To(0, -0.09), toe: 60),
+    Pose(hip: Offset(0, -0.54), arm: Ang(98, 5), leg: To(0, -0.095), toe: 65),
     1,
   ),
 ], ms: 600);
@@ -2128,6 +2075,7 @@ const allMotions = [
   cobra, pikeStretch, couchStretch, crunch, reverseCrunch, russianTwist,
   declinePushUp, pseudoPlanche, singleLegBridge, lateralLunge,
   hangingKneeRaise, standingFold, wristPrep, jumpRope,
+  ...moreMotions,
 ];
 
 const _byId = <String, Motion>{
@@ -2224,6 +2172,7 @@ const _byId = <String, Motion>{
 /// Il movimento da mostrare per un esercizio.
 Motion motionFor(Exercise e) =>
     _byId[e.id] ??
+    motionNamed(e.figure) ??
     switch (e.chain) {
       ChainId.push => pushUp,
       ChainId.pull => pullUp,
@@ -2234,8 +2183,16 @@ Motion motionFor(Exercise e) =>
       ChainId.skills => handstand,
       ChainId.cardio => jumpingJack,
       ChainId.mobility => catCow,
-      ChainId.accessory => squat,
+      ChainId.accessory || ChainId.arms || ChainId.grip => squat,
+      ChainId.posture => superman,
+      ChainId.plyo => squatJump,
+      ChainId.skillDrills => handstand,
     };
+
+final _byName = {for (final m in allMotions) m.name: m};
+
+/// Il movimento con quel nome (campo `figure` degli esercizi).
+Motion? motionNamed(String? name) => name == null ? null : _byName[name];
 
 /// Solo per i test: gli esercizi con un movimento dedicato.
 Iterable<String> get motionIds => _byId.keys;

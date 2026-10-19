@@ -21,7 +21,10 @@ import '../food/data/ai_food.dart';
 import '../profile/data/profile_repository.dart';
 import '../profile/domain/athlete_profile.dart';
 import 'data/today_plan.dart';
+import 'domain/focus_workout.dart';
 import 'domain/workout_plan.dart';
+import 'presentation/focus_cards.dart';
+import 'presentation/my_program_screen.dart';
 
 /// Scheda "Allenati": la settimana, timer, coach e percorsi.
 class WorkoutScreen extends ConsumerWidget {
@@ -45,8 +48,12 @@ class WorkoutScreen extends ConsumerWidget {
             profile: profile,
             positions: positions,
             weekday: today.weekday,
+            seed: weekSeed(today),
           ),
         ],
+        const MyProgramCard(),
+        const _SkillsCard(),
+        const FocusChooserCard(),
         const _TimerCard(),
         const _CoachCard(),
         // Una sola sezione per le varianti: ogni percorso mostra quella
@@ -63,11 +70,13 @@ class _WeekCard extends StatelessWidget {
     required this.profile,
     required this.positions,
     required this.weekday,
+    required this.seed,
   });
 
   final AthleteProfile profile;
   final Map<ChainId, int> positions;
   final int weekday;
+  final int seed;
 
   @override
   Widget build(BuildContext context) {
@@ -105,6 +114,7 @@ class _WeekCard extends StatelessWidget {
                 positions: positions,
                 difficulty: profile.difficulty,
                 place: profile.place,
+                seed: seed,
               ),
               isToday: day == weekday,
             ),
@@ -191,6 +201,53 @@ class _TemplateRow extends StatelessWidget {
 }
 
 /// Accesso al timer a intervalli e alle routine guidate.
+class _SkillsCard extends StatelessWidget {
+  const _SkillsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return PressScale(
+      child: DisciplineCard(
+        color: scheme.primaryContainer,
+        onTap: () => context.push(Routes.skills),
+        child: Row(
+          spacing: 14,
+          children: [
+            Icon(
+              Icons.sports_gymnastics,
+              size: 36,
+              color: scheme.onPrimaryContainer,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Impara le skill',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: scheme.onPrimaryContainer,
+                    ),
+                  ),
+                  Text(
+                    'Handstand, planche, front lever, muscle-up e altre: '
+                    'le tappe e il metodo per arrivarci',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: scheme.onPrimaryContainer),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _TimerCard extends StatelessWidget {
   const _TimerCard();
 

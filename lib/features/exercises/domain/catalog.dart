@@ -4,6 +4,23 @@
 
 import 'catalog_more.dart';
 import 'exercise.dart';
+import 'extra_lower_core.dart';
+import 'extra_skills_conditioning.dart';
+import 'extra_upper_pull.dart';
+import 'extra_upper_push.dart';
+
+/// Gli esercizi aggiunti per famiglia (solo famiglie senza progressione).
+const _extra = [
+  ...upperPushExtra,
+  ...upperPullExtra,
+  ...lowerCoreExtra,
+  ...skillsConditioningExtra,
+];
+
+List<Exercise> _extraOf(ChainId chain) => [
+  for (final e in _extra)
+    if (e.chain == chain) e,
+];
 
 /// Catalogo degli esercizi a corpo libero, organizzato in catene.
 abstract final class Catalog {
@@ -15,9 +32,14 @@ abstract final class Catalog {
     ChainId.core: [..._core, ...coreMore],
     ChainId.shoulders: [..._shoulders, ...shouldersMore],
     ChainId.skills: [..._skills, ...skillsMore],
-    ChainId.cardio: cardio,
-    ChainId.mobility: mobility,
-    ChainId.accessory: accessory,
+    ChainId.cardio: [...cardio, ..._extraOf(ChainId.cardio)],
+    ChainId.mobility: [...mobility, ..._extraOf(ChainId.mobility)],
+    ChainId.accessory: [...accessory, ..._extraOf(ChainId.accessory)],
+    ChainId.arms: _extraOf(ChainId.arms),
+    ChainId.grip: _extraOf(ChainId.grip),
+    ChainId.posture: _extraOf(ChainId.posture),
+    ChainId.plyo: _extraOf(ChainId.plyo),
+    ChainId.skillDrills: _extraOf(ChainId.skillDrills),
   };
 
   static final Map<String, Exercise> _byId = {

@@ -46,10 +46,24 @@ fotocamera su un push-up vero e regolare le soglie se serve
 - **Allenamenti a corpo libero** organizzati in catene di progressione
   (es. push-up al muro → inclinati → classici → diamante → arciere → a un
   braccio), adattati a difficoltà, esperienza e a un test iniziale.
-- **71 esercizi**: 7 percorsi a tappe (push-up, trazioni, dip, gambe, core,
-  spalle, skill fino a verticale e front lever) più cardio, mobilità e
-  complementari per variare. Ogni esercizio ha una figurina animata che
+- **388 esercizi**: 7 percorsi a tappe (push-up, trazioni, dip, gambe, core,
+  spalle, skill fino a verticale e front lever) più braccia, avambracci e
+  presa, schiena e postura, esplosività, propedeutici delle skill, cardio,
+  mobilità e complementari. Ogni esercizio ha una figurina animata che
   mostra il movimento.
+- **Allenamento completo ogni giorno**: la scheda del giorno con i percorsi
+  e i complementari, più tre **allenamenti specifici** da 10 minuti per le
+  zone che la scheda allena meno (core, obliqui, bicipiti, tricipiti,
+  avambracci, petto, schiena, spalle, gambe, glutei, polpacci, fiato,
+  mobilità). Si possono anche scegliere a mano.
+- **Impara le skill**: le regole per imparare le skill del calisthenics e,
+  per 13 skill (handstand, HSPU, planche, front e back lever, muscle-up,
+  L-sit e V-sit, bandiera, pistol, push-up e trazione a un braccio, elbow
+  lever, dragon flag), requisiti, tappe, metodo, consigli ed errori comuni,
+  con un allenamento guidato dalla tappa a cui sei arrivato.
+- **La mia scheda (AI, facoltativa)**: hai già una tua scheda? Scrivila o
+  incollala: l'AI la trasforma negli esercizi dell'app e la segui con
+  l'allenamento guidato, giorno per giorno. Anche il coach la conosce.
 - **Timer a intervalli**: Tabata, EMOM, AMRAP e libero, con anello, colori per
   fase e bip negli ultimi 3 secondi. Routine guidate di riscaldamento,
   defaticamento e allenamento rapido da 10 minuti.

@@ -250,4 +250,76 @@ void main() {
     expect(find.byType(HomemadeScreen), findsOneWidget);
     await disposeDiscipline(tester, db);
   });
+
+  testWidgets('la mia scheda: l\'AI la legge e un giorno parte', (
+    tester,
+  ) async {
+    final db = memoryDatabase();
+    await tester.runAsync(() => seedProfile(db));
+    const reply =
+        '{"name":"La mia PPL","days":[{"name":"Giorno A","weekday":null,'
+        '"exercises":[{"id":"push_classic","sets":3,"target":12,"rest":60,'
+        '"original":"Piegamenti"},{"id":"inventato","sets":3,"target":5,'
+        '"rest":60}]}],"notes":["Panca sostituita con push-up."]}';
+    final service = (await tester.runAsync(
+      () => _service(AiProvider.groq, _fake(reply), keep: true),
+    ))!;
+    await pumpDiscipline(
+      tester,
+      db,
+      extra: [aiFoodServiceProvider.overrideWithValue(service)],
+    );
+    final context = tester.element(find.byType(DisciplineNavigationBar));
+    unawaited(GoRouter.of(context).push(Routes.programs));
+    await settle(tester);
+
+    await tester.enterText(find.byType(TextField), 'Piegamenti 3x12');
+    await tester.tap(find.text('Trasforma con l\'AI'));
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+    await settle(tester);
+    expect(find.text('La mia PPL'), findsOneWidget);
+    expect(find.text('Push-up classici'), findsOneWidget);
+    expect(find.textContaining('Panca sostituita'), findsOneWidget);
+    expect(find.textContaining('nella scheda: Piegamenti'), findsOneWidget);
+
+    await tester.ensureVisible(find.textContaining('Inizia'));
+    await tester.tap(find.textContaining('Inizia'));
+    for (var i = 0; i < 4; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Giorno A'), findsWidgets);
+    expect(find.text('12'), findsWidgets);
+    await disposeDiscipline(tester, db);
+  });
+
+  testWidgets('skill e allenamenti specifici si aprono', (tester) async {
+    // Le figurine animate non lascerebbero mai finire settle.
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    final db = memoryDatabase();
+    await tester.runAsync(() => seedProfile(db));
+    await pumpDiscipline(tester, db);
+    final context = tester.element(find.byType(DisciplineNavigationBar));
+    unawaited(GoRouter.of(context).push(Routes.skills));
+    await settle(tester);
+    expect(find.text('Le regole d\'oro'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Planche'), 300);
+    await tester.ensureVisible(find.text('Planche'));
+    await settle(tester);
+    await tester.tap(find.text('Planche'));
+    await settle(tester);
+    expect(find.text('Le tappe'), findsOneWidget);
+    await tester.scrollUntilVisible(find.textContaining('Allenati su'), 300);
+    expect(find.textContaining('Allenati su'), findsOneWidget);
+
+    unawaited(GoRouter.of(context).push(Routes.focus('biceps')));
+    await settle(tester);
+    expect(find.text('Bicipiti'), findsWidgets);
+    expect(find.textContaining('Inizia ·'), findsOneWidget);
+    await disposeDiscipline(tester, db);
+  });
 }

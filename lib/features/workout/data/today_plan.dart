@@ -10,6 +10,7 @@ import '../../exercises/domain/exercise.dart';
 import '../../profile/data/profile_repository.dart';
 import '../../rewards/data/rewards_state.dart';
 import '../../streak/domain/streak.dart';
+import '../domain/focus_workout.dart';
 import '../domain/workout_plan.dart';
 import 'workout_repository.dart';
 
@@ -46,6 +47,7 @@ final todayWorkoutProvider = Provider<({WorkoutPlan plan, bool scheduled})?>((
       positions: positions,
       difficulty: profile.difficulty,
       place: profile.place,
+      seed: weekSeed(today),
     ),
     scheduled: template != null,
   );

@@ -18,6 +18,7 @@ import '../../profile/domain/athlete_profile.dart';
 import '../../rewards/data/rewards_repository.dart';
 import '../../rewards/domain/rewards.dart';
 import '../../streak/domain/streak.dart';
+import '../domain/focus_workout.dart';
 import '../domain/workout_plan.dart';
 import 'session_feedback.dart';
 import 'today_plan.dart';
@@ -81,9 +82,15 @@ class SessionState {
     this.finished = false,
     this.suggestions = const [],
     this.pointsEarned = 0,
+    this.title,
   });
 
   final WorkoutTemplate template;
+
+  /// Nome della sessione se non è una scheda dell'app (es. "Giorno A").
+  final String? title;
+
+  String get label => title ?? template.label;
   final Difficulty difficulty;
   final List<SessionExercise> exercises;
 
@@ -149,6 +156,7 @@ class SessionState {
     int? pointsEarned,
   }) => SessionState(
     template: template,
+    title: title,
     difficulty: difficulty,
     exercises: exercises ?? this.exercises,
     index: index ?? this.index,
@@ -168,6 +176,17 @@ class SessionState {
 /// Valore iniziale proposto per una serie: il massimo dell'intervallo per
 /// le ripetizioni (si abbassa se serve), zero per le tenute.
 int defaultValue(Exercise e) => e.measure == Measure.reps ? e.range.max : 0;
+
+/// Valore iniziale per un esercizio della sessione: quello della tua scheda
+/// se c'è (e non hai cambiato variante), altrimenti [defaultValue].
+int startValue(SessionExercise e) {
+  final target = e.planned.target;
+  return target != null &&
+          e.exercise.measure == Measure.reps &&
+          e.exercise.id == e.planned.exercise.id
+      ? target
+      : defaultValue(e.exercise);
+}
 
 class SessionController extends Notifier<SessionState?> {
   Timer? _ticker;
@@ -234,29 +253,40 @@ class SessionController extends Notifier<SessionState?> {
   }
 
   /// Avvia una sessione della scheda indicata con le varianti attuali.
-  Future<void> start(WorkoutTemplate template) async {
+  ///
+  /// Con [custom] si fa quella sessione (es. un giorno della tua scheda).
+  Future<void> start(
+    WorkoutTemplate template, {
+    WorkoutPlan? custom,
+    String? title,
+  }) async {
     final repo = ref.read(profileRepositoryProvider);
     final profile = await repo.loadProfile();
     final chains = await repo.loadChains();
     // Uscito dalla schermata mentre si caricava: niente sessione.
     if (!ref.mounted || profile == null || chains.isEmpty) return;
-    final plan = buildWorkout(
-      template: template,
-      positions: {for (final e in chains.entries) e.key: e.value.position},
-      difficulty: profile.difficulty,
-      place: profile.place,
-    );
+    if (custom != null && custom.exercises.isEmpty) return;
+    final plan =
+        custom ??
+        buildWorkout(
+          template: template,
+          positions: {for (final e in chains.entries) e.key: e.value.position},
+          difficulty: profile.difficulty,
+          place: profile.place,
+          seed: weekSeed(LocalDate.fromDateTime(_now())),
+        );
     final now = _now();
-    final first = plan.exercises.first.exercise;
+    final exercises = [
+      for (final p in plan.exercises)
+        SessionExercise(planned: p, exercise: p.exercise),
+    ];
     state = SessionState(
       template: template,
+      title: title,
       difficulty: profile.difficulty,
-      exercises: [
-        for (final p in plan.exercises)
-          SessionExercise(planned: p, exercise: p.exercise),
-      ],
+      exercises: exercises,
       index: 0,
-      value: defaultValue(first),
+      value: startValue(exercises.first),
       startedAt: now,
       elapsed: 0,
     );
@@ -436,7 +466,7 @@ class SessionController extends Notifier<SessionState?> {
       index: index,
       value: index == s.index && next.measure == Measure.reps
           ? value
-          : defaultValue(next),
+          : startValue(exercises[index]),
       mode: TimerMode.rest,
       timerTotal: rest,
       timerSeconds: rest,
@@ -461,7 +491,7 @@ class SessionController extends Notifier<SessionState?> {
     }
     state = s.copyWith(
       index: index,
-      value: defaultValue(s.exercises[index].exercise),
+      value: startValue(s.exercises[index]),
       mode: TimerMode.ready,
       timerSeconds: 0,
     );

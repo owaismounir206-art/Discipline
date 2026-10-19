@@ -14,7 +14,9 @@ import '../food/data/food_state.dart';
 import '../food/domain/homemade.dart';
 import '../food/domain/nutrition.dart';
 import '../profile/data/profile_repository.dart';
+import '../workout/data/program_state.dart';
 import '../workout/data/today_plan.dart';
+import '../workout/domain/my_program.dart';
 
 /// Quello che l'AI sa di te: solo i numeri utili, mai il nome.
 final aiContextProvider = Provider<String>((ref) {
@@ -24,7 +26,15 @@ final aiContextProvider = Provider<String>((ref) {
   final eaten = ref.watch(todayTotalsProvider);
   final positions = ref.watch(positionsProvider);
   final streak = ref.watch(streakProvider).current;
+  final program = ref.watch(myProgramProvider).value;
   return describeAthlete(
+    program: program == null
+        ? null
+        : [
+            for (final d in program.days)
+              '${d.name}: ${d.exercises.map((e) => '${e.exercise!.name} '
+                  '${e.sets}x${e.target}').join(', ')}',
+          ].join('; '),
     level: profile?.difficulty.label,
     days: profile?.trainingDays.length,
     place: profile?.place.label,
@@ -50,6 +60,7 @@ String describeAthlete({
   NutritionTargets? targets,
   Nutrients eaten = Nutrients.zero,
   int streak = 0,
+  String? program,
 }) {
   final lines = [
     if (level != null)
@@ -68,6 +79,7 @@ String describeAthlete({
         '${eaten.protein.round()} g, carboidrati ${eaten.carbs.round()} g, '
         'grassi ${eaten.fat.round()} g.',
     'Serie di giorni rispettati: $streak.',
+    if (program != null) 'Segue la sua scheda personale: $program.',
   ];
   return lines.join('\n');
 }
@@ -200,4 +212,49 @@ AiRecipe parseAiRecipe(String reply) {
     ],
     why: why is String && why.trim().isNotEmpty ? why.trim() : null,
   );
+}
+
+const _programPrompt = '''
+Sei il coach di Discipline, un'app di calisthenics. L'utente ti descrive la
+sua scheda di allenamento (a parole o incollata). Trasformala negli esercizi
+dell'app, usando SOLO gli id dell'elenco qui sotto: per ogni esercizio scegli
+quello uguale o il più simile (stesso movimento e difficoltà). Se un esercizio
+usa pesi o macchine, scegli l'alternativa a corpo libero più vicina e
+spiegalo in "notes". Se la scheda non dice serie, ripetizioni o recupero,
+scegli valori sensati per il livello dell'utente. "target" sono le
+ripetizioni, oppure i secondi se l'esercizio è a tempo (s). "weekday" è il
+giorno della settimana (1 = lunedì ... 7 = domenica) solo se la scheda lo
+dice, altrimenti null. "original" è il nome usato dall'utente se diverso.
+Rispondi SOLO con JSON valido in questo formato:
+{"name":"Scheda push pull legs","days":[{"name":"Giorno A - Spinta",
+"weekday":1,"exercises":[{"id":"push_classic","sets":4,"target":10,
+"rest":90,"original":"Piegamenti"}]}],"notes":["Panca piana sostituita
+con push-up rialzati."]}
+
+Dati dell'utente:
+\$context
+
+Esercizi dell'app (id: nome):
+\$catalog
+''';
+
+/// "La mia scheda": l'AI trasforma la tua scheda negli esercizi dell'app.
+Future<MyProgram> readProgram(
+  AiFoodService ai,
+  String context,
+  String text,
+) async {
+  final reply = await ai.complete(
+    system: _programPrompt
+        .replaceFirst(r'$context', context)
+        .replaceFirst(r'$catalog', catalogForAi()),
+    json: true,
+    temperature: 0.2,
+    history: [ChatMessage.user(text.trim())],
+  );
+  try {
+    return parseProgram(reply, text.trim());
+  } on FormatException catch (e) {
+    throw AiException(e.message);
+  }
 }

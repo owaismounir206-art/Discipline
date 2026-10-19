@@ -8,6 +8,7 @@ import '../../exercises/domain/catalog.dart';
 import '../../exercises/domain/equipment.dart';
 import '../../exercises/domain/exercise.dart';
 import '../../profile/domain/athlete_profile.dart';
+import 'focus_workout.dart';
 
 /// Tipo di scheda.
 enum WorkoutTemplate {
@@ -102,9 +103,14 @@ class PlannedExercise {
     required this.sets,
     required this.restSeconds,
     this.isVolume = false,
+    this.target,
   });
 
   final Exercise exercise;
+
+  /// Ripetizioni o secondi da fare (dalla tua scheda); se manca si propone
+  /// il massimo dell'intervallo dell'esercizio.
+  final int? target;
   final int sets;
   final int restSeconds;
 
@@ -117,6 +123,7 @@ class PlannedExercise {
     sets: sets,
     restSeconds: restSeconds,
     isVolume: isVolume,
+    target: target,
   );
 }
 
@@ -169,10 +176,26 @@ int restSecondsFor(Difficulty d) => switch (d) {
   Difficulty.advanced || Difficulty.elite => 90,
 };
 
+/// Esercizi dei percorsi (la parte che fa salire di livello).
 int _exerciseCount(Difficulty d) => switch (d) {
   Difficulty.beginner => 3,
   Difficulty.intermediate || Difficulty.advanced => 5,
   Difficulty.elite => 6,
+};
+
+/// Complementari aggiunti dopo i percorsi, per un allenamento completo.
+int _extraCount(Difficulty d) => switch (d) {
+  Difficulty.beginner => 2,
+  Difficulty.intermediate => 3,
+  Difficulty.advanced || Difficulty.elite => 3,
+};
+
+/// Le zone dei complementari di ogni scheda.
+const _extraFocus = <WorkoutTemplate, List<Focus>>{
+  WorkoutTemplate.push: [Focus.chest, Focus.triceps, Focus.shoulders],
+  WorkoutTemplate.pull: [Focus.back, Focus.biceps, Focus.forearms],
+  WorkoutTemplate.legsCore: [Focus.glutes, Focus.legs, Focus.obliques],
+  WorkoutTemplate.fullBody: [Focus.legs, Focus.back, Focus.core],
 };
 
 int _warmupSeconds(Difficulty d) => d == Difficulty.beginner ? 180 : 300;
@@ -184,6 +207,7 @@ WorkoutPlan buildWorkout({
   required Map<ChainId, int> positions,
   required Difficulty difficulty,
   TrainingPlace place = TrainingPlace.park,
+  int seed = 0,
 }) {
   final rest = restSecondsFor(difficulty);
   final chosen = <({Exercise exercise, bool volume})>[];
@@ -209,21 +233,50 @@ WorkoutPlan buildWorkout({
     0,
     (sum, c) => sum + c.exercise.estimatedSetSeconds + rest,
   );
-  final sets = perRound == 0 ? 0 : (budget / perRound).floor().clamp(2, 5);
+  final sets = perRound == 0 ? 0 : (budget / perRound).floor().clamp(3, 5);
 
+  final exercises = [
+    for (final c in chosen)
+      PlannedExercise(
+        exercise: c.exercise,
+        sets: sets,
+        restSeconds: c.exercise.chain == ChainId.skills ? rest + 30 : rest,
+        isVolume: c.volume,
+      ),
+  ];
+
+  // Complementari: un esercizio per zona, che cambia ogni settimana.
+  final zones = _extraFocus[template]!;
+  for (var i = 0; i < _extraCount(difficulty); i++) {
+    final focus = zones[i % zones.length];
+    final pool = focusPool(
+      focus,
+      maxLevel: maxLevelFor(difficulty),
+      place: place,
+    ).where((e) => !exercises.any((p) => p.exercise.id == e.id)).toList();
+    if (pool.isEmpty) continue;
+    exercises.add(
+      PlannedExercise(
+        exercise: pool[(seed + i) % pool.length.clamp(1, 6)],
+        sets: 3,
+        restSeconds: (rest * 2 / 3).round(),
+        isVolume: true,
+      ),
+    );
+  }
+
+  final seconds =
+      _warmupSeconds(difficulty) +
+      exercises.fold(
+        0,
+        (sum, e) =>
+            sum + e.sets * (e.exercise.estimatedSetSeconds + e.restSeconds),
+      );
   return WorkoutPlan(
     template: template,
     place: place,
-    minutes: difficulty.sessionMinutes,
-    exercises: [
-      for (final c in chosen)
-        PlannedExercise(
-          exercise: c.exercise,
-          sets: sets,
-          restSeconds: c.exercise.chain == ChainId.skills ? rest + 30 : rest,
-          isVolume: c.volume,
-        ),
-    ],
+    minutes: ((seconds / 60 / 5).round() * 5).clamp(10, 120),
+    exercises: exercises,
   );
 }
 

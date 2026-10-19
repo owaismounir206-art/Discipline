@@ -41,7 +41,9 @@ enum TrainingPlace {
 }
 
 /// Attrezzi che servono per un esercizio.
-Set<Equipment> needs(Exercise e) => switch (e.id) {
+Set<Equipment> needs(Exercise e) => {...e.equipment, ..._legacyNeeds(e)};
+
+Set<Equipment> _legacyNeeds(Exercise e) => switch (e.id) {
   'pull_band' => {Equipment.bar, Equipment.bands},
   'pull_australian' => {Equipment.bar},
   'dip_negative' || 'dip_parallel' => {Equipment.parallels},

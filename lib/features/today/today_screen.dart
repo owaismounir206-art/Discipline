@@ -22,6 +22,8 @@ import '../rewards/data/rewards_repository.dart';
 import '../rewards/data/rewards_state.dart';
 import '../streak/domain/streak.dart';
 import '../workout/data/today_plan.dart';
+import '../workout/presentation/focus_cards.dart';
+import '../workout/presentation/my_program_screen.dart';
 import '../workout/presentation/place_sheet.dart';
 import '../workout/presentation/suggestions_card.dart';
 
@@ -84,7 +86,9 @@ class TodayScreen extends ConsumerWidget {
           const _FreezeHint(),
           const _LevelCard(),
           const SuggestionsCard(),
+          const MyProgramCard(todayOnly: true),
           const _TodayWorkoutCard(),
+          const TodayFocusCard(),
         ] else
           const Center(
             child: Padding(

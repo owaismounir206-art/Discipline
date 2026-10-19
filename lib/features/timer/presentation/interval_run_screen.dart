@@ -99,7 +99,7 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
           pointsTimer,
           at: now,
           ref: 'timer-${LocalDate.fromDateTime(now).key}',
-          note: widget.config.kind.label,
+          note: widget.config.label,
         );
     if (mounted) setState(() => _awarded = ok);
   }
@@ -169,7 +169,7 @@ class _IntervalRunScreenState extends ConsumerState<IntervalRunScreen>
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
         ),
-        title: Text(widget.config.kind.label),
+        title: Text(widget.config.label),
       ),
       body: SafeArea(
         top: false,

@@ -162,49 +162,64 @@ class ExerciseDetailScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 14),
-            SectionTitle(
-              'La catena',
-              trailing: ChainDots(
-                length: chain.length,
-                position: exercise.position,
+            if (exercise.chain.isProgression) ...[
+              SectionTitle(
+                'La catena',
+                trailing: ChainDots(
+                  length: chain.length,
+                  position: exercise.position,
+                ),
               ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Lavora nell\'intervallo ${exercise.targetLabel}. Quando chiudi '
-              'tutte le serie al massimo per 2 sessioni di fila, Discipline ti '
-              'propone la variante successiva.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
+              const SizedBox(height: 6),
+              Text(
+                'Lavora nell\'intervallo ${exercise.targetLabel}. Quando chiudi '
+                'tutte le serie al massimo per 2 sessioni di fila, Discipline ti '
+                'propone la variante successiva.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              spacing: 8,
-              children: [
-                if (exercise.position > 0)
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.arrow_back),
-                      label: const Text('Più facile'),
-                      onPressed: () => context.pushReplacement(
-                        Routes.exercise(chain[exercise.position - 1].id),
+              const SizedBox(height: 8),
+              Row(
+                spacing: 8,
+                children: [
+                  if (exercise.position > 0)
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.arrow_back),
+                        label: const Text('Più facile'),
+                        onPressed: () => context.pushReplacement(
+                          Routes.exercise(chain[exercise.position - 1].id),
+                        ),
                       ),
                     ),
-                  ),
-                if (exercise.position < chain.length - 1)
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.arrow_forward),
-                      label: const Text('Più difficile'),
-                      onPressed: () => context.pushReplacement(
-                        Routes.exercise(chain[exercise.position + 1].id),
+                  if (exercise.position < chain.length - 1)
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.arrow_forward),
+                        label: const Text('Più difficile'),
+                        onPressed: () => context.pushReplacement(
+                          Routes.exercise(chain[exercise.position + 1].id),
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            if (progress != null && !isCurrent) ...[
+                ],
+              ),
+            ] else ...[
+              SectionTitle(exercise.chain.label),
+              Text(
+                'Allena: ${exercise.focusAreas.map((f) => f.label.toLowerCase()).join(', ')}. '
+                'Difficoltà ${exercise.difficulty} su 4. Lavora '
+                'nell\'intervallo ${exercise.targetLabel}: quando è facile, '
+                'scegli un esercizio più difficile della stessa famiglia.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+            if (exercise.chain.isProgression &&
+                progress != null &&
+                !isCurrent) ...[
               const SizedBox(height: 12),
               FilledButton(
                 onPressed: () async {
@@ -228,7 +243,7 @@ class ExerciseDetailScreen extends ConsumerWidget {
                 },
                 child: const Text('Usa questa variante'),
               ),
-            ] else if (isCurrent) ...[
+            ] else if (exercise.chain.isProgression && isCurrent) ...[
               const SizedBox(height: 12),
               Center(
                 child: Chip(

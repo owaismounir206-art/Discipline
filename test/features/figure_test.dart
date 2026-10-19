@@ -12,7 +12,7 @@ void main() {
     final ids = motionIds.toSet();
     final missing = [
       for (final e in Catalog.all)
-        if (!ids.contains(e.id)) e.id,
+        if (!ids.contains(e.id) && motionNamed(e.figure) == null) e.id,
     ];
     expect(missing, isEmpty);
     // E nessun movimento si riferisce a un esercizio che non esiste.

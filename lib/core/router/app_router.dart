@@ -111,11 +111,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       _page(Routes.settings, (_) => const SettingsScreen()),
       _page(
         Routes.session,
-        (state) => SessionScreen(
-          template: state.extra is WorkoutTemplate
-              ? state.extra! as WorkoutTemplate
-              : WorkoutTemplate.fullBody,
-        ),
+        (state) => switch (state.extra) {
+          final WorkoutTemplate t => SessionScreen(template: t),
+          (final String title, final WorkoutPlan plan) => SessionScreen(
+            template: plan.template,
+            custom: plan,
+            title: title,
+          ),
+          _ => const SessionScreen(template: WorkoutTemplate.fullBody),
+        },
       ),
       _page(
         '/esercizio/:id',

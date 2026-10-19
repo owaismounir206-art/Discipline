@@ -36,7 +36,11 @@ void main() {
         for (var i = 0; i < list.length; i++) {
           final e = list[i];
           expect(e.chain, chain, reason: e.id);
-          expect(e.position, i, reason: e.id);
+          // Nelle famiglie senza percorso la posizione serve solo a
+          // ordinare: conta solo nei percorsi a tappe.
+          if (chain.isProgression) expect(e.position, i, reason: e.id);
+          expect(e.difficulty, inInclusiveRange(1, 4), reason: e.id);
+          expect(e.focusAreas, isNotEmpty, reason: e.id);
           expect(e.instructions, isNotEmpty, reason: e.id);
           expect(e.mistakes, isNotEmpty, reason: e.id);
           expect(e.range.min, greaterThan(0), reason: e.id);

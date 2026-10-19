@@ -37,6 +37,13 @@ abstract final class Routes {
 
   static String exercise(String id) => '/esercizio/$id';
 
+  /// Allenamento specifico di una zona (nome dell'enum `Focus`).
+  static String focus(String zone) => '/specifico/$zone';
+
+  static const skills = '/skill';
+  static String skill(String id) => '/skill/$id';
+  static const programs = '/scheda';
+
   /// Percorso a tappe di una catena (nome dell'enum).
   static String path(String chain) => '/percorso/$chain';
 
