@@ -225,8 +225,9 @@ List<IntervalStep> buildSteps(IntervalConfig c) {
       routine(_coolDown, 45, 0);
     case IntervalKind.circuit:
       for (var r = 1; r <= c.rounds; r++) {
-        if (r > 1)
+        if (r > 1) {
           steps.add(IntervalStep(Phase.rest, 30, 'Pronto per il giro $r'));
+        }
         routine(c.ids, c.work, c.rest);
       }
     case IntervalKind.quick:

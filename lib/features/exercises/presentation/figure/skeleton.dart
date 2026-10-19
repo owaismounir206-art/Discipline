@@ -430,7 +430,7 @@ class Motion {
       }
     }
     if (floor) add(Rect.fromLTRB(r.left, 0, r.right, 0));
-    return r.inflate(0.05);
+    return r.inflate(0.04);
   }
 
   static final _bounds = <String, Rect>{};
@@ -438,8 +438,8 @@ class Motion {
 
 /// Riquadro minimo (in altezze): le pose raccolte (crow, L-sit) non
 /// diventano giganti rispetto a quelle in piedi o in verticale.
-const _minWidth = 1.2;
-const _minHeight = 0.8;
+const _minWidth = 1.3;
+const _minHeight = 0.85;
 
 /// Spessore degli arti rispetto all'altezza della figurina.
 const _limb = 0.045;
@@ -518,20 +518,27 @@ void paintFigure(
     return path;
   }
 
-  void limbPath(List<Offset> points, Color c) {
-    canvas.drawPath(chain(points), stroke(c, limb));
+  void hand(Offset o) =>
+      canvas.drawCircle(px(o), limb * 0.62, Paint()..color = color);
+
+  canvas.saveLayer(Offset.zero & size, Paint());
+
+  // Lato lontano più chiaro (di lato), uguale (di fronte). Disegnato in un
+  // livello a parte, così dove gamba e braccio lontani si incrociano il
+  // colore non si somma.
+  if (!motion.front) {
+    canvas.saveLayer(
+      Offset.zero & size,
+      Paint()..color = const Color(0xFF000000).withValues(alpha: 0.42),
+    );
   }
+  canvas
+    ..drawPath(chain([j.hip, j.knee2, j.ankle2, j.tip2]), stroke(color, limb))
+    ..drawPath(chain([j.shoulder, j.elbow2, j.hand2]), stroke(color, limb));
+  hand(j.hand2);
+  if (!motion.front) canvas.restore();
 
-  void hand(Offset o, Color c) =>
-      canvas.drawCircle(px(o), limb * 0.62, Paint()..color = c);
-
-  // Lato lontano più chiaro (di lato), uguale (di fronte).
-  final far = motion.front ? color : color.withValues(alpha: color.a * 0.45);
-  limbPath([j.hip, j.knee2, j.ankle2, j.tip2], far);
-  limbPath([j.shoulder, j.elbow2, j.hand2], far);
-  hand(j.hand2, far);
-
-  // Schiena morbida: curva che passa per metà schiena.
+  // Schiena morbida: curva che passa per metà schiena, più spessa degli arti.
   final control = j.mid * 2 - (j.hip + j.shoulder) / 2;
   final spine = Path()
     ..moveTo(px(j.hip).dx, px(j.hip).dy)
@@ -541,16 +548,22 @@ void paintFigure(
       px(j.shoulder).dx,
       px(j.shoulder).dy,
     );
-  canvas.drawPath(spine, stroke(color, limb * 1.45));
+  canvas
+    ..drawPath(spine, stroke(color, limb * 1.45))
+    ..drawPath(chain([j.hip, j.knee, j.ankle, j.tip]), stroke(color, limb))
+    ..drawPath(chain([j.shoulder, j.elbow, j.hand]), stroke(color, limb));
+  hand(j.hand);
 
-  limbPath([j.hip, j.knee, j.ankle, j.tip], color);
-  limbPath([j.shoulder, j.elbow, j.hand], color);
-  hand(j.hand, color);
+  // La testa per ultima, staccata da un sottile spazio vuoto: un braccio
+  // alzato o appeso le passa dietro e resta leggibile.
+  final radius = math.max(Bones.head * scale, limb * 1.4);
   canvas
     ..drawCircle(
       px(j.head),
-      math.max(Bones.head * scale, limb * 1.4),
-      Paint()..color = color,
+      radius + math.max(0.8, limb * 0.4),
+      Paint()..blendMode = BlendMode.clear,
     )
+    ..drawCircle(px(j.head), radius, Paint()..color = color)
+    ..restore()
     ..restore();
 }

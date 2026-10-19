@@ -36,7 +36,7 @@ void main() {
   });
 
   test('il circuito diventa passi del timer', () {
-    final c = IntervalConfig.circuit(const [
+    const c = IntervalConfig.circuit([
       'acc_glute_bridge',
       'acc_crunch',
     ], title: 'Prova');
@@ -63,6 +63,9 @@ Ecco: {"name":"PPL","days":[{"name":"Spinta","weekday":1,"exercises":[
     expect(MyProgram.fromJson(p.toJson()).days.single.name, 'Spinta');
     expect(() => parseProgram('niente', ''), throwsFormatException);
     expect(catalogForAi(), contains('push_classic: Push-up classici'));
-    expect(Catalog.all.where((e) => e.chain == ChainId.skillDrills), isNotEmpty);
+    expect(
+      Catalog.all.where((e) => e.chain == ChainId.skillDrills),
+      isNotEmpty,
+    );
   });
 }

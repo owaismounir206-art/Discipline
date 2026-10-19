@@ -4,7 +4,9 @@
 
 // Anteprima di tutte le figurine in più momenti del ciclo:
 //   flutter test --update-goldens tool/figures_test.dart
-// Le immagini finiscono in build/figure/ (non nel repository).
+// Le immagini finiscono in build/figure/ (non nel repository): pagina-N.png
+// con 5 momenti del ciclo per movimento, piccole-scuro.png con tutte le
+// figurine piccole su fondo scuro.
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,10 +15,11 @@ import 'package:discipline/features/exercises/presentation/exercise_figure.dart'
 import 'package:discipline/features/exercises/presentation/figure/skeleton.dart';
 
 class _Still extends CustomPainter {
-  _Still(this.motion, this.t);
+  _Still(this.motion, this.t, {this.dark = false});
 
   final Motion motion;
   final double t;
+  final bool dark;
 
   @override
   void paint(Canvas canvas, Size size) => paintFigure(
@@ -24,8 +27,8 @@ class _Still extends CustomPainter {
     size,
     motion,
     t,
-    color: const Color(0xFF8F4C38),
-    ground: const Color(0xFFB0A09A),
+    color: dark ? const Color(0xFFFFB59E) : const Color(0xFF8F4C38),
+    ground: dark ? const Color(0xFF53433F) : const Color(0xFFB0A09A),
   );
 
   @override
@@ -95,4 +98,44 @@ void main() {
       );
     });
   }
+
+  testWidgets('figure piccole su fondo scuro', (tester) async {
+    const cols = 10;
+    const cell = Size(96, 66);
+    final rows = (debugAllMotions.length / cols).ceil();
+    tester.view
+      ..physicalSize = Size(cell.width * cols, cell.height * rows)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: ColoredBox(
+          color: const Color(0xFF1A1110),
+          child: Wrap(
+            children: [
+              for (final m in debugAllMotions)
+                SizedBox.fromSize(
+                  size: cell,
+                  child: Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: ColoredBox(
+                      color: const Color(0xFF271D1B),
+                      child: CustomPaint(
+                        painter: _Still(m, 0.3, dark: true),
+                        size: Size.infinite,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    await expectLater(
+      find.byType(MaterialApp),
+      matchesGoldenFile('../build/figure/piccole-scuro.png'),
+    );
+  });
 }
