@@ -1,9 +1,10 @@
-## Discipline 1.4
+## Discipline 1.5
 
-- 12 stili grafici da scegliere in Impostazioni: Discipline, Liquid Glass, Fluent, Cartoon, Svizzero, Neo-brutale, Game Boy, Clay, Cyber HUD, Sport, Zen e Kanji
-- Ogni stile ha i suoi colori, caratteri, forme, animazioni e sfondo
-- Testi più leggibili e schermate che non si rompono con i caratteri grandi
-- Corretti molti bug: tempo del recupero contato due volte, progressi persi cambiando profilo, schermate bloccate senza internet, sfide settimanali ripetitive
+- 300 esercizi nuovi (388 in tutto): braccia, avambracci e presa, schiena e postura, esplosività e propedeutici delle skill
+- Allenamento del giorno più completo, più tre allenamenti specifici da 10 minuti (core, bicipiti, avambracci e altre zone)
+- Impara le skill: regole, tappe e metodo per handstand, planche, front lever, muscle-up e altre 9 skill
+- La mia scheda: scrivi la tua scheda e l'AI la trasforma in allenamenti guidati
+- Figurine degli esercizi ridisegnate e corrette
 
 Su Android si installa sopra la versione precedente senza perdere i dati.
 

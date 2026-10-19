@@ -16,7 +16,7 @@ import '../data/providers.dart';
 
 /// Versione dell'app: deve essere uguale a quella di pubspec.yaml (c'è un
 /// test che lo controlla).
-const appVersion = '1.4.0';
+const appVersion = '1.5.0';
 
 const repoUrl = 'https://github.com/owaismounir206-art/Discipline';
 const _latestApi =
